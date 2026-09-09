@@ -1,0 +1,97 @@
+{
+  "_comment": "Squelette d'une saison Valorant. Les dates sont au format MM-DD et sont resolues sur l'annee de la saison. Les montants sont en dollars (convertis en cents par le moteur). Modifier ce fichier suffit a changer toute la structure competitive.",
+
+  "stage_presets": {
+    "vct_season": [
+      { "name": "Kickoff — poules", "format": "groups", "start": "01-14", "end": "02-11", "best_of": 3, "groups": 2, "qualifiers": 8 },
+      { "name": "Kickoff — playoffs", "format": "double_elim", "start": "02-18", "end": "03-04", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
+      { "name": "Stage 1 — saison régulière", "format": "round_robin", "start": "04-08", "end": "05-20", "best_of": 3, "qualifiers": 8 },
+      { "name": "Stage 1 — playoffs", "format": "double_elim", "start": "05-27", "end": "06-10", "best_of": 3, "final_best_of": 5, "qualifiers": 3 },
+      { "name": "Stage 2 — saison régulière", "format": "round_robin", "start": "07-08", "end": "08-19", "best_of": 3, "qualifiers": 8 },
+      { "name": "Stage 2 — playoffs", "format": "double_elim", "start": "08-26", "end": "09-09", "best_of": 3, "final_best_of": 5, "qualifiers": 3 }
+    ],
+    "challengers_season": [
+      { "name": "Split 1 — saison régulière", "format": "round_robin", "start": "02-04", "end": "03-25", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 1 — playoffs", "format": "double_elim", "start": "04-01", "end": "04-15", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
+      { "name": "Split 2 — saison régulière", "format": "round_robin", "start": "05-13", "end": "06-24", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 2 — playoffs", "format": "double_elim", "start": "07-01", "end": "07-15", "best_of": 3, "final_best_of": 5, "qualifiers": 2 }
+    ]
+  },
+
+  "leagues": [
+    { "key": "vct_emea",      "name": "VCT EMEA",      "short_name": "VCT EMEA", "region": "EMEA",      "tier": 1, "teams": 12, "prestige": 8300, "stipend_yearly": 600000, "rev_share_yearly": 380000, "prize_pool": 550000, "stages_preset": "vct_season", "lan": true },
+    { "key": "vct_americas",  "name": "VCT Americas",  "short_name": "VCT AMER", "region": "AMERICAS",  "tier": 1, "teams": 12, "prestige": 8400, "stipend_yearly": 600000, "rev_share_yearly": 400000, "prize_pool": 550000, "stages_preset": "vct_season", "lan": true },
+    { "key": "vct_pacific",   "name": "VCT Pacific",   "short_name": "VCT PAC",  "region": "PACIFIC",   "tier": 1, "teams": 12, "prestige": 8100, "stipend_yearly": 600000, "rev_share_yearly": 340000, "prize_pool": 550000, "stages_preset": "vct_season", "lan": true },
+    { "key": "vct_china",     "name": "VCT China",     "short_name": "VCT CN",   "region": "CHINA",     "tier": 1, "teams": 12, "prestige": 8000, "stipend_yearly": 600000, "rev_share_yearly": 420000, "prize_pool": 550000, "stages_preset": "vct_season", "lan": true },
+
+    { "key": "chal_emea",     "name": "Challengers EMEA",     "short_name": "CHAL EMEA", "region": "EMEA",     "tier": 2, "teams": 12, "prestige": 3600, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
+    { "key": "chal_americas", "name": "Challengers Americas", "short_name": "CHAL AMER", "region": "AMERICAS", "tier": 2, "teams": 12, "prestige": 3500, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
+    { "key": "chal_pacific",  "name": "Challengers Pacific",  "short_name": "CHAL PAC",  "region": "PACIFIC",  "tier": 2, "teams": 12, "prestige": 3400, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
+    { "key": "chal_china",    "name": "Challengers China",    "short_name": "CHAL CN",   "region": "CHINA",    "tier": 2, "teams": 12, "prestige": 3400, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false }
+  ],
+
+  "internationals": [
+    {
+      "key": "masters_1", "name": "Masters Reykjavík", "short_name": "Masters 1", "region": "WORLD",
+      "tier": 1, "kind": "international", "prestige": 9200, "prize_pool": 1000000, "lan": true,
+      "travel_cost_per_team": 45000,
+      "prize_distribution": [30, 20, 14, 11, 8, 7, 5.5, 4.5],
+      "stages": [
+        { "name": "Masters — bracket", "format": "double_elim", "start": "03-18", "end": "03-31", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "vct_emea", "stage": 1, "places": 2 },
+        { "comp_key": "vct_americas", "stage": 1, "places": 2 },
+        { "comp_key": "vct_pacific", "stage": 1, "places": 2 },
+        { "comp_key": "vct_china", "stage": 1, "places": 2 }
+      ]
+    },
+    {
+      "key": "masters_2", "name": "Masters Berlin", "short_name": "Masters 2", "region": "WORLD",
+      "tier": 1, "kind": "international", "prestige": 9300, "prize_pool": 1000000, "lan": true,
+      "travel_cost_per_team": 45000,
+      "prize_distribution": [30, 20, 14, 11, 8, 7, 5.5, 4.5],
+      "stages": [
+        { "name": "Masters — bracket", "format": "double_elim", "start": "06-24", "end": "07-06", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "vct_emea", "stage": 3, "places": 2 },
+        { "comp_key": "vct_americas", "stage": 3, "places": 2 },
+        { "comp_key": "vct_pacific", "stage": 3, "places": 2 },
+        { "comp_key": "vct_china", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "champions", "name": "VALORANT Champions", "short_name": "Champions", "region": "WORLD",
+      "tier": 1, "kind": "international", "prestige": 10000, "prize_pool": 2250000, "lan": true,
+      "travel_cost_per_team": 60000,
+      "prize_distribution": [30, 18, 12, 9, 7, 6, 5, 4, 3, 2.4, 1.8, 1.3, 0.5],
+      "stages": [
+        { "name": "Champions — poules", "format": "groups", "start": "09-22", "end": "10-02", "best_of": 3, "groups": 2, "qualifiers": 8 },
+        { "name": "Champions — playoffs", "format": "double_elim", "start": "10-06", "end": "10-18", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "vct_emea", "stage": 5, "places": 3 },
+        { "comp_key": "vct_americas", "stage": 5, "places": 3 },
+        { "comp_key": "vct_pacific", "stage": 5, "places": 3 },
+        { "comp_key": "vct_china", "stage": 5, "places": 3 }
+      ]
+    },
+    {
+      "key": "ascension_emea", "name": "Ascension EMEA", "short_name": "Ascension", "region": "EMEA",
+      "tier": 2, "kind": "ascension", "prestige": 5200, "prize_pool": 120000, "lan": true,
+      "travel_cost_per_team": 12000,
+      "prize_distribution": [40, 24, 16, 10, 5, 5],
+      "promotes_to": "vct_emea",
+      "stages": [
+        { "name": "Ascension — bracket", "format": "double_elim", "start": "08-05", "end": "08-17", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "chal_emea", "stage": 1, "places": 4 },
+        { "comp_key": "chal_emea", "stage": 3, "places": 4 }
+      ]
+    }
+  ],
+
+  "default_prize_distribution": [26, 18, 13, 10, 8, 6.5, 5, 4, 3, 2.5, 2, 2]
+}

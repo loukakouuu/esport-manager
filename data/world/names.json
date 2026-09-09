@@ -1,0 +1,28 @@
+{
+  "_comment": "Banque de noms par region competitive. Les prenoms/noms sont generiques et fictifs par design : voir docs/ARCHITECTURE.md, section 'noms reels'.",
+  "regions": {
+    "EMEA": {
+      "countries": ["FR", "ES", "GB", "DE", "SE", "PL", "TR", "RU", "IT", "PT", "NL", "DK", "FI", "UA", "BE"],
+      "first": ["Lucas", "Mateo", "Enzo", "Adam", "Noah", "Leo", "Hugo", "Gabriel", "Oscar", "Elias", "Kacper", "Jakub", "Emir", "Deniz", "Ivan", "Nikita", "Marco", "Diogo", "Sven", "Lars", "Mikko", "Jonas", "Rafael", "Timo", "Pablo", "Milan", "Ruben", "Anton", "Youssef", "Yanis"],
+      "last": ["Moreau", "Garcia", "Bennett", "Keller", "Lindqvist", "Nowak", "Yilmaz", "Volkov", "Rossi", "Ferreira", "de Vries", "Sorensen", "Virtanen", "Kovalenko", "Peeters", "Dubois", "Navarro", "Whitfield", "Brandt", "Ekstrom", "Wisniewski", "Demir", "Sokolov", "Bianchi", "Almeida", "Jansen", "Nilsen", "Laine", "Bondarenko", "Claes"]
+    },
+    "AMERICAS": {
+      "countries": ["US", "BR", "CA", "AR", "CL", "MX", "CO", "PE"],
+      "first": ["Tyler", "Jordan", "Ethan", "Mason", "Caleb", "Devin", "Bruno", "Gabriel", "Matheus", "Rafael", "Santiago", "Tomas", "Mateo", "Nicolas", "Diego", "Andres", "Felipe", "Lucas", "Ryan", "Brandon", "Cole", "Zach", "Miles", "Owen", "Emiliano", "Joaquin", "Vinicius", "Enzo", "Julian", "Marcus"],
+      "last": ["Carter", "Reyes", "Mitchell", "Brooks", "Nguyen", "Silva", "Oliveira", "Santos", "Costa", "Fernandez", "Gonzalez", "Ramirez", "Torres", "Vargas", "Herrera", "Bennett", "Shaw", "Delgado", "Pereira", "Almeida", "Cruz", "Hayes", "Foster", "Ibarra", "Munoz", "Barros", "Nakamura", "Klein", "Duarte", "Salazar"]
+    },
+    "PACIFIC": {
+      "countries": ["KR", "JP", "ID", "PH", "TH", "SG", "MY", "VN", "AU", "IN"],
+      "first": ["Minjun", "Jihoon", "Seojun", "Doyun", "Haruto", "Ren", "Sota", "Yuto", "Rizky", "Bayu", "Arif", "Andi", "Miguel", "Rafael", "Nathan", "Somchai", "Kittisak", "Wei", "Jian", "Duc", "Minh", "Aiden", "Liam", "Arjun", "Rohan", "Kenji", "Taeyang", "Junseo", "Farhan", "Dimas"],
+      "last": ["Park", "Kim", "Lee", "Choi", "Jung", "Tanaka", "Sato", "Yamada", "Watanabe", "Pratama", "Wijaya", "Santoso", "Reyes", "Cruz", "Dela Torre", "Srisai", "Chaiyaphum", "Tan", "Lim", "Nguyen", "Tran", "Walker", "Harris", "Sharma", "Mehta", "Nakagawa", "Han", "Yoon", "Putra", "Halim"]
+    },
+    "CHINA": {
+      "countries": ["CN"],
+      "first": ["Hao", "Yifan", "Zihan", "Chenyu", "Bo", "Jian", "Lei", "Kai", "Ming", "Wenhao", "Ruoxi", "Tianyu", "Junjie", "Yang", "Zhenyu", "Xurui", "Haoran", "Yuchen", "Zhihao", "Peng"],
+      "last": ["Zhang", "Wang", "Li", "Liu", "Chen", "Yang", "Huang", "Zhao", "Wu", "Zhou", "Xu", "Sun", "Ma", "Zhu", "Hu", "Guo", "He", "Lin", "Gao", "Luo"]
+    }
+  },
+  "tag_prefixes": ["Zen", "Kry", "Vex", "Nyx", "Sol", "Rift", "Ash", "Vyn", "Kro", "Lyr", "Ori", "Draz", "Cyp", "Fen", "Glim", "Hex", "Iro", "Jolt", "Kai", "Lume", "Mirk", "Nova", "Onyx", "Prism", "Quill", "Ravn", "Sable", "Torq", "Umbra", "Volt", "Wraith", "Xeno", "Yara", "Zeph", "Blitz", "Crux", "Dusk", "Ember", "Flux", "Grit"],
+  "tag_suffixes": ["", "", "", "", "x", "z", "ii", "y", "o", "en", "ar", "os", "ix", "er", "on", "us", "ah", "eq", "sy", "ko"],
+  "tag_solo": ["Aether", "Bloom", "Cinder", "Delta", "Echo", "Fable", "Ghost", "Halo", "Ion", "Jinx", "Karma", "Lucid", "Mirage", "Nomad", "Omen", "Pulse", "Quartz", "Relic", "Static", "Tempo", "Vertex", "Wisp", "Zenith", "Astra", "Blaze", "Cobalt", "Drift", "Eclipse", "Frost", "Gale", "Havoc", "Idol", "Jade", "Krypt", "Lunar", "Mako", "Nero", "Orbit", "Prime", "Quake", "Rogue", "Surge", "Titan", "Vapor", "Wraith", "Xray", "Yield", "Zero", "Apex", "Bolt"]
+}

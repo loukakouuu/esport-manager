@@ -1,0 +1,356 @@
+class_name WorldGenerator
+extends RefCounted
+
+## Création d'un monde de départ complet et cohérent.
+##
+## Cohérent veut dire : le niveau des rosters, la réputation, la fanbase, la
+## trésorerie, les sponsors signés et les infrastructures d'une structure
+## découlent tous d'un même indice de puissance. Un club du bas de tableau de
+## Challengers ne peut donc pas se retrouver avec la trésorerie d'une équipe
+## VCT — la simulation économique reste crédible dès le premier jour.
+
+const ORGS_PATH := "res://data/world/orgs.json"
+
+## Correspondance indice de puissance (0-100) -> capacité moyenne du roster.
+## 40 -> CA 78 (Challengers bas de tableau) · 88 -> CA 158 (top mondial)
+static func ca_for_strength(strength: float) -> float:
+	return 45.0 + strength * 1.28
+
+
+static func generate(seed_value: int, start_day: int,
+		player_org_name: String = "") -> World:
+	var world := World.new()
+	world.seed_value = seed_value
+	world.rng = Rng.new(seed_value)
+	world.today = start_day
+	world.start_day = start_day
+	world.season_year = GameDate.year_of(start_day)
+
+	var module := GameRegistry.get_module("valorant")
+	var data := DataFile.load_json(ORGS_PATH, {"leagues": {}}) as Dictionary
+	var leagues: Dictionary = data.get("leagues", {})
+
+	for league_key in leagues:
+		var region := _region_of(league_key)
+		for entry_v in leagues[league_key]:
+			_make_org(world, module, str(league_key), region, entry_v)
+
+	SeasonBuilder.build_season(world, world.season_year)
+	_make_free_agents(world, module)
+	Log.i("worldgen", "Monde généré : %d structures, %d joueurs, %d compétitions"
+		% [world.orgs.size(), world.players.size(), world.competitions.size()])
+	return world
+
+
+static func _region_of(league_key: String) -> String:
+	if league_key.ends_with("emea"):
+		return "EMEA"
+	if league_key.ends_with("americas"):
+		return "AMERICAS"
+	if league_key.ends_with("pacific"):
+		return "PACIFIC"
+	return "CHINA"
+
+
+const OWNER_MAP := {
+	"self_funded": Organization.Owner.SELF_FUNDED,
+	"investor": Organization.Owner.INVESTOR,
+	"endemic": Organization.Owner.ENDEMIC_BRAND,
+	"celebrity": Organization.Owner.CELEBRITY,
+	"corporate": Organization.Owner.CORPORATE,
+}
+
+
+static func _make_org(world: World, module: GameModule, league_key: String,
+		region: String, entry_v) -> Organization:
+	var entry: Dictionary = entry_v
+	var rng := world.rng
+	var strength := float(entry.get("strength", 50))
+	var tier1 := league_key.begins_with("vct")
+
+	var o := Organization.new()
+	o.id = world.ids.next(Ids.ORG)
+	o.name = str(entry["name"])
+	o.tag = str(entry["tag"])
+	o.region = region
+	o.country = str(entry.get("country", "FR"))
+	o.color_primary = str(entry.get("color", "#e04141"))
+	o.founded_year = GameDate.year_of(world.today) - rng.range_i(2, 14)
+	o.owner = OWNER_MAP.get(str(entry.get("owner", "self_funded")),
+		Organization.Owner.SELF_FUNDED)
+	o.ledger = Ledger.new()
+
+	# Réputation et audience : exponentielles, comme dans la réalité — l'écart
+	# entre le 1er et le 10e mondial est bien plus grand qu'entre le 40e et le 50e.
+	o.reputation = int(clampf(pow(strength / 100.0, 2.8) * 12500.0, 90.0, 9800.0))
+	o.fanbase = int(clampf(pow(strength / 100.0, 6.6) * 5_800_000.0, 1_500.0, 4_000_000.0))
+	o.facilities = _facilities_for(strength, rng)
+
+	o.brand_value = Money.from_units(pow(strength / 100.0, 2.4) * 22_000_000.0)
+	o.board_confidence = rng.gauss(62.0, 8.0, 35.0, 88.0)
+
+	world.orgs[o.id] = o
+	_make_roster(world, module, o, league_key, region, strength, tier1)
+	_make_staff(world, o, region, strength)
+	_sign_initial_sponsors(world, o, strength)
+
+	# La trésorerie de départ est calculée APRÈS le roster, le staff et les
+	# sponsors : elle vaut un nombre de mois de charges RÉELLES. Une estimation
+	# à priori se décorrèle immédiatement des salaires effectivement générés et
+	# condamne les petites structures à la faillite dès la première saison.
+	var monthly_cost := FinanceSystem.fixed_monthly_cost(world, o)
+	var months := rng.range_f(2.5, 4.5) if strength < 55.0 else rng.range_f(4.5, 9.0)
+	o.ledger.cash = int(float(monthly_cost) * months)
+	o.budgets["marketing"] = Money.pct(monthly_cost, rng.range_f(2.0, 6.0))
+	return o
+
+
+## Infrastructures de départ. Elles sont volontairement modestes : une équipe
+## de Challengers n'a ni team house ni académie, et leurs charges d'entretien
+## représenteraient à elles seules la moitié de son budget.
+static func _facilities_for(strength: float, rng: Rng) -> Dictionary:
+	var levels := Facilities.default_levels()
+	var base := clampi(int(floor(strength / 26.0)), 0, 3)
+	for k in Facilities.Kind.values():
+		var lvl := clampi(base + rng.range_i(-1, 1), 0, Facilities.MAX_LEVEL)
+		# Le confort coûte cher : réservé aux structures qui en ont les moyens.
+		if k == Facilities.Kind.TEAM_HOUSE and strength < 68.0:
+			lvl = 0
+		if k == Facilities.Kind.ACADEMY and strength < 72.0:
+			lvl = 0
+		if k == Facilities.Kind.CONTENT_STUDIO and strength < 55.0:
+			lvl = mini(lvl, 1)
+		levels[k] = lvl
+	return levels
+
+
+static func _make_roster(world: World, module: GameModule, o: Organization,
+		league_key: String, region: String, strength: float, tier1: bool) -> void:
+	var rng := world.rng
+	var r := Roster.new()
+	r.id = world.ids.next(Ids.ROSTER)
+	r.org_id = o.id
+	r.game_id = module.id()
+	r.name = o.name
+	r.region = region
+	r.league_key = league_key
+	r.tactic = module.default_tactic()
+	r.chemistry = rng.gauss(52.0, 12.0, 20.0, 88.0)
+
+	var target := ca_for_strength(strength)
+	var roles: Array[String] = [
+		ValorantModule.DUELIST, ValorantModule.DUELIST, ValorantModule.INITIATOR,
+		ValorantModule.CONTROLLER, ValorantModule.SENTINEL,
+	]
+	# Un roster VCT embarque un ou deux remplaçants ; en Challengers, rarement.
+	var extra := rng.range_i(0, 2) if tier1 else rng.range_i(0, 1)
+	for _i in extra:
+		roles.append(str(rng.pick(module.roles())))
+
+	var igl_index := rng.range_i(0, 4)
+	for i in roles.size():
+		var ca := clampi(int(round(target + rng.gauss(0.0, 9.0, -24.0, 24.0))), 25, 195)
+		if i >= 5:
+			ca = clampi(ca - rng.range_i(5, 18), 25, 195)
+		var p := PlayerFactory.create(rng, module, world.ids, world.today, {
+			"target_ca": ca, "role": roles[i], "region": region,
+			"igl": i == igl_index,
+		})
+		p.org_id = o.id
+		p.contract = _make_contract(world, o, p, rng, tier1)
+		world.players[p.id] = p
+		r.add_player(p.id)
+		if i < 5:
+			r.starters.append(p.id)
+	world.rosters[r.id] = r
+	o.add_roster(module.id(), r.id)
+
+
+static func _make_contract(world: World, o: Organization, p: Player, rng: Rng,
+		tier1: bool) -> Contract:
+	var c := Contract.new()
+	c.org_id = o.id
+	c.person_id = p.id
+	c.salary_yearly = PlayerFactory.salary_for_ca(p.current_ability, p.reputation)
+	# Chaque structure paie un peu au-dessus ou en dessous du marché.
+	c.salary_yearly = Money.pct(c.salary_yearly, rng.range_f(85.0, 118.0))
+	c.start_day = GameDate.add_years(world.today, -rng.range_i(0, 2))
+	c.end_day = GameDate.add_months(world.today, rng.range_i(4, 32))
+	c.buyout = int(float(p.market_value) * rng.range_f(1.1, 2.4))
+	c.prize_share_pct = rng.range_f(9.0, 15.0) if tier1 else rng.range_f(12.0, 18.0)
+	c.signed_on_day = c.start_day
+	return c
+
+
+static func _make_staff(world: World, o: Organization, region: String,
+		strength: float) -> void:
+	var rng := world.rng
+	var r := world.main_roster(o.id, "valorant")
+	var quality := clampf(4.0 + strength / 7.0, 4.0, 19.0)
+
+	var roles: Array = [Staff.Role.HEAD_COACH]
+	if strength >= 45.0:
+		roles.append(Staff.Role.ANALYST)
+	if strength >= 60.0:
+		roles.append(Staff.Role.TEAM_MANAGER)
+	if strength >= 70.0:
+		roles.append(Staff.Role.ASSISTANT_COACH)
+	if strength >= 78.0:
+		roles.append(Staff.Role.PERFORMANCE_COACH)
+	if strength >= 84.0:
+		roles.append(Staff.Role.PSYCHOLOGIST)
+
+	for role in roles:
+		# La dispersion est volontairement resserrée et bornée autour du niveau
+		# de la structure. Le salaire du staff est exponentiel : deux points de
+		# note au-dessus de son marché et une équipe de Challengers se retrouve
+		# avec un coach à 190 k$/an qu'elle ne pourrait jamais s'offrir.
+		var target := clampf(rng.gauss(quality, 1.5, 3.0, 19.5),
+			maxf(quality - 3.0, 3.0), minf(quality + 2.5, 19.5))
+		var s := StaffFactory.create(rng, world.ids, world.today, role, {
+			"region": region,
+			"target_overall": target,
+		})
+		s.org_id = o.id
+		var c := Contract.new()
+		c.kind = Contract.Kind.STAFF
+		c.org_id = o.id
+		c.person_id = s.id
+		c.salary_yearly = StaffFactory.salary_for(role, s.overall())
+		c.start_day = world.today
+		c.end_day = GameDate.add_months(world.today, rng.range_i(8, 30))
+		s.contract = c
+		world.staff[s.id] = s
+		o.staff_ids.append(s.id)
+		if r != null:
+			if role == Staff.Role.HEAD_COACH:
+				r.head_coach_id = s.id
+			else:
+				r.staff_ids.append(s.id)
+
+
+## Sponsors déjà en place au démarrage, avec des échéances étalées pour que le
+## joueur ne perde pas tous ses partenaires le même mois.
+static func _sign_initial_sponsors(world: World, o: Organization,
+		strength: float) -> void:
+	var rng := world.rng
+	# Même une petite structure a plusieurs partenaires : c'est sa seule source
+	# de revenus réellement pilotable.
+	var wanted := 2
+	if strength >= 42.0:
+		wanted = 3
+	if strength >= 65.0:
+		wanted = 4
+	if strength >= 80.0:
+		wanted = 5
+
+	var offers := SponsorSystem.offers_for(world, o, 10)
+	var signed := 0
+	for offer_v in offers:
+		if signed >= wanted:
+			break
+		var offer: Dictionary = offer_v
+		if float(o.reputation) < float(offer.get("min_reputation", 0)):
+			continue
+		# Une petite structure ne décroche pas un contrat à sept chiffres.
+		var deal := SponsorSystem.sign_deal(world, o, offer)
+		deal.start_day = GameDate.add_months(world.today, -rng.range_i(1, 14))
+		deal.end_day = GameDate.add_months(deal.start_day,
+			int(offer.get("years", 2)) * 12)
+		if deal.end_day <= world.today:
+			deal.end_day = GameDate.add_months(world.today, rng.range_i(2, 10))
+		signed += 1
+
+
+## Agents libres : un vivier crédible, avec des jeunes à fort potentiel, des
+## vétérans en fin de carrière et quelques bons joueurs sans contrat.
+static func _make_free_agents(world: World, module: GameModule) -> void:
+	var rng := world.rng
+	var regions := ["EMEA", "AMERICAS", "PACIFIC", "CHINA"]
+	for region in regions:
+		# Jeunes talents (le vivier de l'académie)
+		for _i in 22:
+			var p := PlayerFactory.create(rng, module, world.ids, world.today, {
+				"target_ca": rng.gauss_i(66.0, 14.0, 30, 110),
+				"age": rng.range_i(16, 19), "region": region,
+				"potential_bonus": rng.range_i(0, 25),
+			})
+			world.players[p.id] = p
+		# Joueurs confirmés sans contrat
+		for _i in 14:
+			var p2 := PlayerFactory.create(rng, module, world.ids, world.today, {
+				"target_ca": rng.gauss_i(102.0, 16.0, 60, 150),
+				"age": rng.range_i(20, 25), "region": region,
+			})
+			world.players[p2.id] = p2
+		# Vétérans en fin de parcours
+		for _i in 6:
+			var p3 := PlayerFactory.create(rng, module, world.ids, world.today, {
+				"target_ca": rng.gauss_i(112.0, 15.0, 70, 160),
+				"age": rng.range_i(26, 31), "region": region,
+			})
+			world.players[p3.id] = p3
+
+
+# ============================================================================
+# Prise en main d'une structure par le joueur
+# ============================================================================
+
+## Le joueur reprend une structure existante. On lui donne le contrôle, on fixe
+## les objectifs du board et on lui envoie son premier message.
+static func assign_player_org(world: World, org_id: String) -> void:
+	var o := world.org(org_id)
+	if o == null:
+		return
+	world.player_org_id = org_id
+	o.is_player_controlled = true
+	o.objectives = BoardSystem.season_objectives(world, o)
+	world.add_news(world.today, "Bienvenue chez %s" % o.name,
+		("Vous prenez la direction sportive de %s.\n\n"
+		+ "Trésorerie : %s\nRéputation : %s\nFans : %s\n\n"
+		+ "La direction attend : %s")
+		% [o.name, Money.fmt(o.cash()), _stars_text(o.stars()),
+			_short_number(o.fanbase), _objectives_text(o.objectives)], "board")
+
+
+## Structures que le joueur peut choisir au démarrage, triées par difficulté.
+static func selectable_orgs(world: World, league_key: String = "") -> Array:
+	var out: Array = []
+	for oid in world.orgs:
+		var o: Organization = world.orgs[oid]
+		var r := world.main_roster(o.id, "valorant")
+		if r == null:
+			continue
+		if league_key != "" and r.league_key != league_key:
+			continue
+		out.append({
+			"org_id": o.id, "name": o.name, "tag": o.tag,
+			"league_key": r.league_key, "region": o.region,
+			"reputation": o.reputation, "cash": o.cash(),
+			"fanbase": o.fanbase, "owner": o.owner_label(),
+		})
+	out.sort_custom(func(a, b): return int(a["reputation"]) > int(b["reputation"]))
+	return out
+
+
+static func _stars_text(stars: float) -> String:
+	var full := int(floor(stars))
+	var s := ""
+	for i in 5:
+		s += "*" if i < full else "."
+	return s
+
+
+static func _short_number(n: int) -> String:
+	if n >= 1_000_000:
+		return "%s M" % String.num(float(n) / 1_000_000.0, 1)
+	if n >= 1_000:
+		return "%d k" % int(n / 1000)
+	return str(n)
+
+
+static func _objectives_text(objectives: Array) -> String:
+	var parts: Array[String] = []
+	for o in objectives:
+		parts.append(str((o as Dictionary).get("label", "")))
+	return ", ".join(parts)

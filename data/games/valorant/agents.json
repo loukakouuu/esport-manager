@@ -1,0 +1,31 @@
+{
+  "agents": [
+    { "name": "Jett",      "role": "duelist" },
+    { "name": "Raze",      "role": "duelist" },
+    { "name": "Phoenix",   "role": "duelist" },
+    { "name": "Reyna",     "role": "duelist" },
+    { "name": "Yoru",      "role": "duelist" },
+    { "name": "Neon",      "role": "duelist" },
+    { "name": "Iso",       "role": "duelist" },
+    { "name": "Waylay",    "role": "duelist" },
+    { "name": "Sova",      "role": "initiator" },
+    { "name": "Breach",    "role": "initiator" },
+    { "name": "Skye",      "role": "initiator" },
+    { "name": "KAY/O",     "role": "initiator" },
+    { "name": "Fade",      "role": "initiator" },
+    { "name": "Gekko",     "role": "initiator" },
+    { "name": "Tejo",      "role": "initiator" },
+    { "name": "Brimstone", "role": "controller" },
+    { "name": "Omen",      "role": "controller" },
+    { "name": "Viper",     "role": "controller" },
+    { "name": "Astra",     "role": "controller" },
+    { "name": "Harbor",    "role": "controller" },
+    { "name": "Clove",     "role": "controller" },
+    { "name": "Sage",      "role": "sentinel" },
+    { "name": "Cypher",    "role": "sentinel" },
+    { "name": "Killjoy",   "role": "sentinel" },
+    { "name": "Chamber",   "role": "sentinel" },
+    { "name": "Deadlock",  "role": "sentinel" },
+    { "name": "Vyse",      "role": "sentinel" }
+  ]
+}

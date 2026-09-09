@@ -1,0 +1,56 @@
+{
+  "_comment": "Marques fictives. base_value = valeur annuelle de reference en dollars pour une structure de reputation 5000 et 250k fans. Le montant reel est recalcule par SponsorSystem selon la reputation, la fanbase et les resultats. brand_risk (0-1) = cout d'image. content = livrables mensuels exiges.",
+  "slots": {
+    "TITLE": 0, "JERSEY_MAIN": 1, "JERSEY_SLEEVE": 2, "PERIPHERALS": 3,
+    "HARDWARE": 4, "ENERGY_DRINK": 5, "APPAREL": 6, "BETTING": 7,
+    "CRYPTO": 8, "AUTOMOTIVE": 9, "TELECOM": 10
+  },
+  "sponsors": [
+    { "name": "Novacore", "slot": "TITLE", "base_value": 900000, "min_reputation": 6500, "brand_risk": 0.0, "content": 3 },
+    { "name": "Helion Group", "slot": "TITLE", "base_value": 750000, "min_reputation": 5500, "brand_risk": 0.0, "content": 3 },
+    { "name": "Meridian Bank", "slot": "TITLE", "base_value": 620000, "min_reputation": 5000, "brand_risk": 0.05, "content": 2 },
+
+    { "name": "Voltek", "slot": "JERSEY_MAIN", "base_value": 480000, "min_reputation": 4200, "brand_risk": 0.0, "content": 2 },
+    { "name": "Aeris Airlines", "slot": "JERSEY_MAIN", "base_value": 420000, "min_reputation": 4000, "brand_risk": 0.0, "content": 2 },
+    { "name": "Kobalt Motors", "slot": "JERSEY_MAIN", "base_value": 380000, "min_reputation": 3500, "brand_risk": 0.0, "content": 2 },
+    { "name": "Pulse Telecom", "slot": "JERSEY_MAIN", "base_value": 300000, "min_reputation": 2800, "brand_risk": 0.0, "content": 2 },
+    { "name": "Delta Insure", "slot": "JERSEY_MAIN", "base_value": 190000, "min_reputation": 1800, "brand_risk": 0.0, "content": 1 },
+    { "name": "Brasserie Nord", "slot": "JERSEY_MAIN", "base_value": 95000, "min_reputation": 900, "brand_risk": 0.10, "content": 1 },
+
+    { "name": "Zephyr Cloud", "slot": "JERSEY_SLEEVE", "base_value": 210000, "min_reputation": 3800, "brand_risk": 0.0, "content": 1 },
+    { "name": "Orbit Delivery", "slot": "JERSEY_SLEEVE", "base_value": 150000, "min_reputation": 2600, "brand_risk": 0.0, "content": 1 },
+    { "name": "Studio Lumen", "slot": "JERSEY_SLEEVE", "base_value": 85000, "min_reputation": 1400, "brand_risk": 0.0, "content": 1 },
+    { "name": "Cafe Ravel", "slot": "JERSEY_SLEEVE", "base_value": 38000, "min_reputation": 500, "brand_risk": 0.0, "content": 1 },
+
+    { "name": "Kryon Peripherals", "slot": "PERIPHERALS", "base_value": 260000, "min_reputation": 4000, "brand_risk": 0.0, "content": 2 },
+    { "name": "Aimline Gear", "slot": "PERIPHERALS", "base_value": 170000, "min_reputation": 2500, "brand_risk": 0.0, "content": 2 },
+    { "name": "Tacticore", "slot": "PERIPHERALS", "base_value": 90000, "min_reputation": 1200, "brand_risk": 0.0, "content": 1 },
+    { "name": "Clickwave", "slot": "PERIPHERALS", "base_value": 32000, "min_reputation": 300, "brand_risk": 0.0, "content": 1 },
+
+    { "name": "Titan Systems", "slot": "HARDWARE", "base_value": 320000, "min_reputation": 4500, "brand_risk": 0.0, "content": 2 },
+    { "name": "Ferrite PC", "slot": "HARDWARE", "base_value": 180000, "min_reputation": 2400, "brand_risk": 0.0, "content": 1 },
+    { "name": "Bitforge", "slot": "HARDWARE", "base_value": 70000, "min_reputation": 900, "brand_risk": 0.0, "content": 1 },
+
+    { "name": "Surge Zero", "slot": "ENERGY_DRINK", "base_value": 340000, "min_reputation": 4200, "brand_risk": 0.05, "content": 3 },
+    { "name": "Voltage Rush", "slot": "ENERGY_DRINK", "base_value": 195000, "min_reputation": 2600, "brand_risk": 0.08, "content": 2 },
+    { "name": "Nocta Energy", "slot": "ENERGY_DRINK", "base_value": 78000, "min_reputation": 1000, "brand_risk": 0.12, "content": 2 },
+
+    { "name": "Halden Apparel", "slot": "APPAREL", "base_value": 240000, "min_reputation": 3600, "brand_risk": 0.0, "content": 2 },
+    { "name": "Northloop", "slot": "APPAREL", "base_value": 120000, "min_reputation": 1800, "brand_risk": 0.0, "content": 1 },
+    { "name": "Fibre & Co", "slot": "APPAREL", "base_value": 45000, "min_reputation": 600, "brand_risk": 0.0, "content": 1 },
+
+    { "name": "MaxOdds", "slot": "BETTING", "base_value": 780000, "min_reputation": 3200, "brand_risk": 0.55, "content": 3 },
+    { "name": "BetNova", "slot": "BETTING", "base_value": 460000, "min_reputation": 2000, "brand_risk": 0.50, "content": 2 },
+    { "name": "LuckyRift", "slot": "BETTING", "base_value": 210000, "min_reputation": 900, "brand_risk": 0.60, "content": 2 },
+
+    { "name": "Coinvault", "slot": "CRYPTO", "base_value": 690000, "min_reputation": 3000, "brand_risk": 0.65, "content": 3 },
+    { "name": "ChainForge", "slot": "CRYPTO", "base_value": 330000, "min_reputation": 1500, "brand_risk": 0.70, "content": 2 },
+
+    { "name": "Auralis Auto", "slot": "AUTOMOTIVE", "base_value": 410000, "min_reputation": 5200, "brand_risk": 0.0, "content": 2 },
+    { "name": "Velos Mobility", "slot": "AUTOMOTIVE", "base_value": 175000, "min_reputation": 2800, "brand_risk": 0.0, "content": 1 },
+
+    { "name": "Fibrelink", "slot": "TELECOM", "base_value": 360000, "min_reputation": 4400, "brand_risk": 0.0, "content": 2 },
+    { "name": "Uplink Mobile", "slot": "TELECOM", "base_value": 160000, "min_reputation": 2200, "brand_risk": 0.0, "content": 1 },
+    { "name": "Reso Telecom", "slot": "TELECOM", "base_value": 60000, "min_reputation": 700, "brand_risk": 0.0, "content": 1 }
+  ]
+}

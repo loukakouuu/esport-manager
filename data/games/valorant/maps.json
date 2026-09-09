@@ -1,0 +1,17 @@
+{
+  "_comment": "atk_win_rate = taux de victoire attaquant de reference sur la map (equipes de niveau egal). Sert de biais de cote dans la simulation. active = fait partie du pool competitif courant.",
+  "maps": [
+    { "name": "Ascent",  "atk_win_rate": 0.462, "active": true,  "openness": 0.45, "util_weight": 1.05 },
+    { "name": "Bind",    "atk_win_rate": 0.505, "active": true,  "openness": 0.40, "util_weight": 1.10 },
+    { "name": "Haven",   "atk_win_rate": 0.492, "active": true,  "openness": 0.55, "util_weight": 1.00 },
+    { "name": "Lotus",   "atk_win_rate": 0.516, "active": true,  "openness": 0.60, "util_weight": 1.05 },
+    { "name": "Icebox",  "atk_win_rate": 0.474, "active": true,  "openness": 0.65, "util_weight": 0.95 },
+    { "name": "Sunset",  "atk_win_rate": 0.498, "active": true,  "openness": 0.42, "util_weight": 1.05 },
+    { "name": "Corrode", "atk_win_rate": 0.503, "active": true,  "openness": 0.50, "util_weight": 1.00 },
+    { "name": "Split",   "atk_win_rate": 0.451, "active": false, "openness": 0.35, "util_weight": 1.15 },
+    { "name": "Breeze",  "atk_win_rate": 0.531, "active": false, "openness": 0.80, "util_weight": 0.85 },
+    { "name": "Fracture","atk_win_rate": 0.521, "active": false, "openness": 0.58, "util_weight": 1.10 },
+    { "name": "Pearl",   "atk_win_rate": 0.470, "active": false, "openness": 0.48, "util_weight": 1.00 },
+    { "name": "Abyss",   "atk_win_rate": 0.499, "active": false, "openness": 0.62, "util_weight": 0.95 }
+  ]
+}
