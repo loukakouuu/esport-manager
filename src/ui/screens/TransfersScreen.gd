@@ -6,45 +6,33 @@ extends Screen
 ## regardant le même joueur ne voient donc pas la même chose — c'est là que se
 ## gagne ou se perd un recrutement.
 
-var _role_filter := ""
-var _free_only := true
-var _max_salary := 0
-
-
 func build() -> void:
 	var w := world()
 	var o: Organization = game().my_org()
 	if o == null:
 		return
 	var module := w.module_for(w.player_game_id)
-	add_child(UiKit.title("Marché des joueurs"))
-	add_child(UiKit.subtitle(
+	# Les filtres survivent au rafraîchissement : sinon changer de tri les
+	# remettrait à zéro à chaque clic.
+	var state := ui("transfers")
+	var role_filter := str(state.get("role", ""))
+	var free_only := bool(state.get("free_only", true))
+
+	add_child(page_header("Marché des joueurs",
 		"Budget disponible : %s · masse salariale actuelle %s / an · "
 		% [Money.fmt(o.cash()), Money.fmt(FinanceSystem.wage_bill_yearly(w, o))]
 		+ "résultat prévisionnel %s / mois"
-		% Money.fmt(FinanceSystem.projected_monthly_result(w, o))))
+		% Money.fmt(FinanceSystem.projected_monthly_result(w, o)), [
+			UiKit.button("Agents libres uniquement" if not free_only
+				else "Tout le marché", func():
+				state["free_only"] = not free_only
+				refresh()),
+		]))
 
-	var filters := UiKit.hbox(6)
-	var b_all := UiKit.button("Tous les postes", func():
-		_role_filter = ""
-		refresh())
-	if _role_filter == "":
-		b_all.add_theme_color_override("font_color", UiKit.ACCENT)
-	filters.add_child(b_all)
+	var roles: Array = [["", "Tous les postes"]]
 	for role in module.roles():
-		var rid := role
-		var b := UiKit.button(module.role_label(role), func():
-			_role_filter = rid
-			refresh())
-		if _role_filter == rid:
-			b.add_theme_color_override("font_color", UiKit.ACCENT)
-		filters.add_child(b)
-	filters.add_child(UiKit.spacer())
-	filters.add_child(UiKit.button(
-		"Agents libres uniquement" if not _free_only else "Tout le marché", func():
-		_free_only = not _free_only
-		refresh()))
-	add_child(filters)
+		roles.append([role, module.role_label(role)])
+	add_child(UiKit.tabs(roles, state, "role", func(_k): refresh(), ""))
 
 	var candidates: Array[Player] = []
 	for pid in w.players:
@@ -53,9 +41,9 @@ func build() -> void:
 			continue
 		if p.org_id == o.id:
 			continue
-		if _free_only and not p.is_free_agent():
+		if free_only and not p.is_free_agent():
 			continue
-		if _role_filter != "" and p.primary_role != _role_filter:
+		if role_filter != "" and p.primary_role != role_filter:
 			continue
 		if not p.is_free_agent() and not p.transfer_listed and not p.wants_out:
 			# Un joueur sous contrat n'apparaît que s'il est accessible :
@@ -68,36 +56,55 @@ func build() -> void:
 	candidates = candidates.slice(0, 120)
 
 	var columns := [
-		{"label": "Joueur", "width": 120},
-		{"label": "Poste", "width": 100},
-		{"label": "Âge", "width": 40, "align": "right"},
-		{"label": "Niveau", "width": 70, "align": "right"},
-		{"label": "Potentiel", "width": 70},
-		{"label": "Région", "width": 80},
-		{"label": "Statut", "width": 150},
-		{"label": "Salaire demandé", "width": 110, "align": "right"},
-		{"label": "Clause", "width": 90, "align": "right"},
-		{"label": "Fiabilité", "width": 140},
+		{"key": "name", "label": "Joueur", "width": 122},
+		{"key": "role", "label": "Poste", "width": 108},
+		{"key": "age", "label": "Âge", "width": 40, "align": "right"},
+		{"key": "ca", "label": "Niveau", "width": 72, "align": "right"},
+		{"key": "pot", "label": "Potentiel", "width": 78},
+		{"key": "region", "label": "Région", "width": 80},
+		{"key": "status", "label": "Statut", "width": 176},
+		{"key": "demand", "label": "Salaire demandé", "width": 116, "align": "right"},
+		{"key": "buyout", "label": "Clause", "width": 90, "align": "right"},
+		{"key": "confidence", "label": "Fiabilité", "width": 150},
 	]
 	var rows: Array = []
 	for p in candidates:
 		var demand := ContractSystem.salary_demand(w, p, o)
 		var affordable := demand <= FinanceSystem.recurring_monthly_income(w, o) * 12
 		var current := w.org(p.org_id)
-		rows.append([
-			p.display_name(),
-			module.role_label(p.primary_role) + (" (IGL)" if p.is_igl else ""),
-			str(p.age(w.today)),
-			ScoutingSystem.ability_text(w, p),
-			{"text": UiKit.stars(ScoutingSystem.potential_value(w, p)), "color": UiKit.ACCENT},
-			p.region,
-			"Agent libre" if p.is_free_agent()
-				else ("%s — veut partir" % current.name if p.wants_out
-					else current.name),
-			{"text": Money.fmt_short(demand),
+		var est := ScoutingSystem.estimated_ca(w, p)
+		rows.append({
+			"_id": p.id,
+			"name": {"text": p.display_name(), "bold": true},
+			"role": {"text": module.role_label(p.primary_role)
+				+ (" · IGL" if p.is_igl else ""), "sort": p.primary_role},
+			"age": {"text": str(p.age(w.today)), "sort": p.age(w.today)},
+			"ca": {"text": ScoutingSystem.ability_text(w, p), "sort": est},
+			"pot": {"text": UiKit.stars(ScoutingSystem.potential_value(w, p)),
+				"color": UiKit.WARN,
+				"sort": ScoutingSystem.potential_value(w, p)},
+			"region": {"text": p.region},
+			"status": {"text": "Agent libre" if p.is_free_agent()
+					else ("%s — veut partir" % current.name if p.wants_out
+						else current.name),
+				"color": UiKit.GOOD if p.is_free_agent() else UiKit.TEXT},
+			"demand": {"text": Money.fmt_short(demand), "sort": demand,
 				"color": UiKit.TEXT if affordable else UiKit.BAD},
-			Money.fmt_short(p.contract.buyout) if p.contract != null else "—",
-			ScoutingSystem.confidence_text(w, p),
-		])
-	add_child(UiKit.scroll(UiKit.table(columns, rows, func(i: int):
-		navigate("player", {"player_id": candidates[i].id}))))
+			"buyout": {"text": Money.fmt_short(p.contract.buyout)
+					if p.contract != null else "—",
+				"sort": p.contract.buyout if p.contract != null else 0},
+			# La fiabilité est la colonne la plus importante de l'écran : elle
+			# dit à quel point les autres chiffres méritent d'être crus.
+			"confidence": {"text": ScoutingSystem.confidence_text(w, p),
+				"sort": ScoutingSystem.knowledge(w, p),
+				"color": UiKit.TEXT_DIM if ScoutingSystem.knowledge(w, p) < 0.5
+					else UiKit.TEXT},
+		})
+	add_child(sorted_table("transfers.sort", columns, rows, {
+		"row_clicked": func(pid): navigate("player", {"player_id": pid}),
+	}))
+	add_child(UiKit.label(
+		"Les niveaux affichés sont l'estimation de votre staff. Un recruteur "
+		+ "compétent et un budget de scouting réduisent la marge d'erreur — "
+		+ "c'est là que se gagne un recrutement.", UiKit.FS_SMALL,
+		UiKit.TEXT_FAINT))
