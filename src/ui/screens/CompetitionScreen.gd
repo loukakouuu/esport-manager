@@ -34,7 +34,7 @@ func build() -> void:
 		if cid == comp_id:
 			b.add_theme_color_override("font_color", UiKit.ACCENT)
 		picker.add_child(b)
-	add_child(UiKit.scroll(picker))
+	add_child(UiKit.scroll_h(picker))
 
 	var comp := w.competition(comp_id)
 	if comp == null:
@@ -124,7 +124,7 @@ func _bracket(w: World, comp: Competition, stage: Stage) -> Control:
 				"BO%d" % f.best_of,
 			])
 		v.add_child(UiKit.table([
-			{"label": "Date", "width": 70},
+			{"label": "", "width": 70},
 			{"label": "", "width": 170, "align": "right"},
 			{"label": "", "width": 25, "align": "center"},
 			{"label": "", "width": 25, "align": "center"},

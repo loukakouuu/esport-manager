@@ -59,7 +59,7 @@ func build() -> void:
 
 func _rounds_panel(m: MapResult) -> Control:
 	var panel := UiKit.panel(12)
-	panel.custom_minimum_size = Vector2(420, 0)
+	panel.custom_minimum_size = Vector2(560, 0)
 	var v := UiKit.vbox(6)
 	panel.add_child(v)
 	v.add_child(UiKit.label("%s — %d-%d%s"
@@ -86,7 +86,12 @@ func _rounds_panel(m: MapResult) -> Control:
 			_type_color(str(r["type"])))
 		badge.custom_minimum_size = Vector2(60, 0)
 		line.add_child(badge)
-		line.add_child(UiKit.label(str(r.get("text", "")), 12))
+		# Le commentaire prend la place restante et passe à la ligne : sinon la
+		# colonne déborde et fait apparaître une barre de défilement horizontale.
+		var comment := UiKit.label(str(r.get("text", "")), 12)
+		comment.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		comment.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		line.add_child(comment)
 		list.add_child(line)
 	v.add_child(UiKit.scroll(list))
 	return panel
@@ -97,6 +102,7 @@ func _type_label(t: String) -> String:
 		"pistol": return "PISTOL"
 		"eco": return "ECO"
 		"force": return "FORCE"
+		"bonus": return "BONUS"
 		"full": return "FULL"
 	return t.to_upper()
 
@@ -106,6 +112,7 @@ func _type_color(t: String) -> Color:
 		"pistol": return UiKit.ACCENT
 		"eco": return UiKit.WARN
 		"force": return UiKit.WARN
+		"bonus": return UiKit.GOOD
 	return UiKit.TEXT_DIM
 
 

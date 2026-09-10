@@ -44,7 +44,7 @@ static func create(rng: Rng, ids: Ids, today: int, role: Staff.Role,
 	s.last_name = str(rng.pick(reg.get("last", ["Martin"])))
 	# Beaucoup de coachs esport sont d'anciens joueurs : ils gardent leur pseudo.
 	if rng.chance(0.55):
-		s.nickname = PlayerFactory.make_gamertag(rng)
+		s.nickname = PlayerFactory.make_gamertag(rng, ids)
 
 	var age := int(opts.get("age", rng.gauss_i(31.0, 5.5, 22, 55)))
 	s.birth_day = GameDate.add_years(today, -age)

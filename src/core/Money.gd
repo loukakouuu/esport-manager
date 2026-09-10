@@ -73,7 +73,7 @@ static func fmt_short(cents: int) -> String:
 	elif a >= K:
 		s = String.num(float(a) / float(K), 1) + " k"
 	else:
-		s = String.num(float(a) / float(UNIT), 0)
+		s = String.num(float(a) / float(UNIT), 0) + " "
 	if neg:
 		s = "-" + s
 	return s + SYMBOL

@@ -371,7 +371,10 @@ func _decide_buy(s: ValorantSide, is_pistol: bool, must_win: bool, rng: Rng) -> 
 	var can_force := effective >= FORCE_BUY_COST
 
 	if can_force and force_urge > 0.0:
-		return {"type": "force", "econ": 0.15 + 0.85 * buy_power * 0.75,
+		# Un achat incomplet après un round GAGNÉ n'est pas un force buy mais un
+		# « bonus » : le vocabulaire compte pour la lisibilité du compte rendu.
+		var kind := "bonus" if s.loss_streak == 0 else "force"
+		return {"type": kind, "econ": 0.15 + 0.85 * buy_power * 0.75,
 			"spend": mini(s.credits, FORCE_BUY_COST)}
 
 	# Save : on garde les crédits, l'économie du round est faible mais on
@@ -747,6 +750,8 @@ func _round_text(n: int, is_pistol: bool, rtype: String, winner: ValorantSide, l
 		parts.append("Pistol pour %s." % tag)
 	elif rtype == "eco":
 		parts.append("%s convertit un eco." % tag)
+	elif rtype == "bonus":
+		parts.append("%s convertit son bonus." % tag)
 	elif rtype == "force":
 		parts.append("Force buy payant pour %s." % tag)
 	else:

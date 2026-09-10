@@ -45,10 +45,27 @@ func _ready() -> void:
 	_build_shell()
 	game.state_changed.connect(_on_state_changed)
 	game.world_loaded.connect(_on_state_changed)
+
+	# Mode capture d'écran (développement) : voir src/ui/DevShots.gd
+	if DevShots.is_requested():
+		await DevShots.run(self, game)
+		return
+
 	if game.has_world() and game.world.player_org_id != "":
 		navigate("home")
 	else:
 		_show_new_game()
+
+
+## Noms des écrans navigables, dans l'ordre du menu.
+func screen_names() -> Array[String]:
+	var out: Array[String] = []
+	for entry in NAV:
+		out.append(str(entry[0]))
+	for k in SCREENS:
+		if not out.has(str(k)):
+			out.append(str(k))
+	return out
 
 
 func _build_shell() -> void:

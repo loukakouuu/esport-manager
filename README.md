@@ -49,9 +49,12 @@ console : `Godot_v4.7.2-stable_win64_console.exe`.
 
 ```bash
 "$GODOT" --headless --path . --script res://tools/run_tests.gd   # 63 tests unitaires
-"$GODOT" --headless --path . --script res://tools/ui_check.gd    # les 12 écrans se construisent
+"$GODOT" --headless --path . --script res://tools/ui_check.gd    # écrans + invariants de mise en page
 "$GODOT" --headless --path . --script res://tools/season.gd      # saison complète + rapport
 bash tools/check_all.sh                                          # les trois d'affilée
+
+# Captures d'écran réelles de chaque écran (ouvre brièvement une fenêtre)
+"$GODOT" --path . -- --shots=all
 ```
 
 > Après avoir ajouté un fichier contenant un `class_name`, il faut réindexer une

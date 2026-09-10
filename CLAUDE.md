@@ -117,10 +117,33 @@ bash tools/check_all.sh    # tests + écrans + saison complète
 Les trois doivent passer : 63 vérifications unitaires, 12 écrans construits,
 et une saison qui se termine avec des classements et des finances cohérents.
 
-## Pièges connus de GDScript rencontrés sur ce projet
+## Pièges connus de Godot rencontrés sur ce projet
+- **`PanelContainer`, `MarginContainer`, `ScrollContainer` et `CenterContainer`
+  EMPILENT leurs enfants** dans le même rectangle. Y ajouter plusieurs contrôles
+  les superpose au lieu de les aligner — le bug ne plante pas, il rend l'écran
+  illisible. Toujours mettre UN seul enfant (une `HBoxContainer`/`VBoxContainer`)
+  et ajouter dedans. `tools/ui_check.gd` vérifie désormais cet invariant.
 - `Side`, `sign`, `Color` : noms réservés par Godot. Ne pas nommer une classe ou
   une fonction statique comme un symbole global (`ContractSystem.sign_contract`).
 - Une continuation de ligne exige un `\` explicite, y compris dans une lambda.
+- Une variable `:=` ne peut pas inférer depuis une valeur non typée (retour de
+  `Node.get()`, itération sur un `Array` non typé) : annoter le type.
 - Une erreur d'exécution dans `_initialize()` d'un `SceneTree` ne fait pas
   planter le processus : il tourne indéfiniment. Toujours lancer les scripts
   headless avec un `timeout`.
+
+## Vérifier l'interface pour de vrai
+Un test qui dit « l'écran se construit sans erreur » ne prouve RIEN sur son
+apparence : c'est exactement comme ça qu'un tableau entièrement superposé est
+passé entre les mailles. Deux outils complémentaires :
+
+```bash
+# 1. Invariants de mise en page (headless, rapide, dans check_all.sh)
+godot --headless --path . --script res://tools/ui_check.gd
+
+# 2. Captures d'écran réelles de chaque écran (ouvre une fenêtre)
+godot --path . -- --shots=all
+godot --path . -- --shots=squad,finance      # sous-ensemble
+```
+Les PNG sont écrits dans `user://shots/` et le chemin absolu est imprimé.
+**Après toute modification visuelle, regarder les captures.**

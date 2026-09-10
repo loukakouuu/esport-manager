@@ -28,7 +28,7 @@ func build() -> void:
 	eval.add_child(UiKit.label("Niveau estimé : %s"
 		% ScoutingSystem.ability_text(w, p), 15))
 	eval.add_child(UiKit.label("Potentiel : %s"
-		% ScoutingSystem.potential_stars(w, p), 15, UiKit.ACCENT))
+		% UiKit.stars(ScoutingSystem.potential_value(w, p)), 15, UiKit.ACCENT))
 	eval.add_child(UiKit.subtitle(ScoutingSystem.confidence_text(w, p)))
 	head.add_child(eval)
 	add_child(head)
@@ -98,7 +98,7 @@ func _condition_panel(w: World, p: Player) -> Control:
 	v.add_child(UiKit.label("Condition", 15, UiKit.ACCENT))
 	v.add_child(_bar("Forme", p.form, UiKit.GOOD))
 	v.add_child(_bar("Moral", p.morale, UiKit.GOOD))
-	v.add_child(_bar("Netteté", p.sharpness, UiKit.ACCENT))
+	v.add_child(_bar("Netteté", p.sharpness, UiKit.GOOD))
 	v.add_child(_bar("Fatigue", p.fatigue, UiKit.WARN))
 	v.add_child(_bar("Usure mentale", p.burnout, UiKit.BAD))
 	v.add_child(_bar("Satisfaction", p.happiness, UiKit.GOOD))

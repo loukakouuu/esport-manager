@@ -60,11 +60,17 @@ static func _importance_for(comp: Competition, label: String) -> float:
 
 ## Répartit `count` journées sur la fenêtre de la phase, en visant les
 ## week-ends — comme les vraies ligues.
+##
+## Contrainte impérative : les journées renvoyées sont STRICTEMENT croissantes.
+## Sans cela, l'attirance vers le samedi peut poser deux tours d'un arbre le
+## même jour — et une demi-finale programmée avant que ses quarts soient joués
+## ne trouve pas ses participants, ce qui bloque la compétition.
 static func _match_days(start_day: int, end_day: int, count: int) -> Array[int]:
 	var out: Array[int] = []
 	if count <= 0:
 		return out
 	var span := maxi(end_day - start_day, count)
+	var previous := -1
 	for i in count:
 		var d := start_day + int(round(float(i) * float(span) / float(maxi(count - 1, 1))))
 		# On glisse vers le samedi le plus proche quand c'est possible.
@@ -73,7 +79,9 @@ static func _match_days(start_day: int, end_day: int, count: int) -> Array[int]:
 			var shift := (6 - wd)
 			if d + shift <= end_day:
 				d += shift
-		out.append(clampi(d, start_day, end_day))
+		d = maxi(d, previous + 1)
+		previous = d
+		out.append(d)
 	return out
 
 

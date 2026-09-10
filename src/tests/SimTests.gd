@@ -135,7 +135,7 @@ static func _economy() -> TestCase:
 		types[r["type"]] = int(types.get(r["type"], 0)) + 1
 	t.eq(int(types.get("pistol", 0)), 2, "exactement deux pistols par map")
 	t.check(types.has("full"), "des full buys sont joués")
-	t.check(types.has("eco") or types.has("force"),
+	t.check(types.has("eco") or types.has("force") or types.has("bonus"),
 		"des rounds à économie réduite existent")
 
 	var first_half := 0

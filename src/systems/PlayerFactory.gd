@@ -45,7 +45,24 @@ static func _names() -> Dictionary:
 	return DataFile.load_json(NAMES_PATH, {"regions": {}}) as Dictionary
 
 
-static func make_gamertag(rng: Rng) -> String:
+## Génère un pseudo. Si `ids` est fourni, l'unicité dans le monde est garantie
+## (on retente, puis on suffixe un nombre en dernier recours).
+static func make_gamertag(rng: Rng, ids: Ids = null) -> String:
+	for _attempt in 12:
+		var tag := _random_tag(rng)
+		if ids == null:
+			return tag
+		if ids.claim_tag(tag):
+			return tag
+	var fallback := _random_tag(rng)
+	for n in range(2, 500):
+		var candidate := "%s%d" % [fallback, n]
+		if ids == null or ids.claim_tag(candidate):
+			return candidate
+	return fallback
+
+
+static func _random_tag(rng: Rng) -> String:
 	var n := _names()
 	if rng.chance(0.45):
 		return str(rng.pick(n.get("tag_solo", ["Player"])))
@@ -73,7 +90,7 @@ static func create(rng: Rng, module: GameModule, ids: Ids, today: int,
 	p.nationality = str(rng.pick(reg.get("countries", ["FR"])))
 	p.first_name = str(rng.pick(reg.get("first", ["Alex"])))
 	p.last_name = str(rng.pick(reg.get("last", ["Martin"])))
-	p.gamertag = make_gamertag(rng)
+	p.gamertag = make_gamertag(rng, ids)
 
 	var age: int = int(opts.get("age", rng.gauss_i(21.5, 2.6, 16, 32)))
 	p.birth_day = GameDate.add_days(GameDate.add_years(today, -age), -rng.range_i(0, 364))

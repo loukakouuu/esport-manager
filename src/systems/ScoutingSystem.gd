@@ -74,23 +74,15 @@ static func ability_text(world: World, p: Player) -> String:
 	return "%d-%d" % [maxi(est - m, 1), mini(est + m, 200)]
 
 
-## Potentiel : toujours affiché en étoiles, jamais en chiffre. Personne ne
-## sait vraiment jusqu'où ira un joueur de 17 ans.
-static func potential_stars(world: World, p: Player) -> String:
+## Potentiel estimé, exprimé en étoiles (0..5) et jamais en chiffre : personne
+## ne sait vraiment jusqu'où ira un joueur de 17 ans. La mise en forme
+## appartient à l'interface (UiKit.stars), pas à ce système.
+## Repères : 3 étoiles ~ titulaire de Challengers, 4 ~ niveau VCT,
+## 5 ~ candidat au top mondial.
+static func potential_value(world: World, p: Player) -> float:
 	var k := knowledge(world, p)
 	var est := float(p.potential_ability) + _bias(p, "pa") * (1.0 - k) * 40.0
-	var stars := clampf((est - 60.0) / 28.0, 0.5, 5.0)
-	var full := int(floor(stars))
-	var half := (stars - float(full)) >= 0.5
-	var s := ""
-	for i in 5:
-		if i < full:
-			s += "*"
-		elif i == full and half:
-			s += "+"
-		else:
-			s += "."
-	return s
+	return clampf((est - 60.0) / 26.0, 0.5, 5.0)
 
 
 static func estimated_attr(world: World, p: Player, key: String) -> int:

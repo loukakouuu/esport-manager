@@ -89,14 +89,14 @@ func build() -> void:
 			module.role_label(p.primary_role) + (" (IGL)" if p.is_igl else ""),
 			str(p.age(w.today)),
 			ScoutingSystem.ability_text(w, p),
-			{"text": ScoutingSystem.potential_stars(w, p), "color": UiKit.ACCENT},
+			{"text": UiKit.stars(ScoutingSystem.potential_value(w, p)), "color": UiKit.ACCENT},
 			p.region,
 			"Agent libre" if p.is_free_agent()
 				else ("%s — veut partir" % current.name if p.wants_out
 					else current.name),
 			{"text": Money.fmt_short(demand),
 				"color": UiKit.TEXT if affordable else UiKit.BAD},
-			Money.fmt_short(p.contract.buyout if p.contract != null else 0),
+			Money.fmt_short(p.contract.buyout) if p.contract != null else "—",
 			ScoutingSystem.confidence_text(w, p),
 		])
 	add_child(UiKit.scroll(UiKit.table(columns, rows, func(i: int):

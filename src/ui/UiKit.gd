@@ -97,15 +97,23 @@ static func table(columns: Array, rows: Array, row_clicked: Callable = Callable(
 	var grid := VBoxContainer.new()
 	grid.add_theme_constant_override("separation", 1)
 
-	var header := _row_container(BG_PANEL)
+	# Tableau sans en-tête (arbres de tournoi) : on n'affiche pas une ligne
+	# d'intitulés vides.
+	var has_labels := false
 	for c in columns:
-		header.add_child(_cell(str((c as Dictionary).get("label", "")),
-			c, TEXT_DIM, 12))
-	grid.add_child(header)
+		if str((c as Dictionary).get("label", "")) != "":
+			has_labels = true
+	if has_labels:
+		var header := _row_container(BG_PANEL)
+		for c in columns:
+			_cells_of(header).add_child(_cell(str((c as Dictionary).get("label", "")),
+				c, TEXT_DIM, 12))
+		grid.add_child(header)
 
 	for i in rows.size():
 		var bg := BG_ROW if i % 2 == 0 else BG_ROW_ALT
 		var line := _row_container(bg)
+		var cells := _cells_of(line)
 		var row: Array = rows[i]
 		for j in columns.size():
 			var v = row[j] if j < row.size() else ""
@@ -116,20 +124,28 @@ static func table(columns: Array, rows: Array, row_clicked: Callable = Callable(
 				color = (v as Dictionary).get("color", TEXT)
 			else:
 				text = str(v)
-			line.add_child(_cell(text, columns[j], color, 13))
+			cells.add_child(_cell(text, columns[j], color, 13))
 		if row_clicked.is_valid():
-			var btn := Button.new()
-			btn.flat = true
-			btn.focus_mode = Control.FOCUS_NONE
-			btn.set_anchors_preset(Control.PRESET_FULL_RECT)
-			btn.mouse_filter = Control.MOUSE_FILTER_PASS
+			# Ligne cliquable sans bouton superposé : le panneau intercepte le
+			# clic, les libellés laissent passer la souris.
 			var idx := i
-			btn.pressed.connect(func(): row_clicked.call(idx))
-			line.add_child(btn)
+			line.mouse_filter = Control.MOUSE_FILTER_STOP
+			line.gui_input.connect(func(event: InputEvent):
+				if event is InputEventMouseButton \
+						and (event as InputEventMouseButton).pressed \
+						and (event as InputEventMouseButton).button_index \
+							== MOUSE_BUTTON_LEFT:
+					row_clicked.call(idx))
 		grid.add_child(line)
 	return grid
 
 
+## Une ligne de tableau = un PanelContainer (le fond) contenant UN SEUL enfant,
+## la HBoxContainer des cellules.
+##
+## Piège Godot à ne jamais réintroduire : un PanelContainer empile TOUS ses
+## enfants dans le même rectangle. Y ajouter les cellules directement les
+## superpose au lieu de les aligner. On passe donc toujours par _cells_of().
 static func _row_container(bg: Color) -> PanelContainer:
 	var p := PanelContainer.new()
 	var sb := StyleBoxFlat.new()
@@ -141,8 +157,14 @@ static func _row_container(bg: Color) -> PanelContainer:
 	p.add_theme_stylebox_override("panel", sb)
 	var h := HBoxContainer.new()
 	h.add_theme_constant_override("separation", 10)
+	h.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.add_child(h)
 	return p
+
+
+static func _cells_of(row: PanelContainer) -> HBoxContainer:
+	return row.get_child(0) as HBoxContainer
 
 
 static func _cell(text: String, col, color: Color, size: int) -> Control:
@@ -200,6 +222,7 @@ static func rating_color(v: float) -> Color:
 	return TEXT
 
 
+## Zone défilante qui occupe la place restante (listes longues).
 static func scroll(child: Control) -> ScrollContainer:
 	var s := ScrollContainer.new()
 	s.size_flags_vertical = Control.SIZE_EXPAND_FILL
@@ -207,3 +230,25 @@ static func scroll(child: Control) -> ScrollContainer:
 	child.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	s.add_child(child)
 	return s
+
+
+## Défilement HORIZONTAL seul, sur une seule ligne de haut.
+## À utiliser pour les barres d'onglets : un `scroll()` normal réclamerait
+## toute la hauteur restante et laisserait un trou béant sous les onglets.
+static func scroll_h(child: Control, height: int = 34) -> ScrollContainer:
+	var s := ScrollContainer.new()
+	s.vertical_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	s.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	s.size_flags_vertical = Control.SIZE_SHRINK_BEGIN
+	s.custom_minimum_size = Vector2(0, height)
+	s.add_child(child)
+	return s
+
+
+## Étoiles de potentiel, façon Football Manager.
+static func stars(value: float, max_stars: int = 5) -> String:
+	var full := int(round(clampf(value, 0.0, float(max_stars))))
+	var out := ""
+	for i in max_stars:
+		out += "★" if i < full else "☆"
+	return out

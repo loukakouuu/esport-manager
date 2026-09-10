@@ -16,12 +16,19 @@ func build() -> void:
 
 	var header := UiKit.hbox(14)
 	header.add_child(UiKit.title("Effectif"))
+	header.add_child(UiKit.button("Aligner les 5 meilleurs", func():
+		_auto_lineup(w, r)))
+	header.add_child(UiKit.button("Régler la tactique",
+		func(): navigate("tactics")))
 	header.add_child(UiKit.spacer())
 	header.add_child(UiKit.label("Cohésion", 13, UiKit.TEXT_DIM))
 	header.add_child(UiKit.meter(r.chemistry, 100.0, 120,
 		UiKit.GOOD if r.chemistry > 65.0 else UiKit.WARN))
 	header.add_child(UiKit.label("%.0f" % r.chemistry, 13))
 	add_child(header)
+	add_child(UiKit.subtitle(
+		"Le « niveau » est une estimation de votre staff, pas une valeur exacte. "
+		+ "Un recruteur compétent réduit la marge d'erreur."))
 
 	var players := w.players_of(r.id)
 	players.sort_custom(func(a: Player, b: Player):
@@ -34,12 +41,12 @@ func build() -> void:
 	var columns := [
 		{"label": "", "width": 26},
 		{"label": "Joueur", "width": 120},
-		{"label": "Poste", "width": 95},
+		{"label": "Poste", "width": 125},
 		{"label": "Âge", "width": 40, "align": "right"},
 		{"label": "Niveau", "width": 60, "align": "right"},
 		{"label": "Forme", "width": 55, "align": "right"},
 		{"label": "Moral", "width": 55, "align": "right"},
-		{"label": "État", "width": 110},
+		{"label": "État", "width": 140},
 		{"label": "Note", "width": 55, "align": "right"},
 		{"label": "ACS", "width": 55, "align": "right"},
 		{"label": "Salaire", "width": 85, "align": "right"},
@@ -73,16 +80,6 @@ func build() -> void:
 	add_child(UiKit.scroll(UiKit.table(columns, rows, func(i: int):
 		navigate("player", {"player_id": players[i].id}))))
 
-	var actions := UiKit.hbox(8)
-	actions.add_child(UiKit.button("Aligner les 5 meilleurs", func():
-		_auto_lineup(w, r)))
-	actions.add_child(UiKit.button("Régler la tactique",
-		func(): navigate("tactics")))
-	add_child(actions)
-
-	add_child(UiKit.subtitle(
-		"Le « niveau » est une estimation de votre staff, pas une valeur exacte. "
-		+ "Un recruteur compétent réduit la marge d'erreur."))
 
 
 ## Sélection automatique : meilleure note à chaque poste de la composition type.

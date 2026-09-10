@@ -77,13 +77,15 @@ func _pnl_panel(w: World, o: Organization, from_day: int) -> Control:
 	var head := UiKit.hbox(8)
 	head.add_child(UiKit.label("Compte de résultat", 15, UiKit.ACCENT))
 	head.add_child(UiKit.spacer())
-	head.add_child(UiKit.button("Saison en cours" if _period == 1
-		else "12 derniers mois", func():
-		_period = 1 - _period
-		refresh()))
+	head.add_child(UiKit.button(
+		"Voir la saison en cours" if _period == 1 else "Voir les 12 derniers mois",
+		func():
+			_period = 1 - _period
+			refresh()))
 	v.add_child(head)
-	v.add_child(UiKit.subtitle("Du %s au %s"
-		% [GameDate.format_long(from_day), GameDate.format_long(w.today)]))
+	v.add_child(UiKit.subtitle("%s — du %s au %s"
+		% ["Saison en cours" if _period == 0 else "12 derniers mois",
+			GameDate.format_long(from_day), GameDate.format_long(w.today)]))
 
 	var pnl := o.ledger.pnl(from_day, w.today)
 	var income: Array = []
