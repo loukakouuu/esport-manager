@@ -30,6 +30,12 @@ var fixtures: Dictionary = {}
 var player_org_id: String = ""
 var player_game_id: String = "valorant"
 
+## Pack de données avec lequel cette partie a été créée ("" = contenu livré).
+## Sauvegardé pour que le chargement rétablisse le même univers : recharger une
+## partie « vraies équipes » avec le contenu fictif afficherait des noms qui ne
+## correspondent plus à rien.
+var data_pack: String = ""
+
 ## Boîte de réception : tout ce que le jeu a à dire au joueur.
 var inbox: Array = []
 
@@ -171,6 +177,7 @@ func to_dict() -> Dictionary:
 		"season_year": season_year,
 		"ids": ids.to_dict(), "rng": rng.save_state(),
 		"player_org_id": player_org_id, "player_game_id": player_game_id,
+		"data_pack": data_pack,
 		"inbox": inbox.duplicate(true),
 		"sponsor_market": sponsor_market.duplicate(true),
 		"history": history.duplicate(true),
@@ -195,6 +202,7 @@ static func from_dict(d: Dictionary) -> World:
 	w.rng.load_state(d.get("rng", {}))
 	w.player_org_id = d.get("player_org_id", "")
 	w.player_game_id = d.get("player_game_id", "valorant")
+	w.data_pack = str(d.get("data_pack", ""))
 	w.inbox = (d.get("inbox", []) as Array).duplicate(true)
 	w.sponsor_market = (d.get("sponsor_market", []) as Array).duplicate(true)
 	w.history = (d.get("history", []) as Array).duplicate(true)

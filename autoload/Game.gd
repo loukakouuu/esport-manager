@@ -311,6 +311,15 @@ func load_game(slot: String) -> bool:
 	var w := SaveGame.load_slot(slot)
 	if w == null:
 		return false
+	# Rétablir le pack de la partie AVANT de rendre la main : maps, agents et
+	# prénoms sont relus en cours de simulation, et doivent venir du même
+	# univers que celui avec lequel la partie a été créée.
+	if DataPack.active() != w.data_pack:
+		if w.data_pack == "" or DataPack.exists(w.data_pack):
+			DataPack.set_active(w.data_pack)
+		else:
+			Log.w("save", "Pack « %s » absent : la partie se charge avec le "
+				% w.data_pack + "contenu livré, certains noms peuvent différer.")
 	world = w
 	world_loaded.emit()
 	state_changed.emit()

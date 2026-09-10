@@ -13,10 +13,14 @@ static var _cache: Dictionary = {}
 static func load_json(path: String, fallback: Variant = null) -> Variant:
 	if _cache.has(path):
 		return _cache[path]
-	if not FileAccess.file_exists(path):
-		Log.w("data", "Fichier introuvable : %s" % path)
+	# Un pack de données actif peut remplacer n'importe quel fichier de
+	# res://data/ — voir DataPack. Le cache est indexé sur le chemin DEMANDÉ,
+	# et DataPack.set_active() le purge : deux packs ne se mélangent jamais.
+	var actual := DataPack.resolve(path)
+	if not FileAccess.file_exists(actual):
+		Log.w("data", "Fichier introuvable : %s" % actual)
 		return fallback
-	var f := FileAccess.open(path, FileAccess.READ)
+	var f := FileAccess.open(actual, FileAccess.READ)
 	if f == null:
 		Log.e("data", "Lecture impossible : %s" % path)
 		return fallback
@@ -26,7 +30,7 @@ static func load_json(path: String, fallback: Variant = null) -> Variant:
 	var err := json.parse(text)
 	if err != OK:
 		Log.e("data", "JSON invalide dans %s ligne %d : %s"
-			% [path, json.get_error_line(), json.get_error_message()])
+			% [actual, json.get_error_line(), json.get_error_message()])
 		return fallback
 	_cache[path] = json.data
 	return json.data

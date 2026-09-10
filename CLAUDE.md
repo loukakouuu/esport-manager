@@ -6,7 +6,7 @@ avec Claude Code. Le joueur dirige une organisation : il recrute, entraîne,
 négocie des sponsors, gère une trésorerie, et suit ses matchs sous forme de
 simulation textuelle round par round — **aucun rendu 3D du match**.
 
-Deux partis pris fondateurs :
+Trois partis pris fondateurs :
 
 1. **On dirige une STRUCTURE, pas une équipe.** L'organisation porte la
    trésorerie et la marque ; elle possède un ou plusieurs rosters. C'est ce qui
@@ -15,6 +15,10 @@ Deux partis pris fondateurs :
 2. **La finance est un vrai système, pas un compteur.** Toute somme d'argent
    passe par une écriture comptable dans un grand livre. Le compte de résultat
    affiché au joueur est littéralement la somme de ce que le moteur a dépensé.
+3. **Un effectif n'est pas une addition de notes.** Cinq joueurs à 150 de CA qui
+   se détestent perdent contre cinq joueurs à 135 qui se comprennent. Le
+   vestiaire, les promesses de temps de jeu et l'entraînement sont des systèmes
+   à part entière, pas de la décoration.
 
 Discipline livrée : **VALORANT**. L'architecture est multi-jeu dès maintenant
 (voir `src/gamemodules/`), mais un seul module est implémenté.
@@ -34,18 +38,20 @@ res://
 │   └── world/                 orgs.json, sponsors.json, names.json,
 │                              season_valorant.json (structure des compétitions)
 ├── src/
-│   ├── core/                  Money, Rng, GameDate, Ids, Log, DataFile
+│   ├── core/                  Money, Rng, GameDate, Ids, Log, DataFile, DataPack
 │   ├── model/                 Entités pures et sérialisables (World, Player,
 │   │   │                      Organization, Roster, Competition, Fixture…)
+│   │   │                      + calculs purs : AbilityCalc, RoleFamiliarity,
+│   │   │                      PersonalityCalc, PlayingTime, Attributes
 │   │   └── finance/           Ledger, Transaction, SponsorDeal, Loan
 │   ├── gamemodules/           Interface GameModule + implémentation valorant/
 │   ├── systems/               Toute la logique de simulation (sans état propre)
 │   ├── save/                  Sauvegarde et migrations
-│   ├── ui/                    UiKit, App, screens/
+│   ├── ui/                    UiKit, App, Screen, widgets/, screens/
 │   └── tests/                 Suites de tests
 ├── autoload/Game.gd           Façade unique entre l'UI et le moteur
 ├── scenes/Main.tscn           Scène de lancement
-└── tools/                     Scripts headless (tests, simulation de saison)
+└── tools/                     Scripts headless (tests, saison, écrans, import)
 ```
 
 ## Règles d'architecture (non négociables)
@@ -54,18 +60,28 @@ res://
    `src/model/`. La logique vit dans `src/systems/`, sous forme de fonctions
    `static` qui prennent le World en paramètre. Conséquences : la sauvegarde
    est un `to_dict()`, et chaque système est testable isolément.
+   *(Exception assumée : les calculs purs d'un seul objet — `AbilityCalc`,
+   `RoleFamiliarity`, `PersonalityCalc` — vivent dans `model/` parce qu'ils ne
+   touchent pas au monde.)*
 2. **L'UI ne touche jamais un système.** Elle passe par l'autoload `Game`, qui
    exécute puis émet un signal. Un écran ne peut donc pas casser la simulation.
-3. **Tout l'aléa passe par `Rng`.** Aucun appel à `randi()`/`randf()` global
+3. **Les systèmes ne connaissent pas l'UI.** Aucun `UiKit` dans `src/systems/`,
+   `src/model/`, `src/gamemodules/`, `src/core/`. Un système qui veut dire
+   quelque chose au joueur écrit une phrase, pas des étoiles.
+4. **Tout l'aléa passe par `Rng`.** Aucun appel à `randi()`/`randf()` global
    dans la logique. Une partie est rejouable à l'identique, et l'équilibrage se
    compare à graine égale.
-4. **L'argent est un entier de cents.** Jamais de float. Voir `src/core/Money.gd`.
-5. **Le temps est un index de jour entier** (`src/core/GameDate.gd`), jamais un
+5. **L'argent est un entier de cents.** Jamais de float. Voir `src/core/Money.gd`.
+6. **Le temps est un index de jour entier** (`src/core/GameDate.gd`), jamais un
    objet date.
-6. **Rien de spécifique à Valorant hors de `src/gamemodules/valorant/`.**
+7. **Rien de spécifique à Valorant hors de `src/gamemodules/valorant/`.**
    Le reste du moteur ne connaît que l'interface `GameModule`.
-7. **Aucun contenu en dur.** Maps, agents, structures, sponsors, prénoms et
-   format des compétitions sont dans `data/`.
+8. **Aucun contenu en dur.** Maps, agents, structures, sponsors, prénoms et
+   format des compétitions sont dans `data/`, et remplaçables par un pack
+   (voir `src/core/DataPack.gd` et `docs/DATA_PACKS.md`).
+9. **Un écran ne mémorise rien.** Il est détruit et reconstruit à chaque
+   rafraîchissement. Onglet actif, tri, filtre : tout passe par
+   `App.view_state`, exposé aux écrans par `Screen.ui(clé)`.
 
 ## Conventions de code
 - Fichiers et classes en **PascalCase** (`Player.gd`), variables et fonctions en
@@ -80,14 +96,22 @@ res://
 # Suite de tests (réindexe les classes puis exécute)
 bash tools/test.sh
 
+# Écrans : construction + invariants de mise en page, tous onglets balayés
+bash tools/check_ui.sh
+
 # Simulation d'une saison complète + rapport d'équilibrage
 godot --headless --path . --script res://tools/season.gd
+
+# Captures d'écran réelles (ouvre brièvement une fenêtre)
+godot --path . -- --shots=all
+godot --path . -- --shots=squad,player
 
 # Lancer le jeu
 godot --path .
 ```
 Après avoir ajouté un fichier avec `class_name`, il faut réindexer une fois :
-`godot --headless --path . --editor --quit` (c'est ce que fait `tools/test.sh`).
+`godot --headless --path . --editor --quit` (c'est ce que font `tools/test.sh`
+et `tools/check_ui.sh`).
 
 ## État actuel
 Fait :
@@ -96,17 +120,22 @@ Fait :
 - [x] Module Valorant : rôles, attributs, agents, maps, tactiques
 - [x] Simulation de match round par round avec économie officielle, veto de maps,
       momentum, temps morts, clutchs, statistiques individuelles et notes
-- [x] Génération du monde : 96 structures, ~720 joueurs, 4 régions
+- [x] Génération du monde : 96 structures, ~700 joueurs, 4 régions
 - [x] Pyramide compétitive : VCT (4 ligues) + Challengers + Masters + Champions
       + Ascension, formats round robin / poules / double élimination / suisse
 - [x] Finances : grand livre, sponsors, subventions, merch, contenu, salaires,
       charges sociales, infrastructures, emprunts, impôt, faillite
 - [x] Contrats, clauses de rachat, marché des joueurs, IA de recrutement
 - [x] Progression, courbe d'âge, blessures, burnout, moral, retraites
-- [x] Scouting à information imparfaite
+- [x] Relève annuelle : promotions d'académie et vivier libre
+- [x] Scouting à information imparfaite + rapport d'observation rédigé
+- [x] Aisance par poste, personnalité déduite, historique de développement
+- [x] Entraînement : programme collectif hebdomadaire + travail individuel
+- [x] Vestiaire : influence, affinités, clans, conflits, griefs, conversations
 - [x] Direction : objectifs de saison et confiance
 - [x] Sauvegarde/chargement avec migration de schéma
-- [x] Interface complète (12 écrans)
+- [x] Packs de données remplaçables + importateur Liquipedia
+- [x] Interface complète (14 écrans, 25 vues)
 
 Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 
@@ -114,20 +143,28 @@ Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 ```bash
 bash tools/check_all.sh    # tests + écrans + saison complète
 ```
-Les trois doivent passer : 63 vérifications unitaires, 12 écrans construits,
-et une saison qui se termine avec des classements et des finances cohérents.
+Les trois doivent passer : 129 vérifications unitaires, 25 vues d'écran
+construites sans violation d'invariant, et une saison qui se termine avec des
+classements et des finances cohérents.
 
 ## Pièges connus de Godot rencontrés sur ce projet
 - **`PanelContainer`, `MarginContainer`, `ScrollContainer` et `CenterContainer`
   EMPILENT leurs enfants** dans le même rectangle. Y ajouter plusieurs contrôles
   les superpose au lieu de les aligner — le bug ne plante pas, il rend l'écran
   illisible. Toujours mettre UN seul enfant (une `HBoxContainer`/`VBoxContainer`)
-  et ajouter dedans. `tools/ui_check.gd` vérifie désormais cet invariant.
-- `Side`, `sign`, `Color` : noms réservés par Godot. Ne pas nommer une classe ou
-  une fonction statique comme un symbole global (`ContractSystem.sign_contract`).
+  et ajouter dedans. `tools/ui_check.gd` vérifie cet invariant.
+- **Un `ScrollContainer` dimensionne son enfant d'après les `SIZE_EXPAND` de
+  L'ENFANT, pas les siens.** Sur un axe où le défilement est désactivé, un
+  enfant sans `SIZE_EXPAND` retombe à sa taille minimale : le contenu disparaît
+  sans la moindre erreur. `tools/ui_check.gd` vérifie aussi cet invariant.
+- `Side`, `sign`, `Color`, `_get` : noms réservés par Godot. Ne pas nommer une
+  classe, une fonction statique ou une méthode comme un symbole global
+  (`ContractSystem.sign_contract`, `_api_get` et non `_get`).
+- Un `HTTPRequest` doit être **dans l'arbre** avant sa première requête, et
+  `add_child()` ne prend effet qu'à la trame suivante : `await process_frame`.
 - Une continuation de ligne exige un `\` explicite, y compris dans une lambda.
 - Une variable `:=` ne peut pas inférer depuis une valeur non typée (retour de
-  `Node.get()`, itération sur un `Array` non typé) : annoter le type.
+  `Node.get()`, itération sur un `Array` non typé, littéral indexé) : annoter.
 - Une erreur d'exécution dans `_initialize()` d'un `SceneTree` ne fait pas
   planter le processus : il tourne indéfiniment. Toujours lancer les scripts
   headless avec un `timeout`.
@@ -135,15 +172,36 @@ et une saison qui se termine avec des classements et des finances cohérents.
 ## Vérifier l'interface pour de vrai
 Un test qui dit « l'écran se construit sans erreur » ne prouve RIEN sur son
 apparence : c'est exactement comme ça qu'un tableau entièrement superposé est
-passé entre les mailles. Deux outils complémentaires :
+passé entre les mailles, puis qu'un corps de tableau invisible est passé une
+deuxième fois. Trois niveaux, du moins cher au plus sûr :
 
 ```bash
-# 1. Invariants de mise en page (headless, rapide, dans check_all.sh)
-godot --headless --path . --script res://tools/ui_check.gd
+# 1. Invariants de mise en page, tous les onglets de tous les écrans
+bash tools/check_ui.sh
 
-# 2. Captures d'écran réelles de chaque écran (ouvre une fenêtre)
+# 2. Captures d'écran réelles, un PNG par onglet
 godot --path . -- --shots=all
-godot --path . -- --shots=squad,finance      # sous-ensemble
+godot --path . -- --shots=squad,finance
+
+# 3. Jouer.
 ```
 Les PNG sont écrits dans `user://shots/` et le chemin absolu est imprimé.
-**Après toute modification visuelle, regarder les captures.**
+**Après toute modification visuelle, regarder les captures.** Un invariant
+attrape une faute de structure, jamais une faute de goût.
+
+## Équilibrage — repères à ne pas casser
+Ces valeurs ont été mesurées, pas devinées. Une modification qui les déplace
+doit être intentionnelle.
+
+| Grandeur | Repère |
+| --- | --- |
+| Progression 17-18 ans | +9 de CA par saison en moyenne |
+| Progression 19-20 ans | +6 |
+| Progression 21-23 ans | +2 |
+| Déclin 26 ans et plus | −6 |
+| Usure mentale, programme équilibré | ~15 en fin de saison |
+| Usure mentale, scrims à fond sans repos | ~75 |
+| Moral d'un joueur correctement traité | gravite autour de 60 |
+| Population du monde | stable autour de 850 joueurs |
+| Note moyenne d'un match | 1.00 |
+| Victoire à niveau égal | 50 % |

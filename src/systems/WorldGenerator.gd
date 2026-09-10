@@ -21,6 +21,9 @@ static func generate(seed_value: int, start_day: int,
 		player_org_name: String = "") -> World:
 	var world := World.new()
 	world.seed_value = seed_value
+	# On grave le pack utilisé : rejouer une sauvegarde avec un autre contenu
+	# afficherait des noms qui ne correspondraient plus à rien.
+	world.data_pack = DataPack.active()
 	world.rng = Rng.new(seed_value)
 	world.today = start_day
 	world.start_day = start_day
@@ -147,7 +150,15 @@ static func _make_roster(world: World, module: GameModule, o: Organization,
 	for _i in extra:
 		roles.append(str(rng.pick(module.roles())))
 
-	var igl_index := rng.range_i(0, 4)
+	# Un pack de données peut fournir l'effectif RÉEL de cette structure. Il ne
+	# donne que des identités : le niveau, les attributs et le potentiel
+	# restent générés, parce qu'ils n'existent nulle part dans le monde réel.
+	var real := real_roster_for(o.name)
+	if not real.is_empty():
+		roles = _roles_for_real_roster(module, rng, real.size())
+
+	# Si le pack désigne déjà un capitaine, on ne veut pas en tirer un second.
+	var igl_index := -1 if _declares_igl(real) else rng.range_i(0, 4)
 	for i in roles.size():
 		var ca := clampi(int(round(target + rng.gauss(0.0, 9.0, -24.0, 24.0))), 25, 195)
 		if i >= 5:
@@ -156,6 +167,8 @@ static func _make_roster(world: World, module: GameModule, o: Organization,
 			"target_ca": ca, "role": roles[i], "region": region,
 			"igl": i == igl_index,
 		})
+		if i < real.size():
+			_apply_real_identity(world, p, real[i])
 		p.org_id = o.id
 		p.contract = _make_contract(world, o, p, rng, tier1)
 		world.players[p.id] = p
@@ -166,6 +179,99 @@ static func _make_roster(world: World, module: GameModule, o: Organization,
 	_assign_promises(world, r)
 	world.rosters[r.id] = r
 	o.add_roster(module.id(), r.id)
+
+
+# ============================================================================
+# Effectifs réels fournis par un pack de données
+# ============================================================================
+
+const DATA_ROSTERS := "res://data/world/rosters.json"
+
+
+## Effectif réel déclaré pour une structure, ou [] s'il n'y en a pas.
+## Format attendu (voir docs/DATA_PACKS.md et tools/import_liquipedia.gd) :
+##   {"teams": {"Fnatic": {"players": [{"tag", "first", "last", "country",
+##                                      "born", "igl", "sub"}]}}}
+static func real_roster_for(org_name: String) -> Array:
+	var d = DataFile.load_json(DATA_ROSTERS, {})
+	if not (d is Dictionary):
+		return []
+	var teams = (d as Dictionary).get("teams", {})
+	if not (teams is Dictionary) or not (teams as Dictionary).has(org_name):
+		return []
+	var entry = (teams as Dictionary)[org_name]
+	var players = (entry as Dictionary).get("players", []) if entry is Dictionary else []
+	return players if players is Array else []
+
+
+## Postes à distribuer sur un effectif réel dont on ne connaît pas les rôles.
+## On garde une composition jouable (un contrôleur, une sentinelle…) puis on
+## complète, plutôt que de tirer au hasard cinq duellistes.
+static func _roles_for_real_roster(module: GameModule, rng: Rng,
+		count: int) -> Array[String]:
+	var out: Array[String] = []
+	var ideal: Dictionary = module.ideal_composition()
+	for role in ideal:
+		for _n in int(ideal[role]):
+			if out.size() < count:
+				out.append(str(role))
+	while out.size() < count:
+		out.append(str(rng.pick(module.roles())))
+	return out
+
+
+## Remplace l'identité générée par celle du pack. Tout le reste — attributs,
+## potentiel, contrat, valeur — continue d'être simulé.
+static func _apply_real_identity(world: World, p: Player, entry_v) -> void:
+	if not (entry_v is Dictionary):
+		return
+	var entry: Dictionary = entry_v
+	var tag := str(entry.get("tag", "")).strip_edges()
+	if tag == "":
+		return
+	p.gamertag = tag
+	world.ids.claim_tag(tag)
+	var first := str(entry.get("first", "")).strip_edges()
+	var last := str(entry.get("last", "")).strip_edges()
+	if first != "":
+		p.first_name = first
+	if last != "":
+		p.last_name = last
+	var country := str(entry.get("country", "")).strip_edges()
+	if country != "":
+		p.nationality = country.to_upper()
+	# La date de naissance change l'âge, donc la courbe de progression : il
+	# faut la reprendre, sinon un vétéran de 28 ans progresserait comme un
+	# espoir de 17.
+	var born := str(entry.get("born", "")).strip_edges()
+	var day := _parse_iso_day(born)
+	if day > 0:
+		p.birth_day = day
+	if bool(entry.get("igl", false)):
+		p.is_igl = true
+	# Le rôle d'IGL entre dans le calcul de la capacité : sans ce recalcul, la
+	# fiche afficherait un niveau qui ne correspond plus au poste occupé.
+	AbilityCalc.refresh(p, world.module_for(p.game_id))
+
+
+static func _declares_igl(real: Array) -> bool:
+	for entry in real:
+		if entry is Dictionary and bool((entry as Dictionary).get("igl", false)):
+			return true
+	return false
+
+
+## "2003-02-06" -> index de jour, ou -1 si la chaîne n'est pas exploitable.
+static func _parse_iso_day(iso: String) -> int:
+	var parts := iso.split("-")
+	if parts.size() != 3:
+		return -1
+	var y := int(parts[0])
+	var m := int(parts[1])
+	var d := int(parts[2])
+	if y < 1970 or m < 1 or m > 12 or d < 1 or d > 31:
+		return -1
+	return GameDate.from_ymd(y, m, d)
 
 
 ## Statut promis à la création du monde : chaque joueur arrive avec un accord

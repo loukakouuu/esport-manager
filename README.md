@@ -51,38 +51,22 @@ cd "$env:USERPROFILE\Desktop\Projet\Esport Manager\esport-manager"
 Pour voir les `print()` et les erreurs dans le terminal, utiliser la variante
 console : `Godot_v4.7.2-stable_win64_console.exe`.
 
-### Outils de vérification (sans interface)
-
-```bash
-"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 63 tests unitaires
-"$GODOT" --headless --path . --script res://tools/ui_check.gd    # écrans + invariants de mise en page
-"$GODOT" --headless --path . --script res://tools/season.gd      # saison complète + rapport
-bash tools/check_all.sh                                          # les trois d'affilée
-
-# Captures d'écran réelles de chaque écran (ouvre brièvement une fenêtre)
-"$GODOT" --path . -- --shots=all
-```
-
-> Après avoir ajouté un fichier contenant un `class_name`, il faut réindexer une
-> fois avant que les scripts headless le voient :
-> `"$GODOT" --headless --path . --editor --quit`
-> (`tools/test.sh` et `tools/check_all.sh` le font automatiquement).
-
-### Une fois le jeu lancé
+## Une fois le jeu lancé
 
 1. **Créer le monde** — laisser la graine proposée ou en saisir une. À graine
-   identique, le monde généré est toujours le même.
+   identique, le monde généré est toujours le même. C'est aussi ici qu'on
+   choisit un *pack de données* (voir plus bas).
 2. **Choisir une structure** — les onglets filtrent par ligue. Commencer par
    *Challengers EMEA* : la campagne consiste à monter en VCT via l'Ascension.
    La colonne *Difficulté* résume réputation et trésorerie.
-3. **Jouer** — la barre du haut affiche date, trésorerie et résultat mensuel,
-   et contient les boutons *Avancer 1 jour*, *Avancer 1 semaine*,
-   *Jusqu'au prochain match* et *Sauvegarder*. La navigation à gauche donne
-   accès à l'effectif, la tactique, le calendrier, les compétitions, le marché,
-   les finances, les infrastructures et les messages.
+3. **Jouer** — la barre du haut ne bouge jamais : écusson, date, trésorerie,
+   résultat mensuel, prochain match, et le bouton **Continuer**. La colonne de
+   gauche regroupe les pages par thème.
 
 Premier réflexe conseillé : ouvrir **Finances**. Une équipe de Challengers
 démarre légèrement déficitaire — signer des sponsors est la première urgence.
+Second réflexe : **Entraînement**, pour choisir votre équilibre entre scrims et
+récupération. Il n'y a pas de bon réglage universel.
 
 ## Ce que le jeu simule
 
@@ -98,18 +82,67 @@ démarre légèrement déficitaire — signer des sponsors est la première urge
   cashprizes partagés avec les joueurs, salaires, charges sociales régionales,
   infrastructures, emprunts, impôt sur les sociétés, faillite.
 - **Joueurs** : attributs mentaux et spécifiques à la discipline, capacité et
-  potentiel, courbe d'âge esport, forme, moral, fatigue, burnout, blessures,
-  traits de personnalité, progression et retraite.
-- **Gestion** : contrats et clauses de rachat, marché avec IA de recrutement,
-  scouting à information imparfaite, objectifs et confiance de la direction.
+  potentiel, aisance par poste, personnalité, courbe d'âge esport, forme,
+  moral, fatigue, usure mentale, blessures, historique de développement mois
+  par mois, bilan de carrière, progression et retraite.
+- **Entraînement** : dix créneaux hebdomadaires à répartir entre scrims,
+  mécanique, théorie, préparation physique et repos ; travail individuel et
+  intensité réglables joueur par joueur.
+- **Vestiaire** : influence de chacun dans le groupe, affinités qui évoluent,
+  clans, conflits ouverts, griefs nommés (temps de jeu, salaire, projet
+  sportif, poste, surcharge) et conversations où le ton compte autant que le
+  sujet.
+- **Gestion** : contrats et clauses de rachat, promesses de temps de jeu,
+  marché avec IA de recrutement, scouting à information imparfaite, relève
+  annuelle par les académies, objectifs et confiance de la direction.
+
+## Jouer avec de vraies équipes
+
+Le jeu est livré avec un univers entièrement fictif — les noms de structures
+esport sont des marques déposées et les joueurs ont un droit à l'image.
+
+Comme Football Manager, il accepte des **packs de données** installés en local
+qui remplacent ce contenu. Un importateur construit un pack à partir des pages
+publiques de Liquipedia :
+
+```bash
+godot --headless --path . --script res://tools/import_liquipedia.gd -- \
+    --contact=vous@example.com
+```
+
+Il produit 48 structures réelles et environ 190 joueurs réels (pseudo, nom,
+nationalité, date de naissance). Les niveaux et attributs restent générés par
+le jeu : ils n'existent pas comme donnée publique.
+
+Tout est expliqué dans [`docs/DATA_PACKS.md`](docs/DATA_PACKS.md), y compris
+comment écrire un pack à la main et les conditions de licence.
+
+## Outils de vérification (sans interface)
+
+```bash
+"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 129 vérifications
+bash tools/check_ui.sh                                           # 25 vues d'écran
+"$GODOT" --headless --path . --script res://tools/season.gd      # saison complète
+bash tools/check_all.sh                                          # les trois d'affilée
+
+# Captures d'écran réelles de chaque onglet (ouvre brièvement une fenêtre)
+"$GODOT" --path . -- --shots=all
+```
+
+> Après avoir ajouté un fichier contenant un `class_name`, il faut réindexer une
+> fois avant que les scripts headless le voient :
+> `"$GODOT" --headless --path . --editor --quit`
+> (`tools/test.sh` et `tools/check_all.sh` le font automatiquement).
 
 ## Documentation
 
 - [`CLAUDE.md`](CLAUDE.md) — contexte, structure et règles du projet
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — décisions et justifications
+- [`docs/DATA_PACKS.md`](docs/DATA_PACKS.md) — vraies équipes, format des packs
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — suite du développement
 
 ## Univers fictif
 
-Structures, joueurs et sponsors sont entièrement fictifs et générés depuis
-`data/`. Aucune marque ni personne réelle n'est utilisée.
+Structures, joueurs et sponsors livrés avec le jeu sont entièrement fictifs et
+générés depuis `data/`. Aucune marque ni personne réelle n'est utilisée dans ce
+dépôt.
