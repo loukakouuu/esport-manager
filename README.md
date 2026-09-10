@@ -10,7 +10,13 @@ round, avec l'économie officielle, et racontés en texte et en statistiques.
 
 ## Démarrer
 
-### Le plus simple : par l'éditeur Godot
+### Le plus simple : double-cliquer sur `Jouer.bat`
+
+Le fichier `Jouer.bat`, à la racine du projet, lance directement le jeu.
+Si Godot est installé ailleurs que dans `Téléchargements`, ouvrez-le dans un
+éditeur de texte et corrigez la ligne `set GODOT=`.
+
+### Par l'éditeur Godot (pour modifier le jeu)
 
 1. Lancer `Godot_v4.7.2-stable_win64.exe`.
 2. **Importer** → sélectionner le fichier `project.godot` de ce dossier.
