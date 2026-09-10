@@ -78,6 +78,16 @@ const LABELS := {
 }
 
 
+## Attributs dont une valeur ÉLEVÉE est une mauvaise nouvelle. L'interface doit
+## inverser leur code couleur : un ego de 18 affiché en vert ferait croire à
+## une qualité, alors que c'est le futur problème de vestiaire.
+const NEGATIVE: Array[String] = [EGO, INJURY_PRONENESS, CONTROVERSY]
+
+
+static func is_negative(key: String) -> bool:
+	return NEGATIVE.has(key)
+
+
 static func label(key: String) -> String:
 	return LABELS.get(key, key.capitalize())
 

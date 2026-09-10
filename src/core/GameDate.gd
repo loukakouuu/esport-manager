@@ -138,3 +138,10 @@ static func format_duration_days(n: int) -> String:
 		return "%d mois" % int(round(float(n) / 30.44))
 	var years := float(n) / 365.25
 	return "%s an%s" % [String.num(years, 1), "s" if years >= 2.0 else ""]
+
+
+## "mars 27" — abscisse compacte pour les graphes mensuels.
+static func format_month_year(day_index: int) -> String:
+	var d := to_dict(day_index)
+	return "%s %02d" % [MONTHS_FR_SHORT[int(d["month"]) - 1],
+		int(d["year"]) % 100]

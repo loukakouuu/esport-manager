@@ -116,6 +116,97 @@ func set_tactic(key: String, value) -> void:
 	state_changed.emit()
 
 
+## Poste occupé par un joueur dans le cinq (différent de son poste naturel).
+func set_player_role(player_id: String, role_id: String) -> void:
+	var r := my_roster()
+	var p := world.player(player_id) if world != null else null
+	if r == null or p == null:
+		return
+	if role_id == "" or role_id == p.primary_role:
+		r.player_roles.erase(player_id)
+	else:
+		r.player_roles[player_id] = role_id
+	state_changed.emit()
+
+
+func set_igl(player_id: String) -> void:
+	var r := my_roster()
+	if r == null:
+		return
+	var module := world.module_for(r.game_id)
+	for pid in r.player_ids:
+		var p := world.player(pid)
+		if p == null:
+			continue
+		var was := p.is_igl
+		p.is_igl = pid == player_id
+		if was != p.is_igl:
+			# Le rôle d'IGL pèse dans le calcul de la CA : il faut recalculer,
+			# sinon la fiche affiche un niveau qui ne correspond plus au poste.
+			AbilityCalc.refresh(p, module)
+	state_changed.emit()
+
+
+# ============================================================================
+# Entraînement
+# ============================================================================
+
+func set_training_unit(unit: String, value: int) -> void:
+	var r := my_roster()
+	if r == null:
+		return
+	var plan := TrainingSystem.plan_of(r)
+	plan[unit] = clampi(value, 0, TrainingSystem.UNITS_PER_WEEK)
+	r.training = plan
+	state_changed.emit()
+
+
+func set_training_plan(plan: Dictionary) -> void:
+	var r := my_roster()
+	if r == null:
+		return
+	r.training = plan.duplicate()
+	state_changed.emit()
+
+
+func set_player_focus(player_id: String, attr_key: String) -> void:
+	var p := world.player(player_id) if world != null else null
+	if p == null or p.org_id != world.player_org_id:
+		return
+	p.training_focus = attr_key
+	state_changed.emit()
+
+
+func set_player_intensity(player_id: String, intensity: float) -> void:
+	var p := world.player(player_id) if world != null else null
+	if p == null or p.org_id != world.player_org_id:
+		return
+	p.training_intensity = clampf(intensity, 0.5, 1.5)
+	state_changed.emit()
+
+
+# ============================================================================
+# Vestiaire
+# ============================================================================
+
+func set_promised_time(player_id: String, status: int) -> Dictionary:
+	var p := world.player(player_id) if world != null else null
+	if p == null or p.org_id != world.player_org_id:
+		return {"ok": false}
+	var out := InteractionSystem.set_promise(world, p, status)
+	state_changed.emit()
+	return out
+
+
+func talk_to_player(player_id: String, topic: String, tone: int) -> Dictionary:
+	var p := world.player(player_id) if world != null else null
+	if p == null or p.org_id != world.player_org_id:
+		return {"ok": false, "text": "Ce joueur n'est pas dans votre effectif."}
+	var out := InteractionSystem.talk(world, p, topic, tone)
+	state_changed.emit()
+	return out
+
+
 func set_budget(key: String, cents: int) -> void:
 	var o := my_org()
 	if o == null:

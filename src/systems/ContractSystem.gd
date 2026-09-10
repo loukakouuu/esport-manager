@@ -87,6 +87,11 @@ static func sign_contract(world: World, org: Organization, p: Player, c: Contrac
 	p.wants_out = false
 	p.happiness = clampf(p.happiness + 12.0, 0.0, 100.0)
 	p.morale = clampf(p.morale + 8.0, 0.0, 100.0)
+	# Une signature emporte une promesse de temps de jeu : c'est elle que le
+	# joueur invoquera dans six mois s'il ne joue pas.
+	p.promised_time = _promise_for(c.squad_role)
+	p.promise_day = world.today
+	p.concerns.clear()
 
 	var r := world.roster(roster_id) if roster_id != "" \
 		else world.main_roster(org.id, p.game_id)
@@ -94,6 +99,18 @@ static func sign_contract(world: World, org: Organization, p: Player, c: Contrac
 		r.add_player(p.id)
 		if c.squad_role == Contract.SquadRole.STARTER and r.starters.size() < 5:
 			r.starters.append(p.id)
+
+
+## Correspondance entre le rôle inscrit au contrat et la promesse orale.
+static func _promise_for(role: Contract.SquadRole) -> int:
+	match role:
+		Contract.SquadRole.STARTER:
+			return PlayingTime.STARTER
+		Contract.SquadRole.SUBSTITUTE:
+			return PlayingTime.BACKUP
+		Contract.SquadRole.ACADEMY:
+			return PlayingTime.PROSPECT
+	return PlayingTime.SURPLUS
 
 
 ## Rachat d'un joueur sous contrat : la structure vendeuse encaisse la clause.

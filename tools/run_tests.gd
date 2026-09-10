@@ -12,6 +12,7 @@ func _initialize() -> void:
 	var suites: Array[TestCase] = []
 	suites.append_array(CoreTests.run())
 	suites.append_array(SimTests.run())
+	suites.append_array(SquadTests.run())
 
 	var total := 0
 	var failed := 0

@@ -69,6 +69,12 @@ static func monthly_close(world: World, org: Organization) -> Dictionary:
 	summary["income"] = l.total_income(day, day)
 	summary["expense"] = l.total_expense(day, day)
 	summary["net"] = l.cash - before
+	# Un point par mois, conservé huit ans : de quoi tracer une courbe de
+	# trésorerie même après compactage du grand livre.
+	org.history.append({"day": day, "cash": l.cash,
+		"income": summary["income"], "expense": summary["expense"]})
+	if org.history.size() > 96:
+		org.history = org.history.slice(org.history.size() - 96)
 	_update_deficit_watch(world, org)
 	return summary
 

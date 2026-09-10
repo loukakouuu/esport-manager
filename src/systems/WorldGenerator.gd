@@ -162,8 +162,32 @@ static func _make_roster(world: World, module: GameModule, o: Organization,
 		r.add_player(p.id)
 		if i < 5:
 			r.starters.append(p.id)
+	r.training = TrainingSystem.DEFAULT_PLAN.duplicate()
+	_assign_promises(world, r)
 	world.rosters[r.id] = r
 	o.add_roster(module.id(), r.id)
+
+
+## Statut promis à la création du monde : chaque joueur arrive avec un accord
+## déjà négocié, sinon tout un effectif se croirait titulaire dès la première
+## semaine et le vestiaire exploserait sans que le joueur y soit pour rien.
+static func _assign_promises(world: World, r: Roster) -> void:
+	var squad := world.players_of(r.id)
+	squad.sort_custom(func(a: Player, b: Player):
+		return a.current_ability > b.current_ability)
+	for i in squad.size():
+		var p: Player = squad[i]
+		var status := PlayingTime.STARTER
+		if i == 0 and squad.size() >= 5:
+			status = PlayingTime.KEY
+		elif i >= 5:
+			status = PlayingTime.BACKUP
+		elif not r.starters.has(p.id):
+			status = PlayingTime.ROTATION
+		if p.age(world.today) <= 18 and not r.starters.has(p.id):
+			status = PlayingTime.PROSPECT
+		p.promised_time = status
+		p.promise_day = world.today
 
 
 static func _make_contract(world: World, o: Organization, p: Player, rng: Rng,

@@ -14,6 +14,12 @@ extends RefCounted
 ## directement — seulement à travers la baisse de forme. C'est le vrai risque
 ## d'une saison esport, bien plus que la blessure.
 
+## Coût, en points d'expérience, d'un point d'attribut.
+const XP_PER_POINT := 10.0
+## Base de gain hebdomadaire, avant modulation par l'âge, la marge, la rigueur,
+## l'encadrement et le programme d'entraînement.
+const XP_BASE := 16.0
+
 ## Multiplicateur de progression par âge.
 const AGE_GROWTH := {
 	16: 1.55, 17: 1.45, 18: 1.30, 19: 1.15, 20: 1.00, 21: 0.85, 22: 0.70,
@@ -88,9 +94,16 @@ static func _develop(world: World, p: Player) -> void:
 
 	var coaching := 0.55
 	var facility := 0.9
+	var training := 1.0
+	var focus: Dictionary = {}
 	var o := world.org(p.org_id)
 	if o != null:
 		var r := world.main_roster(o.id, p.game_id)
+		if r != null:
+			# Ce que le manager a programmé cette semaine décide de CE QUI
+			# progresse, et le repos décide de COMBIEN.
+			training = TrainingSystem.growth_multiplier(r, p)
+			focus = TrainingSystem.focus_weights(r, p)
 		var coach := world.staffer(r.head_coach_id) if r != null else null
 		var assistant: Staff = null
 		if r != null:
@@ -107,17 +120,27 @@ static func _develop(world: World, p: Player) -> void:
 				and not world.main_roster(o.id, p.game_id).starters.has(p.id):
 			coaching *= 0.75   # un remplaçant progresse moins vite
 
-	# Points de progression de la semaine (échelle : ~1 point d'attribut
-	# demande une trentaine de points).
-	var gain := 3.4 * age_mult * headroom * (0.55 + ethic * 0.45) \
-		* (0.6 + pro * 0.4) * coaching * facility
+	# Points de progression de la semaine.
+	#
+	# Étalonnage visé, en CA gagnée sur une saison complète avec un
+	# encadrement correct :
+	#   17-18 ans, gros potentiel .... +20 à +35   (le « wonderkid »)
+	#   19-20 ans .................... +8  à +15
+	#   22-23 ans .................... +2  à +5
+	#   26 ans et plus ............... négatif (déclin mécanique)
+	# La marge (headroom) éteint d'elle-même la progression quand la CA
+	# rejoint le potentiel : inutile de plafonner ailleurs.
+	var gain := XP_BASE * age_mult * headroom * (0.55 + ethic * 0.45) \
+		* (0.6 + pro * 0.4) * coaching * facility * training
 	gain *= 1.0 - clampf(p.burnout / 140.0, 0.0, 0.7)
-	gain += rng.range_f(-0.6, 0.6)
+	# Bruit MULTIPLICATIF : un bruit additif ferait progresser un joueur au
+	# plafond, ce qui n'a aucun sens et gonflerait le monde saison après saison.
+	gain *= rng.range_f(0.82, 1.18)
 
 	var pool := float(p.game_data.get("_xp", 0.0)) + gain
-	while pool >= 30.0:
-		pool -= 30.0
-		_bump_attribute(rng, module, p, 1)
+	while pool >= XP_PER_POINT:
+		pool -= XP_PER_POINT
+		_bump_attribute(rng, module, p, 1, false, focus)
 	# Le déclin ne touche que les mécaniques, et seulement passé le pic.
 	if age >= 25 and rng.chance(0.10 + float(age - 25) * 0.05):
 		_bump_attribute(rng, module, p, -1, true)
@@ -129,8 +152,12 @@ static func _develop(world: World, p: Player) -> void:
 
 ## Fait bouger un attribut d'un point, en tirant en priorité ceux qui comptent
 ## pour le rôle (progression) ou ceux qui déclinent avec l'âge (régression).
+##
+## `focus` ajoute les poids issus du programme d'entraînement : c'est ce qui
+## fait qu'une semaine de mécanique fait progresser la visée plutôt que la
+## lecture de jeu. Sans lui, régler l'entraînement ne servirait à rien.
 static func _bump_attribute(rng: Rng, module: GameModule, p: Player,
-		delta: int, decline: bool = false) -> void:
+		delta: int, decline: bool = false, focus: Dictionary = {}) -> void:
 	var candidates: Array[String] = []
 	var weights: Array[float] = []
 	if decline:
@@ -143,12 +170,18 @@ static func _bump_attribute(rng: Rng, module: GameModule, p: Player,
 		for k in role_w:
 			if p.attr(k) < Attributes.MAX:
 				candidates.append(k)
-				weights.append(float(role_w[k]))
+				weights.append(float(role_w[k]) + float(focus.get(k, 0.0)))
 		# Un joueur âgé progresse surtout sur la compréhension du jeu.
 		for k in AGEING_WELL:
 			if p.attr(k) < Attributes.MAX:
 				candidates.append(k)
-				weights.append(1.2)
+				weights.append(1.2 + float(focus.get(k, 0.0)))
+		# Un travail individuel sur un attribut hors du profil de poste doit
+		# rester possible : c'est comme ça qu'on reconvertit un joueur.
+		if p.training_focus != "" and not candidates.has(p.training_focus) \
+				and p.attr(p.training_focus) < Attributes.MAX:
+			candidates.append(p.training_focus)
+			weights.append(float(focus.get(p.training_focus, 3.2)))
 	if candidates.is_empty():
 		return
 	var idx := 0
@@ -213,6 +246,13 @@ static func _update_morale(world: World, p: Player) -> void:
 				float(s.attr(Staff.MAN_MANAGEMENT)) / 20.0)
 	drift += manager_bonus * 1.2
 	drift -= p.burnout / 40.0
+	# Les griefs nommés pèsent directement : c'est ce qui rend une
+	# conversation utile plutôt que cosmétique.
+	drift -= DynamicsSystem.grievance_pressure(p) * 0.55
+	# Rappel vers la moyenne : sans lui, tous les moraux finissent collés à 0
+	# ou à 100 et la jauge ne dit plus rien. Un joueur normalement traité
+	# gravite autour de 60, ce qui laisse de la place au-dessus et en dessous.
+	drift += (60.0 - p.morale) * 0.07
 
 	p.morale = clampf(p.morale + drift, 0.0, 100.0)
 	p.happiness = clampf(p.happiness + drift * 0.7, 0.0, 100.0)
@@ -257,6 +297,12 @@ static func after_match(world: World, f: Fixture, res: MatchResult) -> void:
 		p.sharpness = clampf(p.sharpness + 6.0 * float(maps_played), 0.0, 100.0)
 		p.fatigue = clampf(p.fatigue + load * 5.5
 			* (1.4 - float(p.attr(Attributes.STAMINA)) / 20.0), 0.0, 100.0)
+		# Jouer use aussi la tête, et pas seulement les poignets : un calendrier
+		# à quarante séries laisse des traces qu'une semaine de vacances
+		# n'efface pas. C'est ce qui rend le calendrier gérable, et non subi.
+		p.burnout = clampf(p.burnout + load * 0.22
+			* (1.4 - float(p.attr(Attributes.BURNOUT_RESISTANCE)) / 20.0),
+			0.0, 100.0)
 		p.morale = clampf(p.morale + (3.0 if won else -2.4)
 			+ (rating - 1.0) * 6.0, 0.0, 100.0)
 
@@ -327,6 +373,97 @@ static func _accumulate_season_stats(p: Player, st: Dictionary,
 
 
 # ============================================================================
+# Historique de développement
+# ============================================================================
+
+## Nombre d'instantanés conservés par joueur (5 ans de mensuel).
+const HISTORY_LIMIT := 60
+
+
+## Instantané mensuel : c'est ce qui permet d'afficher une COURBE de
+## progression plutôt qu'un chiffre isolé, et donc de juger un choix
+## d'entraînement sur trois mois au lieu de le subir.
+##
+## Pour les joueurs de la structure du joueur, on garde le détail par attribut
+## (« +2 en visée depuis janvier ») ; pour les ~700 autres, seulement les
+## agrégats, sinon la sauvegarde enfle sans que personne ne lise la donnée.
+static func monthly_snapshot(world: World) -> void:
+	for pid in world.players:
+		var p: Player = world.players[pid]
+		if p.retired:
+			continue
+		var module := world.module_for(p.game_id)
+		var snap := {
+			"day": world.today,
+			"ca": p.current_ability,
+			"pa": p.potential_ability,
+			"form": int(round(p.form)),
+			"morale": int(round(p.morale)),
+		}
+		for group_name in module.attribute_groups():
+			snap[str(group_name).to_lower()] = int(round(
+				_group_average(p, module.attribute_groups()[group_name]) * 10.0))
+		if p.org_id != "" and p.org_id == world.player_org_id:
+			snap["attrs"] = p.attributes.duplicate()
+		p.development.append(snap)
+		if p.development.size() > HISTORY_LIMIT:
+			p.development = p.development.slice(
+				p.development.size() - HISTORY_LIMIT)
+
+
+static func _group_average(p: Player, keys: Array) -> float:
+	if keys.is_empty():
+		return 0.0
+	var total := 0.0
+	for k in keys:
+		total += float(p.attr(str(k)))
+	return total / float(keys.size())
+
+
+## Archive la saison écoulée dans le bilan de carrière du joueur.
+## Une ligne par saison, comme la page « historique » de Football Manager :
+## c'est ce qui donne une épaisseur aux joueurs qu'on suit depuis trois ans.
+static func archive_season(world: World) -> void:
+	for pid in world.players:
+		var p: Player = world.players[pid]
+		var series := int(p.season_stats.get("series", 0))
+		if series == 0:
+			continue
+		var o := world.org(p.org_id)
+		p.career.append({
+			"year": world.season_year,
+			"org": o.name if o != null else "Agent libre",
+			"series": series,
+			"rating": float(p.season_stats.get("rating", 0.0)),
+			"acs": float(p.season_stats.get("acs", 0.0)),
+			"kills": int(p.season_stats.get("kills", 0)),
+			"deaths": int(p.season_stats.get("deaths", 0)),
+			"ca": p.current_ability,
+		})
+		# Vingt saisons suffisent largement : personne ne joue vingt ans.
+		if p.career.size() > 20:
+			p.career = p.career.slice(p.career.size() - 20)
+
+
+## Progression par attribut sur les N derniers mois, pour la fiche joueur.
+## Renvoie {clé: delta} et ne contient que les attributs qui ont bougé.
+static func attribute_changes(p: Player, months: int = 6) -> Dictionary:
+	var out := {}
+	if p.development.size() < 2:
+		return out
+	var idx := maxi(0, p.development.size() - 1 - months)
+	var old: Dictionary = p.development[idx]
+	if not old.has("attrs"):
+		return out
+	var before: Dictionary = old["attrs"]
+	for k in p.attributes:
+		var d := int(p.attributes[k]) - int(before.get(k, p.attributes[k]))
+		if d != 0:
+			out[k] = d
+	return out
+
+
+# ============================================================================
 # Fin de carrière
 # ============================================================================
 
@@ -338,6 +475,16 @@ static func yearly_retirements(world: World) -> void:
 		if p.retired:
 			continue
 		var age := p.age(world.today)
+		# Un espoir jamais signé arrête vers 20-21 ans : sans structure, on ne
+		# vit pas de l'esport. Sans cette porte de sortie, le marché se remplit
+		# d'adolescents éternels que personne ne recrutera jamais.
+		if p.is_free_agent() and age >= 20 and age < 24:
+			var give_up := clampf(float(age - 19) * 0.30
+				+ float(110 - p.current_ability) / 260.0, 0.05, 0.85)
+			if rng.chance(give_up):
+				p.retired = true
+				p.retire_day = world.today
+			continue
 		if age < 24:
 			continue
 		var chance := clampf(float(age - 23) * 0.055, 0.0, 0.9)

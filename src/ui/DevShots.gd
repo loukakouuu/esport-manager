@@ -63,12 +63,44 @@ static func run(app: Control, game: Node) -> void:
 			if not r.player_ids.is_empty():
 				args = {"player_id": r.player_ids[0]}
 		app.navigate(name, args)
-		for _f in SETTLE_FRAMES:
-			await RenderingServer.frame_post_draw
-		var img := app.get_viewport().get_texture().get_image()
-		var path := "%s/%s.png" % [dir, name]
-		img.save_png(path)
-		print("[shots] %s -> %s" % [name, path])
+
+		# Un écran à onglets n'est pas photographié par sa seule page d'accueil :
+		# c'est exactement là que les défauts d'affichage se cachent.
+		for tab in _tabs_of(app, name):
+			if tab != "":
+				app.call("ui_state", _state_key(name))["tab"] = tab
+				app.call("navigate", name, args)
+			for _f in SETTLE_FRAMES:
+				await RenderingServer.frame_post_draw
+			var img := app.get_viewport().get_texture().get_image()
+			var suffix: String = "" if tab == "" else "-" + str(tab)
+			var path := "%s/%s%s.png" % [dir, name, suffix]
+			img.save_png(path)
+			print("[shots] %s%s -> %s" % [name, suffix, path])
 
 	print("[shots] dossier : %s/shots" % OS.get_user_data_dir())
 	app.get_tree().quit(0)
+
+
+## Clé d'état d'affichage utilisée par un écran. Convention du projet : le nom
+## de l'écran, sauf pour l'effectif dont la barre s'appelle "squad".
+static func _state_key(screen_name: String) -> String:
+	return screen_name
+
+
+## Onglets déclarés par l'écran (const TABS ou VIEWS), ou [""] s'il n'en a pas.
+static func _tabs_of(app: Control, screen_name: String) -> Array:
+	var screens: Dictionary = app.get("SCREENS")
+	if not screens.has(screen_name):
+		return [""]
+	var script: GDScript = screens[screen_name]
+	var consts := script.get_script_constant_map()
+	for key in ["TABS", "VIEWS"]:
+		if not consts.has(key):
+			continue
+		var out: Array = []
+		for entry in consts[key]:
+			out.append(str((entry as Array)[0]))
+		if not out.is_empty():
+			return out
+	return [""]

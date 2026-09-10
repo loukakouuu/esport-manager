@@ -7,6 +7,10 @@ extends VBoxContainer
 ## partir du World à chaque refresh(). C'est volontairement « bête » — pour un
 ## jeu de gestion au tour par tour, la simplicité de raisonnement vaut mille
 ## fois l'optimisation d'un rendu incrémental.
+##
+## Corollaire : un `var` d'écran ne survit pas à un rafraîchissement. Tout ce
+## qui doit persister (onglet actif, tri d'un tableau, filtre) passe par
+## `ui()`, qui délègue à App.view_state.
 
 var app: Control = null
 
@@ -38,3 +42,60 @@ func game() -> Node:
 
 func navigate(screen_name: String, args: Dictionary = {}) -> void:
 	app.call("navigate", screen_name, args)
+
+
+## Mémoire d'affichage persistante, propre à une clé (« squad.sort »).
+func ui(key: String) -> Dictionary:
+	return app.call("ui_state", key)
+
+
+## Barre d'onglets qui rafraîchit l'écran quand on change de section.
+func tab_bar(key: String, items: Array, default_key: String = "") -> Control:
+	return UiKit.tabs(items, ui(key), "tab", func(_k): refresh(), default_key)
+
+
+func current_tab(key: String, default_key: String) -> String:
+	return str(ui(key).get("tab", default_key))
+
+
+## Tableau trié dont l'ordre survit au rafraîchissement.
+func sorted_table(key: String, columns: Array, rows: Array,
+		opts: Dictionary = {}) -> Control:
+	var o := opts.duplicate()
+	o["state"] = ui(key)
+	o["on_sort"] = func(): refresh()
+	return UiKit.data_table(columns, rows, o)
+
+
+## En-tête d'écran : titre, sous-titre, et actions alignées à droite.
+func page_header(title_text: String, subtitle_text: String = "",
+		actions: Array = []) -> Control:
+	var h := UiKit.hbox(12)
+	var left := UiKit.vbox(1)
+	left.add_child(UiKit.title(title_text))
+	if subtitle_text != "":
+		left.add_child(UiKit.subtitle(subtitle_text))
+	h.add_child(left)
+	h.add_child(UiKit.spacer())
+	var right := UiKit.hbox(6)
+	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for a in actions:
+		right.add_child(a)
+	h.add_child(right)
+	return h
+
+
+## Deux colonnes : contenu principal extensible + panneau latéral fixe.
+## Renvoie [main, side] pour y ajouter directement.
+func split(side_width: int = 380, separation: int = 14) -> Array:
+	var body := UiKit.hbox(separation)
+	body.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	add_child(body)
+	var main := UiKit.vbox(10)
+	main.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	main.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	body.add_child(main)
+	var side := UiKit.vbox(10)
+	side.custom_minimum_size = Vector2(side_width, 0)
+	body.add_child(side)
+	return [main, side]

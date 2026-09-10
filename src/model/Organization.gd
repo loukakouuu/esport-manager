@@ -49,6 +49,11 @@ var budgets: Dictionary = {"marketing": 0, "scouting": 0, "bootcamp": 0}
 ## Mois consécutifs en trésorerie négative — déclencheur des mesures d'urgence.
 var months_in_deficit: int = 0
 
+## Historique mensuel : [{"day", "cash", "income", "expense"}]. Le grand livre
+## est compacté au bout de deux ans ; cet historique-là, léger, survit et
+## permet de tracer une courbe de trésorerie sur toute la carrière.
+var history: Array = []
+
 # --- Marque ----------------------------------------------------------------
 var reputation: int = 2000         # 0..10000
 var fanbase: int = 10_000          # nombre de fans, moteur du merch/contenu
@@ -147,6 +152,7 @@ func to_dict() -> Dictionary:
 		"facilities": facilities.duplicate(),
 		"wage_budget_yearly": wage_budget_yearly, "transfer_budget": transfer_budget,
 		"budgets": budgets.duplicate(), "months_in_deficit": months_in_deficit,
+		"history": history.duplicate(true),
 		"reputation": reputation, "fanbase": fanbase, "brand_value": brand_value,
 		"roster_ids": roster_ids.duplicate(true), "staff_ids": staff_ids.duplicate(),
 		"owner": int(owner), "board_confidence": board_confidence,
@@ -182,6 +188,7 @@ static func from_dict(d: Dictionary) -> Organization:
 		if not o.budgets.has(bk):
 			o.budgets[bk] = 0
 	o.months_in_deficit = int(d.get("months_in_deficit", 0))
+	o.history = (d.get("history", []) as Array).duplicate(true)
 	o.reputation = int(d.get("reputation", 2000))
 	o.fanbase = int(d.get("fanbase", 10000))
 	o.brand_value = int(d.get("brand_value", 0))

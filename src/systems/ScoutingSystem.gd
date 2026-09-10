@@ -120,3 +120,103 @@ static func confidence_text(world: World, p: Player) -> String:
 	if k >= 0.35:
 		return "Peu d'informations"
 	return "Quasiment inconnu"
+
+
+# ============================================================================
+# Rapport d'observation
+# ============================================================================
+
+## Rapport du staff sur un joueur : points forts, points faibles, verdict.
+##
+## Rendre l'information LISIBLE fait partie du jeu. Vingt-sept attributs dans
+## un tableau, personne ne les lit ; « visée d'élite, se noie sous pression »,
+## tout le monde décide avec. Le rapport s'appuie sur les valeurs ESTIMÉES,
+## donc un mauvais recruteur produit un mauvais rapport — et c'est le but.
+static func report(world: World, p: Player) -> Dictionary:
+	var module := world.module_for(p.game_id)
+	var k := knowledge(world, p)
+	var weights := module.role_weights(p.primary_role)
+
+	var scored: Array = []
+	for key in weights:
+		var est := float(estimated_attr(world, p, str(key)))
+		scored.append({"key": str(key), "value": est,
+			"weight": float(weights[key]),
+			"score": (est - 11.0) * float(weights[key])})
+	scored.sort_custom(func(a, b): return float(a["score"]) > float(b["score"]))
+
+	var strengths: Array[String] = []
+	var weaknesses: Array[String] = []
+	for i in mini(3, scored.size()):
+		var s: Dictionary = scored[i]
+		if float(s["value"]) >= 13.0:
+			strengths.append(_phrase(module, str(s["key"]), float(s["value"])))
+	for i in range(maxi(0, scored.size() - 3), scored.size()):
+		var wk: Dictionary = scored[i]
+		if float(wk["value"]) <= 11.0:
+			weaknesses.append(_phrase(module, str(wk["key"]), float(wk["value"])))
+
+	return {
+		"knowledge": k,
+		"strengths": strengths,
+		"weaknesses": weaknesses,
+		"personality": personality_text(world, p),
+		"verdict": _verdict(world, p, k),
+	}
+
+
+static func _phrase(module: GameModule, key: String, value: float) -> String:
+	var name := module.attribute_label(key).to_lower()
+	if value >= 17.0:
+		return "%s d'élite" % name.capitalize()
+	if value >= 14.0:
+		return "très bon niveau en %s" % name
+	if value >= 12.5:
+		return "solide en %s" % name
+	if value <= 6.0:
+		return "grosse lacune en %s" % name
+	if value <= 8.5:
+		return "faible en %s" % name
+	return "juste en %s" % name
+
+
+## La personnalité n'est lisible qu'à partir d'une certaine connaissance :
+## on ne devine pas le caractère d'un joueur qu'on n'a jamais rencontré.
+static func personality_text(world: World, p: Player) -> String:
+	var k := knowledge(world, p)
+	if k < 0.40:
+		return "Personnalité inconnue"
+	if k < 0.62:
+		return "%s (à confirmer)" % PersonalityCalc.label(p)
+	return PersonalityCalc.label(p)
+
+
+static func _verdict(world: World, p: Player, k: float) -> String:
+	var est := estimated_ca(world, p)
+	var pot := potential_value(world, p)
+	var age := p.age(world.today)
+	var head := ""
+	if est >= 150:
+		head = "Joueur de calibre international."
+	elif est >= 128:
+		head = "Titulaire crédible en ligue partenaire."
+	elif est >= 105:
+		head = "Bon élément de Challengers."
+	elif est >= 85:
+		head = "Niveau Challengers correct."
+	else:
+		head = "Profil amateur avancé."
+
+	var tail := ""
+	if age <= 19 and pot >= 4.0:
+		tail = " Marge de progression très importante : à sécuriser sur la durée."
+	elif age <= 21 and pot >= 3.5:
+		tail = " Encore de la marge, mérite du temps de jeu."
+	elif age >= 26:
+		tail = " Fin de pic mécanique : sa valeur est désormais dans la tête."
+	elif pot - float(est - 60) / 26.0 < 0.4:
+		tail = " Proche de son plafond : ce qu'on voit est ce qu'on aura."
+
+	if k < 0.45:
+		tail += " Évaluation à prendre avec prudence, le joueur est mal connu."
+	return head + tail

@@ -26,6 +26,15 @@ var staff_ids: Array[String] = []
 ## Réglages tactiques : leur contenu est défini par le GameModule.
 var tactic: Dictionary = {}
 
+## Poste assigné à chaque titulaire : player_id -> role_id. Vide = le joueur
+## occupe son poste naturel. Séparé de `tactic` parce que ce n'est pas un
+## réglage de style mais une COMPOSITION, et que la simulation comme les
+## dynamiques de vestiaire doivent pouvoir la lire sans connaître le module.
+var player_roles: Dictionary = {}
+
+## Programme d'entraînement de la semaine (voir TrainingSystem.UNITS_PER_WEEK).
+var training: Dictionary = {}
+
 var chemistry: float = 40.0        # 0..100, cohésion du cinq, monte en jouant
 var competition_ids: Array[String] = []
 var season_record: Dictionary = {} # comp_id -> {w, l, maps_w, maps_l, rounds_w, rounds_l}
@@ -57,6 +66,11 @@ func bench_ids() -> Array[String]:
 	return out
 
 
+## Poste effectivement occupé par un joueur dans cette équipe.
+func role_of(p: Player) -> String:
+	return str(player_roles.get(p.id, p.primary_role))
+
+
 func record_for(comp_id: String) -> Dictionary:
 	if not season_record.has(comp_id):
 		season_record[comp_id] = {
@@ -72,7 +86,10 @@ func to_dict() -> Dictionary:
 		"is_academy": is_academy, "region": region, "league_key": league_key,
 		"player_ids": player_ids.duplicate(), "starters": starters.duplicate(),
 		"head_coach_id": head_coach_id, "staff_ids": staff_ids.duplicate(),
-		"tactic": tactic.duplicate(true), "chemistry": chemistry,
+		"tactic": tactic.duplicate(true),
+		"player_roles": player_roles.duplicate(),
+		"training": training.duplicate(),
+		"chemistry": chemistry,
 		"competition_ids": competition_ids.duplicate(),
 		"season_record": season_record.duplicate(true),
 	}
@@ -92,6 +109,8 @@ static func from_dict(d: Dictionary) -> Roster:
 	r.head_coach_id = d.get("head_coach_id", "")
 	r.staff_ids = _str_array(d.get("staff_ids", []))
 	r.tactic = (d.get("tactic", {}) as Dictionary).duplicate(true)
+	r.player_roles = (d.get("player_roles", {}) as Dictionary).duplicate()
+	r.training = (d.get("training", {}) as Dictionary).duplicate()
 	r.chemistry = float(d.get("chemistry", 40.0))
 	r.competition_ids = _str_array(d.get("competition_ids", []))
 	r.season_record = (d.get("season_record", {}) as Dictionary).duplicate(true)

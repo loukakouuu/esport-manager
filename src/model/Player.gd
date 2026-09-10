@@ -60,6 +60,32 @@ var wants_out: bool = false
 var retired: bool = false
 var retire_day: int = -1
 
+# --- Encadrement individuel --------------------------------------------------
+## Temps de jeu PROMIS par le manager (voir PlayingTime). Distinct du rôle
+## inscrit au contrat : c'est la promesse orale, et c'est elle qui crée la
+## rancune quand elle n'est pas tenue.
+var promised_time: int = PlayingTime.ROTATION
+var promise_day: int = 0
+## Domaine d'entraînement individuel (clé d'attribut, "" = laissé au coach).
+var training_focus: String = ""
+var training_intensity: float = 1.0    # 0.6 = ménagé, 1.4 = surchargé
+## Griefs actifs : clés lisibles par InteractionSystem (voir Grievance).
+var concerns: Array[String] = []
+var last_talk_day: int = -999
+var talk_fatigue: float = 0.0          # lassitude des discours du manager
+
+# --- Vie de groupe -----------------------------------------------------------
+## Affinités avec les autres joueurs : id -> -100 (conflit) .. +100 (complice).
+var relations: Dictionary = {}
+## Influence dans le vestiaire, 0..100. Calculée par DynamicsSystem.
+var influence: float = 0.0
+
+# --- Historique de développement ---------------------------------------------
+## Instantanés mensuels : [{"day", "ca", "attrs": {clé: valeur}}]. C'est ce qui
+## permet de montrer une COURBE plutôt qu'un chiffre, et donc de juger un
+## entraînement sur trois mois au lieu de le subir.
+var development: Array = []
+
 
 func full_name() -> String:
 	return "%s %s" % [first_name, last_name]
@@ -147,6 +173,12 @@ func to_dict() -> Dictionary:
 		"game_data": game_data.duplicate(true),
 		"happiness": happiness, "transfer_listed": transfer_listed,
 		"wants_out": wants_out, "retired": retired, "retire_day": retire_day,
+		"promised_time": promised_time, "promise_day": promise_day,
+		"training_focus": training_focus, "training_intensity": training_intensity,
+		"concerns": concerns.duplicate(), "last_talk_day": last_talk_day,
+		"talk_fatigue": talk_fatigue,
+		"relations": relations.duplicate(), "influence": influence,
+		"development": development.duplicate(true),
 	}
 
 
@@ -191,4 +223,53 @@ static func from_dict(d: Dictionary) -> Player:
 	p.wants_out = bool(d.get("wants_out", false))
 	p.retired = bool(d.get("retired", false))
 	p.retire_day = int(d.get("retire_day", -1))
+	p.promised_time = int(d.get("promised_time", PlayingTime.ROTATION))
+	p.promise_day = int(d.get("promise_day", 0))
+	p.training_focus = str(d.get("training_focus", ""))
+	p.training_intensity = float(d.get("training_intensity", 1.0))
+	var cn: Array[String] = []
+	for c2 in d.get("concerns", []):
+		cn.append(str(c2))
+	p.concerns = cn
+	p.last_talk_day = int(d.get("last_talk_day", -999))
+	p.talk_fatigue = float(d.get("talk_fatigue", 0.0))
+	p.relations = (d.get("relations", {}) as Dictionary).duplicate()
+	p.influence = float(d.get("influence", 0.0))
+	p.development = (d.get("development", []) as Array).duplicate(true)
 	return p
+
+
+# ============================================================================
+# Aides de lecture (aucune logique de simulation ici : voir src/systems/)
+# ============================================================================
+
+func relation_with(other_id: String) -> int:
+	return int(relations.get(other_id, 0))
+
+
+func has_concern(key: String) -> bool:
+	return concerns.has(key)
+
+
+func add_concern(key: String) -> void:
+	if not concerns.has(key):
+		concerns.append(key)
+
+
+func clear_concern(key: String) -> void:
+	concerns.erase(key)
+
+
+## Dernier instantané de développement, ou {} si l'historique est vide.
+func last_snapshot() -> Dictionary:
+	if development.is_empty():
+		return {}
+	return development[development.size() - 1]
+
+
+## Évolution de la CA sur les N derniers instantanés (mensuels).
+func ca_trend(months: int = 6) -> int:
+	if development.size() < 2:
+		return 0
+	var first: Dictionary = development[maxi(0, development.size() - 1 - months)]
+	return current_ability - int(first.get("ca", current_ability))

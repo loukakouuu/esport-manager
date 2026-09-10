@@ -30,8 +30,12 @@ static func advance_day(world: World) -> Dictionary:
 	var news_before := world.inbox.size()
 
 	if GameDate.is_monday(world.today):
+		# L'ordre compte : les griefs et l'ambiance sont recalculés d'abord,
+		# parce que l'entraînement (cohésion) et le moral s'appuient dessus.
+		DynamicsSystem.weekly_tick(world)
 		TrainingSystem.weekly_tick(world)
 		ProgressionSystem.weekly_tick(world)
+		InteractionSystem.weekly_decay(world)
 		TransferSystem.weekly_tick(world)
 
 	var results := CompetitionEngine.play_day(world)
@@ -62,6 +66,7 @@ static func advance_day(world: World) -> Dictionary:
 
 
 static func _monthly(world: World) -> void:
+	ProgressionSystem.monthly_snapshot(world)
 	for oid in world.orgs:
 		var o: Organization = world.orgs[oid]
 		FinanceSystem.monthly_close(world, o)
@@ -80,6 +85,12 @@ static func _season_rollover(world: World) -> void:
 		var o: Organization = world.orgs[oid]
 		BoardSystem.evaluate_season(world, o)
 	ProgressionSystem.yearly_retirements(world)
+	# On archive la saison AVANT de remettre les compteurs à zéro : c'est
+	# l'historique de carrière affiché sur la fiche du joueur.
+	ProgressionSystem.archive_season(world)
+	# La relève arrive APRÈS les retraites : le contingent est calculé sur le
+	# vivier réel, une fois les départs actés.
+	var intake := YouthSystem.yearly_intake(world)
 	for pid in world.players:
 		(world.players[pid] as Player).season_stats.clear()
 
@@ -90,7 +101,10 @@ static func _season_rollover(world: World) -> void:
 		var o: Organization = world.orgs[oid]
 		o.objectives = BoardSystem.season_objectives(world, o)
 	world.add_news(world.today, "Saison %d" % next_year,
-		"La nouvelle saison est programmée. Les calendriers sont disponibles.",
+		"La nouvelle saison est programmée. Les calendriers sont disponibles.\n"
+		+ "Nouvelle génération : %d jeunes promus par les académies et %d "
+			% [int(intake.get("academy", 0)), int(intake.get("free", 0))]
+		+ "espoirs sans club sur le marché.",
 		"season")
 
 
