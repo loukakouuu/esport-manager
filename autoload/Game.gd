@@ -413,6 +413,96 @@ func abandon_negotiation(negotiation_id: String) -> void:
 	state_changed.emit()
 
 
+# ============================================================================
+# Encadrement
+# ============================================================================
+
+## Organigramme de la structure : un poste par ligne, occupé ou vacant, avec
+## ce que la personne en place apporte. Voir StaffSystem.effect_summary.
+func staff_chart() -> Array:
+	var o := my_org()
+	if world == null or o == null:
+		return []
+	return StaffSystem.effect_summary(world, o)
+
+
+func staffer(staff_id: String) -> Staff:
+	return world.staffer(staff_id) if world != null else null
+
+
+## Encadrants disponibles, du meilleur au moins bon. `role` = -1 pour tous.
+func staff_market(role: int = -1, region: String = "") -> Array[Staff]:
+	if world == null:
+		return [] as Array[Staff]
+	return StaffSystem.free_agents(world, role, region)
+
+
+## Ce que cette personne réclamerait pour rejoindre la maison.
+func staff_demand(staff_id: String) -> int:
+	var o := my_org()
+	var s := staffer(staff_id)
+	if o == null or s == null:
+		return 0
+	return StaffSystem.salary_demand(world, s, o)
+
+
+## Réponse probable à une offre, en toutes lettres. Jamais en pourcentage :
+## c'est un accord entre deux personnes, pas un jet de dés annoncé d'avance.
+func staff_verdict(staff_id: String, salary: int, months: int) -> String:
+	var o := my_org()
+	var s := staffer(staff_id)
+	if o == null or s == null:
+		return ""
+	if StaffSystem.is_cooling_off(world, s, o):
+		return "A décliné récemment"
+	return StaffSystem.verdict(
+		StaffSystem.acceptance_chance(world, s, o, salary, months))
+
+
+func hire_staff(staff_id: String, salary: int, months: int) -> Dictionary:
+	var o := my_org()
+	var s := staffer(staff_id)
+	if o == null or s == null:
+		return {"ok": false, "reason": "Personne introuvable."}
+	var out := StaffSystem.hire(world, o, s, salary, months, world.player_roster_id)
+	state_changed.emit()
+	return out
+
+
+func renew_staff(staff_id: String, salary: int, months: int) -> Dictionary:
+	var o := my_org()
+	var s := staffer(staff_id)
+	if o == null or s == null:
+		return {"ok": false, "reason": "Personne introuvable."}
+	var out := StaffSystem.renew(world, o, s, salary, months)
+	state_changed.emit()
+	return out
+
+
+## Indemnité qu'un licenciement coûterait aujourd'hui.
+func staff_severance(staff_id: String) -> int:
+	var s := staffer(staff_id)
+	return StaffSystem.severance(world, s) if s != null else 0
+
+
+func dismiss_staff(staff_id: String) -> int:
+	var o := my_org()
+	var s := staffer(staff_id)
+	if o == null or s == null:
+		return 0
+	var cost := StaffSystem.dismiss(world, o, s)
+	state_changed.emit()
+	return cost
+
+
+## Masse salariale annuelle de l'encadrement.
+func staff_payroll() -> int:
+	var o := my_org()
+	if world == null or o == null:
+		return 0
+	return StaffSystem.payroll_yearly(world, o)
+
+
 func release_player(player_id: String) -> void:
 	var o := my_org()
 	var p := world.player(player_id)

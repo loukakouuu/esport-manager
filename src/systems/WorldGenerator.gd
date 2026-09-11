@@ -42,6 +42,7 @@ static func generate(seed_value: int, start_day: int,
 
 	SeasonBuilder.build_season(world, world.season_year)
 	_make_free_agents(world, module)
+	StaffSystem.seed_market(world)
 	Log.i("worldgen", "Monde généré : %d structures, %d joueurs, %d compétitions"
 		% [world.orgs.size(), world.players.size(), world.competitions.size()])
 	return world
@@ -389,17 +390,18 @@ static func _make_staff(world: World, o: Organization, region: String,
 	var r := world.main_roster(o.id, "valorant")
 	var quality := clampf(4.0 + strength / 7.0, 4.0, 19.0)
 
-	var roles: Array = [Staff.Role.HEAD_COACH]
-	if strength >= 45.0:
-		roles.append(Staff.Role.ANALYST)
-	if strength >= 60.0:
-		roles.append(Staff.Role.TEAM_MANAGER)
-	if strength >= 70.0:
-		roles.append(Staff.Role.ASSISTANT_COACH)
-	if strength >= 78.0:
-		roles.append(Staff.Role.PERFORMANCE_COACH)
-	if strength >= 84.0:
-		roles.append(Staff.Role.PSYCHOLOGIST)
+	# Combien de postes la maison a ouverts AVANT l'arrivée du joueur. La liste
+	# est celle de StaffSystem.ROLE_ORDER : une seule priorité dans tout le
+	# projet, sinon le monde généré et le monde simulé ne se ressemblent pas.
+	# En jeu, c'est ensuite StaffSystem.org_chart qui décide, sur les moyens
+	# réels — les recettes n'existent pas encore à cet instant.
+	var posts := 1
+	for threshold in [45.0, 60.0, 70.0, 78.0, 84.0, 90.0]:
+		if strength >= float(threshold):
+			posts += 1
+	var roles: Array = []
+	for i in mini(posts, StaffSystem.ROLE_ORDER.size()):
+		roles.append(StaffSystem.ROLE_ORDER[i])
 
 	for role in roles:
 		# La dispersion est volontairement resserrée et bornée autour du niveau
@@ -422,12 +424,7 @@ static func _make_staff(world: World, o: Organization, region: String,
 		c.end_day = GameDate.add_months(world.today, rng.range_i(8, 30))
 		s.contract = c
 		world.staff[s.id] = s
-		o.staff_ids.append(s.id)
-		if r != null:
-			if role == Staff.Role.HEAD_COACH:
-				r.head_coach_id = s.id
-			else:
-				r.staff_ids.append(s.id)
+		StaffSystem.attach(world, o, s, r.id if r != null else "")
 
 
 ## Sponsors déjà en place au démarrage, avec des échéances étalées pour que le
@@ -599,8 +596,8 @@ static func found_org(world: World, config: Dictionary) -> Organization:
 	world.rosters[r.id] = r
 	o.add_roster(module.id(), r.id)
 
-	# Un seul encadrant, et pas un bon. Sans marché du staff, laisser la
-	# structure sans entraîneur du tout la condamnerait définitivement.
+	# Un seul encadrant, et pas un bon : de quoi tenir les premières semaines.
+	# Le marché du staff est ouvert dès le premier jour pour faire mieux.
 	_make_staff(world, o, region, 18.0)
 
 	_enter_open_circuit(world, r, league_key)

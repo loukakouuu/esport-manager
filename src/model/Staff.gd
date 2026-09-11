@@ -66,6 +66,7 @@ var last_name: String = ""
 var nickname: String = ""
 var nationality: String = "FR"
 var birth_day: int = 0
+var region: String = "EMEA"   # région d’exercice, filtre du marché
 
 var role: Role = Role.HEAD_COACH
 var game_id: String = "valorant"     # "" = polyvalent (GM, manager…)
@@ -74,6 +75,11 @@ var reputation: int = 200
 
 var org_id: String = ""
 var contract: Contract = null
+
+## Refus récent : la structure éconduite ne peut pas revenir tout de suite.
+## Voir StaffSystem.REFUSAL_COOLDOWN.
+var last_refused_org: String = ""
+var refused_until: int = 0
 
 
 func display_name() -> String:
@@ -100,7 +106,7 @@ func role_label() -> String:
 
 ## Note globale 1..20 pondérée selon le poste : sert au marché et à l'affichage.
 func overall() -> float:
-	var w := _weights_for_role()
+	var w := role_weights()
 	var total := 0.0
 	var sum_w := 0.0
 	for k in w:
@@ -109,7 +115,9 @@ func overall() -> float:
 	return total / maxf(sum_w, 0.001)
 
 
-func _weights_for_role() -> Dictionary:
+## Poids des attributs à ce poste. Public : l'écran du marché s'en sert pour
+## nommer le point fort d'un candidat, `StaffFactory` pour viser une note.
+func role_weights() -> Dictionary:
 	match role:
 		Role.HEAD_COACH:
 			return {TACTICAL: 3.0, MAN_MANAGEMENT: 2.0, ANALYSIS: 1.5, DISCIPLINE: 1.0}
@@ -136,6 +144,8 @@ func to_dict() -> Dictionary:
 	return {
 		"id": id, "first_name": first_name, "last_name": last_name,
 		"nickname": nickname, "nationality": nationality, "birth_day": birth_day,
+		"region": region,
+		"last_refused_org": last_refused_org, "refused_until": refused_until,
 		"role": int(role), "game_id": game_id,
 		"attributes": attributes.duplicate(), "reputation": reputation,
 		"org_id": org_id,
@@ -151,6 +161,9 @@ static func from_dict(d: Dictionary) -> Staff:
 	s.nickname = d.get("nickname", "")
 	s.nationality = d.get("nationality", "FR")
 	s.birth_day = int(d.get("birth_day", 0))
+	s.region = d.get("region", "EMEA")
+	s.last_refused_org = d.get("last_refused_org", "")
+	s.refused_until = int(d.get("refused_until", 0))
 	s.role = int(d.get("role", 0)) as Role
 	s.game_id = d.get("game_id", "valorant")
 	s.attributes = (d.get("attributes", {}) as Dictionary).duplicate()

@@ -44,6 +44,7 @@ const SCREENS := {
 	"TransfersScreen": "res://src/ui/screens/TransfersScreen.gd",
 	"NegotiationScreen": "res://src/ui/screens/NegotiationScreen.gd",
 	"FinanceScreen": "res://src/ui/screens/FinanceScreen.gd",
+	"StaffScreen": "res://src/ui/screens/StaffScreen.gd",
 	"FacilitiesScreen": "res://src/ui/screens/FacilitiesScreen.gd",
 	"InboxScreen": "res://src/ui/screens/InboxScreen.gd",
 	"MatchScreen": "res://src/ui/screens/MatchScreen.gd",

@@ -56,10 +56,12 @@ static func _recover(world: World, p: Player) -> void:
 	var burnout_relief := 0.35
 	var o := world.org(p.org_id)
 	if o != null:
-		# Une team house et un préparateur physique changent tout sur la durée.
+		# Une team house et un pôle performance changent tout sur la durée —
+		# les murs, mais aussi la personne qui les fait vivre.
+		var staff_care := StaffSystem.wellness_factor(world, o)
 		recovery *= o.facility_effect(Facilities.Kind.TEAM_HOUSE)
-		recovery *= o.facility_effect(Facilities.Kind.WELLNESS)
-		burnout_relief *= o.facility_effect(Facilities.Kind.WELLNESS)
+		recovery *= o.facility_effect(Facilities.Kind.WELLNESS) * staff_care
+		burnout_relief *= o.facility_effect(Facilities.Kind.WELLNESS) * staff_care
 	p.fatigue = clampf(p.fatigue - recovery, 0.0, 100.0)
 
 	# Le burnout ne recule que si la fatigue est déjà basse : se reposer une
@@ -347,6 +349,7 @@ static func _check_injury(world: World, rng: Rng, p: Player, load: float) -> voi
 	var o := world.org(p.org_id)
 	if o != null:
 		wellness = 2.0 - o.facility_effect(Facilities.Kind.WELLNESS)
+		wellness /= StaffSystem.wellness_factor(world, o)
 	var risk := 0.0025 * load * (0.4 + proneness * 1.6) \
 		* (1.0 + p.fatigue / 90.0) * (1.0 + p.burnout / 70.0) * wellness
 	if not rng.chance(clampf(risk, 0.0, 0.08)):

@@ -77,6 +77,8 @@ static func make_offer(world: World, org: Organization, p: Player, salary: int,
 	c.squad_role = squad_role
 	c.buyout = buyout if buyout > 0 else int(float(p.market_value) * 1.8)
 	c.prize_share_pct = 12.0
+	# Le directeur sportif se paie sur ce qu'il fait économiser à la maison.
+	c.agent_fee_pct *= 1.0 - StaffSystem.negotiation_edge(world, org) * 0.5
 	c.signed_on_day = world.today
 	return c
 
@@ -172,6 +174,8 @@ static func terminate(world: World, org: Organization, p: Player) -> int:
 # Passe quotidienne
 # ============================================================================
 
+## Les contrats du STAFF sont traités par StaffSystem.daily_tick : lui seul
+## sait détacher un encadrant de son roster sans laisser de référence morte.
 static func daily_tick(world: World) -> void:
 	for pid in world.players:
 		var p: Player = world.players[pid]
@@ -185,14 +189,6 @@ static func daily_tick(world: World) -> void:
 				"Le contrat de %s expire dans %d jours (%s / an)."
 					% [p.display_name(), left, Money.fmt(p.contract.salary_yearly)],
 				"contract", {"player_id": p.id})
-	for sid in world.staff:
-		var s: Staff = world.staff[sid]
-		if s.contract != null and s.contract.days_remaining(world.today) < 0:
-			var o := world.org(s.org_id)
-			if o != null:
-				o.staff_ids.erase(s.id)
-			s.org_id = ""
-			s.contract = null
 
 
 static func _expire(world: World, p: Player) -> void:

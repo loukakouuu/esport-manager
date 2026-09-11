@@ -73,7 +73,8 @@ L'autre mode, plus dur. Vous choisissez un nom, un sigle, des couleurs, une
 région et un capital — et c'est tout ce que vous avez.
 
 Pas un joueur sous contrat, aucun sponsor, aucune infrastructure, un entraîneur
-débutant, et une réputation nulle qui fera dire non aux bons agents libres.
+débutant — remplaçable dès le premier jour, si vous avez de quoi le payer — et
+une réputation nulle qui fera dire non aux bons agents libres.
 Vous entrez au **troisième étage de la pyramide**, le *Circuit ouvert*, et la
 montée en Challengers passe par un barrage en fin de saison.
 
@@ -105,6 +106,21 @@ démarre légèrement déficitaire — signer des sponsors est la première urge
 Second réflexe : **Entraînement**, pour choisir votre équilibre entre scrims et
 récupération. Il n'y a pas de bon réglage universel.
 
+### L'encadrement
+
+La page **Encadrement** liste les neuf postes d'une structure esport, occupés
+ou non, et dit pour chacun ce qu'il change dans le moteur et ce que la personne
+en place délivre aujourd'hui. Un poste vacant n'est pas neutre : sans
+entraîneur, l'équipe joue avec 8/20 de niveau tactique, quel que soit le
+talent des joueurs.
+
+L'arbitrage est celui d'une masse salariale : un analyste coûte trois fois
+moins qu'un entraîneur et ne pèse que sur la préparation adverse ; un
+préparateur physique ne se voit jamais en match mais change la fatigue et les
+blessures sur toute la saison. Le marché ne se marchande pas clause par clause
+comme un joueur — on règle un salaire et une durée, l'intermédiaire répond, et
+un refus ferme la porte trois semaines.
+
 ## Ce que le jeu simule
 
 - **Match** : veto de maps, 13 rounds MR12 avec prolongations, économie
@@ -134,6 +150,11 @@ récupération. Il n'y a pas de bon réglage universel.
   la signature, durée, statut promis, clause de rachat, part des gains. Chaque
   joueur a ses priorités selon son caractère, son agent ne dit jamais les
   chiffres qu'il attend, et sa patience s'use à chaque proposition.
+- **Encadrement** : neuf postes, de l'entraîneur principal au directeur
+  sportif, chacun avec un effet réel sur le moteur — tactique en match,
+  progression, cohésion, moral, récupération, fiabilité du scouting,
+  activations sponsors, commission d'agent. Un poste vacant applique sa valeur
+  plancher, et l'écran le dit. Les structures adverses gèrent le leur.
 - **Gestion** : contrats et clauses de rachat, promesses de temps de jeu,
   marché avec IA de recrutement, scouting à information imparfaite, relève
   annuelle par les académies, objectifs et confiance de la direction.
@@ -169,8 +190,8 @@ comment écrire un pack à la main et les conditions de licence.
 ## Outils de vérification (sans interface)
 
 ```bash
-"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 290 vérifications
-bash tools/check_ui.sh                                           # 62 vues d'écran
+"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 386 vérifications
+bash tools/check_ui.sh                                           # 66 vues d'écran
 "$GODOT" --headless --path . --script res://tools/season.gd      # saison complète
 bash tools/check_all.sh                                          # les trois d'affilée
 

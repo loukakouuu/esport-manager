@@ -162,11 +162,14 @@ Fait :
       composer, capital échangé contre la patience de la direction
 - [x] Structure multi-sections : bascule d'équipe, écran Structure
 - [x] Négociation de contrat clause par clause, avec patience de l'agent
-- [x] Interface complète (18 écrans, 31 vues, balayées sur deux états du monde)
+- [x] Marché de l'encadrement : neuf postes, un organigramme qui dit ce que
+      chacun change dans le moteur, embauche, prolongation, licenciement ;
+      l'IA gère le sien sur enveloppe par poste
+- [x] Interface complète (19 écrans, 33 vues, balayées sur deux états du monde)
 
 Pas encore fait, volontairement :
 - [ ] Toute discipline autre que Valorant (annoncées, non simulées)
-- [ ] Marché du staff : le coach recruté au départ ne se remplace pas
+- [ ] Fenêtres de mercato : les mouvements sont possibles toute l'année
 
 Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 
@@ -174,7 +177,7 @@ Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 ```bash
 bash tools/check_all.sh    # tests + écrans + saison complète
 ```
-Les trois doivent passer : 290 vérifications unitaires, 62 vues d'écran
+Les trois doivent passer : 386 vérifications unitaires, 66 vues d'écran
 construites sans violation d'invariant, et une saison qui se termine avec des
 classements et des finances cohérents.
 
@@ -243,8 +246,19 @@ doit être intentionnelle.
 | Victoire à niveau égal | 50 % |
 | Négociation, jeu brutal (salaire seul, +9 %/tour) | 80 % de signatures, 4,3 tours, 95 % du prix demandé |
 | Négociation, jeu avisé (clause de rachat basse, part des gains) | 100 %, 3,7 tours, 91 % du prix demandé |
+| Encadrement, coachs fantômes après 3 saisons | 0, toujours (`tools/staff_probe.gd`) |
+| Encadrement, taille moyenne après 3 saisons | ~5 personnes par structure, note ~11 |
+| Encadrement, structures solvables sans entraîneur | ≤ 3 % à un instant donné (délai de recrutement) |
+| Salaires du staff, structure de Challengers | ~13 % des recettes (bande visée : 10-20 %) |
 
-L'écart entre ces deux dernières lignes EST le système de négociation : s'il
-se referme, c'est que les clauses non monétaires ont cessé de compter et qu'il
-ne reste qu'un portefeuille. Le mesurer :
+L'écart entre les deux lignes de NÉGOCIATION EST le système : s'il se referme,
+c'est que les clauses non monétaires ont cessé de compter et qu'il ne reste
+qu'un portefeuille. Le mesurer :
 `godot --headless --path . --script res://tools/negotiation_probe.gd`
+
+La ligne des COACHS FANTÔMES vaut zéro par construction : un encadrant n'est
+rattaché que par `StaffSystem.attach()` et détaché que par
+`StaffSystem.detach()`. Le jour où un autre fichier écrit `head_coach_id`, un
+roster gardera un entraîneur qu'il ne paie plus — c'était le cas de 136
+structures sur 136 avant cette version. Le mesurer :
+`godot --headless --path . --script res://tools/staff_probe.gd`

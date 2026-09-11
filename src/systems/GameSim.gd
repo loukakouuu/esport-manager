@@ -33,6 +33,9 @@ static func advance_day(world: World) -> Dictionary:
 		# L'ordre compte : les griefs et l'ambiance sont recalculés d'abord,
 		# parce que l'entraînement (cohésion) et le moral s'appuient dessus.
 		DynamicsSystem.weekly_tick(world)
+		# Avant l'entraînement : un encadrant recruté ce lundi doit compter
+		# dès cette semaine.
+		StaffSystem.weekly_tick(world)
 		TrainingSystem.weekly_tick(world)
 		ProgressionSystem.weekly_tick(world)
 		InteractionSystem.weekly_decay(world)
@@ -52,6 +55,7 @@ static func advance_day(world: World) -> Dictionary:
 		CompetitionEngine.advance(world, world.competitions[cid])
 
 	ContractSystem.daily_tick(world)
+	StaffSystem.daily_tick(world)
 
 	if GameDate.is_first_day_of_month(world.today):
 		_monthly(world)

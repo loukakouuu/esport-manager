@@ -216,6 +216,53 @@ joueur) : elle ne scintille pas d'un affichage à l'autre.
 
 ---
 
+## 6 bis. Une personne appartient à un seul endroit à la fois
+
+Un membre du staff est référencé à **trois** endroits : `Staff.org_id`,
+`Organization.staff_ids`, et le roster qu'il encadre
+(`Roster.head_coach_id` ou `Roster.staff_ids`). Trois copies de la même
+information, donc trois occasions de désynchroniser.
+
+Elles ont désynchronisé. `ContractSystem` retirait un encadrant en fin de
+contrat des deux premières et oubliait la troisième : la structure cessait de
+verser le salaire, mais `TeamSheetBuilder` lisait toujours `head_coach_id` et
+lui appliquait son apport tactique. Mesuré sur trois saisons simulées :
+**136 structures sur 136** jouaient avec un entraîneur gratuit.
+
+La règle qui en découle, et qui vaut pour toute donnée dupliquée du projet :
+
+> Quand une information existe en plusieurs exemplaires, il doit y avoir
+> **exactement une fonction** qui les écrit toutes, et **exactement une** qui
+> les efface toutes. Ici `StaffSystem.attach()` et `StaffSystem.detach()`.
+> Aucun autre fichier ne touche `head_coach_id`.
+
+Ce n'est pas une convention de style : c'est ce qui rend le bug impossible
+plutôt qu'improbable. Une convention se contourne par distraction ; un point
+d'entrée unique se vérifie d'un `grep`. La sonde `tools/staff_probe.gd` compte
+les références orphelines à chaque exécution et exige zéro.
+
+Le même motif existe déjà pour l'argent (§5, tout passe par le grand livre) et
+pour le temps (`GameSim.advance_day` est le seul à incrémenter `world.today`).
+
+### Pourquoi le staff ne se négocie pas comme un joueur
+
+`NegotiationSystem` existait avant `StaffSystem`, et la tentation était de le
+réutiliser. Décision inverse : le staff se recrute en une offre et une réponse.
+
+Marchander six clauses avec un analyste serait la même mécanique une deuxième
+fois pour un enjeu plus faible — et deux systèmes de marchandage dans un même
+jeu se dévaluent l'un l'autre. L'arbitrage du staff est ailleurs : combien de
+postes ouvrir, à quel niveau, pour quelle masse salariale. C'est un problème de
+portefeuille, pas de face-à-face, et `StaffSystem.org_chart()` en est la forme
+côté IA — une enveloppe par poste, pas un budget commun.
+
+Cette dernière distinction s'est imposée par la mesure. Avec un budget commun,
+les postes secondaires consommaient la caisse avant l'expiration du contrat de
+l'entraîneur, et la structure se retrouvait ensuite sans banc, incapable de
+rembaucher : 50 structures sur 136 après trois saisons.
+
+---
+
 ## 7. Déterminisme
 
 Toute la simulation dérive d'une graine unique. Chaque match reçoit un

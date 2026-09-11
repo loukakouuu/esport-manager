@@ -249,8 +249,10 @@ static func submit(world: World, n: Negotiation, terms: Dictionary) -> Dictionar
 			and rng.chance(acceptance(world, p, org, terms, n.demand)):
 		return _accept(world, n, p, org, terms)
 
-	# Une offre au rabais coûte bien plus qu'un simple désaccord.
-	n.mood -= MOOD_BASE_COST + maxf(-sat, 0.0) * 34.0
+	# Une offre au rabais coûte bien plus qu'un simple désaccord. Un directeur
+	# sportif ne fait pas accepter l'inacceptable : il achète du temps.
+	var patience := 1.0 - StaffSystem.negotiation_edge(world, org) * 0.30
+	n.mood -= (MOOD_BASE_COST + maxf(-sat, 0.0) * 34.0) * patience
 	if n.mood <= 0.0:
 		n.status = Negotiation.Status.REFUSED
 		var bye := "%s met fin à la discussion : « on tourne en rond. »" \

@@ -21,3 +21,6 @@ timeout 300 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/seaso
 
 echo "== Negociation (equilibrage) =="
 timeout 240 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/negotiation_probe.gd 2>&1 | grep -v -E "$FILTER"
+
+echo "== Encadrement (equilibrage) =="
+timeout 600 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/staff_probe.gd 2>&1 | grep -v -E "$FILTER"

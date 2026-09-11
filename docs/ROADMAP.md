@@ -33,6 +33,14 @@ Ces entrées étaient en priorité 1 et 2 ; elles sont faites.
   compensent, des goûts qui dépendent du caractère, une patience qui s'use et
   un prix de réserve. Mesuré : 80 % de signatures en jouant brutalement,
   100 % en lâchant ce qui ne coûte rien tout de suite.
+- **Marché de l'encadrement** → `StaffSystem`, `StaffScreen`, sonde
+  `tools/staff_probe.gd`. Neuf postes, une enveloppe par poste plutôt qu'un
+  budget commun, et un organigramme qui annonce ce que chaque poste change dans
+  le moteur. A réparé deux bugs mesurés au passage : le monde perdait la
+  totalité de son encadrement en trois saisons (338 → 0), et chaque roster
+  restait branché sur un entraîneur qu'il ne payait plus (136 coachs fantômes,
+  soit un bonus tactique gratuit à vie). Les deux postes qui n'avaient aucun
+  effet — préparateur physique, directeur sportif — en ont désormais un.
 - **Mode « fonder sa structure »** → `FoundScreen`, `WorldGenerator.found_org`,
   et un troisième étage de pyramide dans `season_valorant.json` : quatre
   Circuits ouverts et quatre barrages vers les Challengers. On démarre sans
@@ -68,11 +76,21 @@ Les *sections* par discipline, elles, sont désormais importées (portails
 
 ## Priorité 2 — Profondeur de gestion
 
-### 2.1 Recrutement du staff
-Le staff est généré au démarrage et jamais renouvelé. Il manque un marché du
-staff symétrique à celui des joueurs — d'autant que le coach pèse maintenant
-sur la progression, la cohésion ET les promotions d'académie.
-*Fichiers : `StaffFactory`, `TransferSystem`, écran staff.*
+### 2.1 Sauver le troisième étage de la pyramide
+Le Circuit ouvert se ruine intégralement : **32 structures sur 32 en faillite
+au bout de deux saisons**, et 17 des 55 Challengers avec elles. Mesuré sur la
+même graine avec et sans le marché du staff — les chiffres sont identiques,
+c'est donc un problème financier antérieur, pas un effet de bord.
+
+Conséquence concrète : le mode « fonder sa structure » se joue dans un monde
+qui meurt autour de vous, et une montée en Challengers vous fait rejoindre un
+étage à moitié vide. Les recettes récurrentes d'une structure de Circuit ouvert
+tournent autour de 22 k$ par an, contre 312 k$ en Challengers et 5,45 M$ en
+VCT : l'écart de 1 à 14 entre les deux premiers étages est probablement trop
+brutal, et il n'existe aucune subvention à ce niveau.
+*Fichiers : `FinanceSystem`, `SeasonBuilder` (dotations),
+`data/world/season_valorant.json`.*
+*Mesure : `tools/season.gd`, plus le comptage par étage.*
 
 ### 2.2 Rapports de scouting
 Envoyer un recruteur observer un joueur ou une ligue pendant N semaines, ce qui
@@ -140,7 +158,6 @@ deuxième jeu.
 | Double élimination limitée à 8 équipes | `BracketBuilder.double_elim_8` | Faible — couvre les besoins actuels |
 | Le système suisse n'est pas utilisé par les compétitions livrées | `CompetitionEngine._populate_swiss_round` | Faible — code prêt, données à écrire |
 | Pas de fenêtre de mercato | `ContractSystem`, `TransferSystem` | Moyenne — nuit au réalisme |
-| L'IA ne recrute pas de staff | `AiDirector` | Moyenne — le niveau du staff IA se dégrade avec le temps |
 | L'IA ne règle ni son entraînement ni ses promesses | `AiDirector` | Faible — les valeurs par défaut sont saines |
 | Pas de gestion des visas / quotas régionaux | `TransferSystem` | Moyenne — contrainte réelle du VCT non modélisée |
 | Les postes des joueurs importés sont générés | `tools/import_liquipedia.gd` | Faible — voir 1.4 |
@@ -148,7 +165,6 @@ deuxième jeu.
 | La hiérarchie sportive des équipes réelles est tirée au sort | `WorldGenerator._spread_strength` | Moyenne — jouable et honnête, mais les gains cumulés publiés par Liquipedia donneraient un classement réel |
 | `Organization.Owner` n'a aucun effet en jeu | `Organization`, `BoardSystem` | Moyenne — cinq types de propriétaire affichés, zéro conséquence ; l'écran de fondation a dû contourner le problème par le capital |
 | `Competition.entry_fee` est lu mais jamais débité | `SeasonBuilder`, `FinanceSystem` | Faible — donnée morte, un engagement gratuit |
-| Pas de marché du staff : une structure fondée garde son entraîneur débutant à vie | `StaffFactory`, voir 2.1 | Moyenne — bloquant à long terme pour le mode fondation |
 | Une section non simulée ne coûte ni ne rapporte rien | `FinanceSystem` | Faible — les autres disciplines restent décoratives tant qu'elles ne sont pas jouables |
 | Pas d'académie créée à la génération | `WorldGenerator`, `YouthSystem` | Faible — la bascule de section la gérerait déjà, il manque le roster |
 

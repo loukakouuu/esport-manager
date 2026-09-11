@@ -25,6 +25,7 @@ const SCREENS := {
 	"transfers": preload("res://src/ui/screens/TransfersScreen.gd"),
 	"negotiation": preload("res://src/ui/screens/NegotiationScreen.gd"),
 	"finance": preload("res://src/ui/screens/FinanceScreen.gd"),
+	"staff": preload("res://src/ui/screens/StaffScreen.gd"),
 	"facilities": preload("res://src/ui/screens/FacilitiesScreen.gd"),
 	"inbox": preload("res://src/ui/screens/InboxScreen.gd"),
 	"match": preload("res://src/ui/screens/MatchScreen.gd"),
@@ -35,6 +36,7 @@ const NAV_GROUPS := [
 	["Direction", [
 		["home", "Accueil"],
 		["club", "Structure"],
+		["staff", "Encadrement"],
 		["finance", "Finances"],
 		["facilities", "Infrastructures"],
 		["inbox", "Messages"],
@@ -61,6 +63,7 @@ const TITLES := {
 	"calendar": "Calendrier", "competition": "Classements",
 	"transfers": "Marché", "negotiation": "Négociation",
 	"finance": "Finances",
+	"staff": "Encadrement",
 	"facilities": "Infrastructures", "inbox": "Messages",
 	"match": "Compte rendu de match",
 }

@@ -31,6 +31,7 @@ func _initialize() -> void:
 			# L’outil joue le rôle d’un manager passif : sans cela le roster
 			# du joueur se vide et les chiffres n’ont plus de sens.
 			TransferSystem.auto_manage(world, me)
+			StaffSystem.auto_manage(world, me)
 		if GameDate.is_first_day_of_month(world.today):
 			# … y compris la partie sponsors et infrastructures.
 			AiDirector.monthly_decisions(world, me)

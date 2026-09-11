@@ -39,6 +39,7 @@ static func create(rng: Rng, ids: Ids, today: int, role: Staff.Role,
 	var region := str(opts.get("region", "EMEA"))
 	var n := DataFile.load_json(PlayerFactory.NAMES_PATH, {"regions": {}}) as Dictionary
 	var reg: Dictionary = (n.get("regions", {}) as Dictionary).get(region, {})
+	s.region = region
 	s.nationality = str(rng.pick(reg.get("countries", ["FR"])))
 	s.first_name = str(rng.pick(reg.get("first", ["Alex"])))
 	s.last_name = str(rng.pick(reg.get("last", ["Martin"])))
@@ -58,7 +59,7 @@ static func create(rng: Rng, ids: Ids, today: int, role: Staff.Role,
 		if absf(cur - target) < 0.4:
 			break
 		var step := clampf((target - cur) * 0.8, -2.0, 2.0)
-		for k in s._weights_for_role():
+		for k in s.role_weights():
 			s.attributes[k] = Attributes.clamp_value(int(round(float(s.attr(k)) + step)))
 
 	s.reputation = int(clampf(pow(s.overall() / 20.0, 2.0) * 8000.0, 20.0, 9500.0))
