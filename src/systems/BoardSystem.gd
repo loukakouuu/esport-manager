@@ -50,11 +50,21 @@ static func season_objectives(world: World, org: Organization) -> Array:
 		out.append(_obj("playoffs", "Atteindre les playoffs", 8, 2.0))
 		out.append(_obj("survive", "Ne pas finir dernier", total - 1, 1.0))
 
-	if tier1:
-		out.append(_obj("international", "Se qualifier pour un tournoi international",
-			1, 1.5))
-	else:
-		out.append(_obj("ascension", "Se qualifier pour l'Ascension", 4, 2.0))
+	# L'objectif de montée dépend de l'étage de la pyramide où l'on se trouve.
+	# Une équipe du circuit ouvert n'a rien à faire de « se qualifier pour
+	# l'Ascension » : sa marche à elle, c'est le barrage Challengers.
+	match _league_tier(world, r.league_key):
+		1:
+			out.append(_obj("international",
+				"Se qualifier pour un tournoi international", 1, 1.5))
+		2:
+			out.append(_obj("ascension", "Se qualifier pour l'Ascension", 4, 2.0))
+		_:
+			# Une structure qu'on attend en fond de tableau n'a pas à se voir
+			# fixer la promotion : ce serait un objectif perdu d'avance.
+			if share <= 0.55:
+				out.append(_obj("promotion", "Disputer le barrage Challengers",
+					2, 2.0))
 
 	# Objectif financier : toujours présent, jamais négociable.
 	out.append(_obj("finance", "Terminer la saison sans déficit", 0, 2.0))
@@ -64,6 +74,17 @@ static func season_objectives(world: World, org: Organization) -> Array:
 static func _obj(key: String, label: String, target: int, weight: float) -> Dictionary:
 	return {"key": key, "label": label, "target": target, "weight": weight,
 		"met": false, "evaluated": false}
+
+
+## Étage de la pyramide d'une ligue (1 = VCT, 2 = Challengers, 3 = circuit
+## ouvert). Lu sur la compétition plutôt que déduit de la clé : c'est le JSON
+## de saison qui fait autorité sur la forme du circuit.
+static func _league_tier(world: World, league_key: String) -> int:
+	for cid in world.competitions:
+		var c: Competition = world.competitions[cid]
+		if c.key == league_key:
+			return c.tier
+	return 2
 
 
 static func _league_peers(world: World, league_key: String) -> Array[String]:
@@ -122,7 +143,7 @@ static func evaluate_season(world: World, org: Organization) -> Dictionary:
 			"top4": met = final_rank > 0 and final_rank <= 4
 			"playoffs": met = final_rank > 0 and final_rank <= int(obj["target"])
 			"survive": met = final_rank > 0 and final_rank <= int(obj["target"])
-			"international", "ascension": met = reached_international
+			"international", "ascension", "promotion": met = reached_international
 			"finance": met = yearly >= 0
 		obj["met"] = met
 		obj["evaluated"] = true

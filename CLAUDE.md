@@ -113,7 +113,7 @@ res://
 # Suite de tests (réindexe les classes puis exécute)
 bash tools/test.sh
 
-# Écrans : construction + invariants de mise en page, tous onglets balayés
+# Écrans : deux états du monde × tous les onglets, plus les invariants
 bash tools/check_ui.sh
 
 # Simulation d'une saison complète + rapport d'équilibrage
@@ -137,9 +137,11 @@ Fait :
 - [x] Module Valorant : rôles, attributs, agents, maps, tactiques
 - [x] Simulation de match round par round avec économie officielle, veto de maps,
       momentum, temps morts, clutchs, statistiques individuelles et notes
-- [x] Génération du monde : 96 structures, ~700 joueurs, 4 régions
-- [x] Pyramide compétitive : VCT (4 ligues) + Challengers + Masters + Champions
-      + Ascension, formats round robin / poules / double élimination / suisse
+- [x] Génération du monde : 136 structures, ~930 joueurs, 4 régions
+- [x] Pyramide compétitive à trois étages : VCT (4 ligues) + Challengers
+      + Circuit ouvert, plus Masters, Champions
+      + Ascension et barrages de montée ; formats round robin / poules /
+      double élimination / suisse
 - [x] Finances : grand livre, sponsors, subventions, merch, contenu, salaires,
       charges sociales, infrastructures, emprunts, impôt, faillite
 - [x] Contrats, clauses de rachat, marché des joueurs, IA de recrutement
@@ -154,14 +156,16 @@ Fait :
 - [x] Packs de données remplaçables + importateur Liquipedia
 - [x] Pack VCT 2026 livré et actif par défaut : 48 structures et ~190 joueurs
       réels, plus leurs sections sur les autres disciplines
-- [x] Écran de démarrage à deux modes — *reprendre une structure* (complet),
-      *fonder la sienne* (verrouillé, annoncé)
+- [x] Écran de démarrage à deux modes, tous deux jouables : *reprendre une
+      structure* et *fonder la sienne*
+- [x] Fondation : entrée par le Circuit ouvert, effectif entièrement à
+      composer, capital échangé contre la patience de la direction
 - [x] Structure multi-sections : bascule d'équipe, écran Structure
-- [x] Interface complète (16 écrans, 29 vues)
+- [x] Interface complète (17 écrans, 30 vues)
 
 Pas encore fait, volontairement :
-- [ ] Mode *fonder sa structure* (l'UI l'annonce, le moteur ne le sait pas)
 - [ ] Toute discipline autre que Valorant (annoncées, non simulées)
+- [ ] Marché du staff : le coach recruté au départ ne se remplace pas
 
 Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 
@@ -169,7 +173,7 @@ Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 ```bash
 bash tools/check_all.sh    # tests + écrans + saison complète
 ```
-Les trois doivent passer : 190 vérifications unitaires, 29 vues d'écran
+Les trois doivent passer : 231 vérifications unitaires, 60 vues d'écran
 construites sans violation d'invariant, et une saison qui se termine avec des
 classements et des finances cohérents.
 
@@ -183,6 +187,11 @@ classements et des finances cohérents.
   L'ENFANT, pas les siens.** Sur un axe où le défilement est désactivé, un
   enfant sans `SIZE_EXPAND` retombe à sa taille minimale : le contenu disparaît
   sans la moindre erreur. `tools/ui_check.gd` vérifie aussi cet invariant.
+- **Deux `ScrollContainer` imbriqués sur le même axe** : l'extérieur donne à
+  l'intérieur sa taille MINIMALE, soit zéro, et le contenu disparaît. Comme
+  `UiKit.data_table` défile déjà tout seul, ne jamais l'emballer dans un
+  `UiKit.scroll`. `tools/ui_check.gd` vérifie aussi cet invariant — l'axe seul
+  compte, l'imbrication horizontal/vertical restant légitime.
 - `Side`, `sign`, `Color`, `_get` : noms réservés par Godot. Ne pas nommer une
   classe, une fonction statique ou une méthode comme un symbole global
   (`ContractSystem.sign_contract`, `_api_get` et non `_get`).

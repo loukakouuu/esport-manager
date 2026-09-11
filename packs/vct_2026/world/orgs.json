@@ -1,6 +1,54 @@
 {
 	"_comment": "Pack généré depuis Liquipedia (CC-BY-SA 3.0). Les ligues VCT sont réelles ; les Challengers restent fictifs, faute de source équivalente. Marques appartenant à leurs détenteurs.",
 	"leagues": {
+    "open_emea": [
+      { "name": "Brume", "tag": "BRM", "country": "FR", "strength": 38, "owner": "self_funded", "color": "#8fa3b0" },
+      { "name": "Atelier Nine", "tag": "AT9", "country": "BE", "strength": 37, "owner": "self_funded", "color": "#c39b6a" },
+      { "name": "Ostwind", "tag": "OSW", "country": "DE", "strength": 36, "owner": "self_funded", "color": "#5c7cfa" },
+      { "name": "Fjord Nine", "tag": "FJ9", "country": "NO", "strength": 35, "owner": "self_funded", "color": "#3bb0c9" },
+      { "name": "Kelpie", "tag": "KLP", "country": "GB", "strength": 34, "owner": "celebrity", "color": "#7d5fb2" },
+      { "name": "Meseta", "tag": "MST", "country": "ES", "strength": 33, "owner": "self_funded", "color": "#d9822b" },
+      { "name": "Anatolia Rise", "tag": "ANR", "country": "TR", "strength": 32, "owner": "self_funded", "color": "#c0392b" },
+      { "name": "Vlkodlak", "tag": "VLK", "country": "CZ", "strength": 31, "owner": "self_funded", "color": "#6b7a8f" },
+      { "name": "Clover Line", "tag": "CVL", "country": "IE", "strength": 30, "owner": "self_funded", "color": "#2fa84f" },
+      { "name": "Rue Zéro", "tag": "RZ0", "country": "FR", "strength": 28, "owner": "endemic", "color": "#e05c8a" }
+    ],
+    "open_americas": [
+      { "name": "Backyard Nine", "tag": "BY9", "country": "US", "strength": 38, "owner": "self_funded", "color": "#4a8f4a" },
+      { "name": "Rust Belt", "tag": "RBT", "country": "US", "strength": 37, "owner": "self_funded", "color": "#a0522d" },
+      { "name": "Sertão", "tag": "SRT", "country": "BR", "strength": 36, "owner": "self_funded", "color": "#d68910" },
+      { "name": "Cardinal Grove", "tag": "CDG", "country": "US", "strength": 35, "owner": "celebrity", "color": "#c0392b" },
+      { "name": "Maple Nine", "tag": "MP9", "country": "CA", "strength": 34, "owner": "self_funded", "color": "#e74c3c" },
+      { "name": "Altiplano", "tag": "ALT", "country": "PE", "strength": 33, "owner": "self_funded", "color": "#16a085" },
+      { "name": "Pampa Zero", "tag": "PZ0", "country": "AR", "strength": 32, "owner": "self_funded", "color": "#5dade2" },
+      { "name": "Rio Grande", "tag": "RGD", "country": "MX", "strength": 31, "owner": "self_funded", "color": "#27ae60" },
+      { "name": "Coral Line", "tag": "CRL", "country": "BR", "strength": 30, "owner": "self_funded", "color": "#ff6f61" },
+      { "name": "Tundra Line", "tag": "TDL", "country": "CA", "strength": 28, "owner": "endemic", "color": "#7fb3d5" }
+    ],
+    "open_pacific": [
+      { "name": "Kōhaku", "tag": "KHK", "country": "JP", "strength": 38, "owner": "self_funded", "color": "#e05c5c" },
+      { "name": "Hanbok Nine", "tag": "HB9", "country": "KR", "strength": 37, "owner": "self_funded", "color": "#4a6fd4" },
+      { "name": "Krakatoa", "tag": "KRK", "country": "ID", "strength": 36, "owner": "self_funded", "color": "#c0392b" },
+      { "name": "Sakura Line", "tag": "SKL", "country": "JP", "strength": 35, "owner": "celebrity", "color": "#ff9ec4" },
+      { "name": "Mekong Nine", "tag": "MK9", "country": "TH", "strength": 34, "owner": "self_funded", "color": "#16a085" },
+      { "name": "Bayan", "tag": "BYN", "country": "PH", "strength": 33, "owner": "self_funded", "color": "#f1c40f" },
+      { "name": "Deccan Nine", "tag": "DC9", "country": "IN", "strength": 32, "owner": "self_funded", "color": "#d35400" },
+      { "name": "Southern Cross", "tag": "SXC", "country": "AU", "strength": 31, "owner": "self_funded", "color": "#2c5aa0" },
+      { "name": "Reef Line", "tag": "RFL", "country": "SG", "strength": 30, "owner": "self_funded", "color": "#48c9b0" },
+      { "name": "Sampan", "tag": "SMP", "country": "VN", "strength": 28, "owner": "endemic", "color": "#a04000" }
+    ],
+    "open_china": [
+      { "name": "Baiyun", "tag": "BYU", "country": "CN", "strength": 38, "owner": "self_funded", "color": "#9fb6c9" },
+      { "name": "Qilin Nine", "tag": "QL9", "country": "CN", "strength": 37, "owner": "self_funded", "color": "#af7ac5" },
+      { "name": "Huanghe", "tag": "HGH", "country": "CN", "strength": 36, "owner": "self_funded", "color": "#c9a227" },
+      { "name": "Zhulong", "tag": "ZHL", "country": "CN", "strength": 35, "owner": "self_funded", "color": "#cb4335" },
+      { "name": "Lotus Gate", "tag": "LTG", "country": "CN", "strength": 34, "owner": "celebrity", "color": "#f5a9c8" },
+      { "name": "Wushan", "tag": "WSH", "country": "CN", "strength": 33, "owner": "self_funded", "color": "#5f7a61" },
+      { "name": "Bohai Line", "tag": "BHL", "country": "CN", "strength": 32, "owner": "self_funded", "color": "#3498db" },
+      { "name": "Tangshan Nine", "tag": "TS9", "country": "CN", "strength": 31, "owner": "self_funded", "color": "#7f8c8d" },
+      { "name": "Jinsha", "tag": "JNS", "country": "CN", "strength": 30, "owner": "self_funded", "color": "#d4ac0d" },
+      { "name": "Nanling", "tag": "NNL", "country": "CN", "strength": 28, "owner": "endemic", "color": "#2ecc71" }
+    ],
 		"chal_americas": [
 			{
 				"color": "#fdcb6e",

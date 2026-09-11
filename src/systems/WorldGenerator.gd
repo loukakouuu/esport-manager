@@ -497,6 +497,185 @@ static func _make_free_agents(world: World, module: GameModule) -> void:
 # Prise en main d'une structure par le joueur
 # ============================================================================
 
+# ============================================================================
+# Fondation d'une structure par le joueur
+# ============================================================================
+
+## Étage de la pyramide où entre une structure fondée de zéro.
+const OPEN_LEAGUE_PREFIX := "open_"
+
+## Les trois façons de démarrer.
+##
+## Le capital seul ne serait pas un choix : on prendrait toujours le plus
+## gros. Ce qui l'équilibre, c'est la PATIENCE — l'argent d'un investisseur
+## vient avec quelqu'un à qui rendre des comptes, et la confiance de la
+## direction est ce qui met fin à la partie quand elle tombe à zéro.
+##
+## `promotion_expected` : la direction exige la montée dès la première saison,
+## quel que soit le classement attendu.
+const CAPITAL_TIERS := {
+	"garage": {"units": 40_000.0, "owner": Organization.Owner.SELF_FUNDED,
+		"confidence": 88.0, "promotion_expected": false},
+	"seed": {"units": 120_000.0, "owner": Organization.Owner.SELF_FUNDED,
+		"confidence": 72.0, "promotion_expected": false},
+	"backed": {"units": 320_000.0, "owner": Organization.Owner.INVESTOR,
+		"confidence": 56.0, "promotion_expected": true},
+}
+
+
+static func capital_tier(key: String) -> Dictionary:
+	return CAPITAL_TIERS.get(key, CAPITAL_TIERS["seed"])
+
+
+## Pays plausibles d'une région, lus dans la banque de noms : l'écran de
+## création ne doit pas embarquer sa propre liste de pays.
+static func countries_of(region: String) -> Array[String]:
+	var d = DataFile.load_json("res://data/world/names.json", {})
+	var out: Array[String] = []
+	if not (d is Dictionary):
+		return out
+	var regions = (d as Dictionary).get("regions", {})
+	if not (regions is Dictionary):
+		return out
+	var entry = (regions as Dictionary).get(region, {})
+	if not (entry is Dictionary):
+		return out
+	for c in (entry as Dictionary).get("countries", []):
+		out.append(str(c))
+	return out
+
+
+## Le joueur crée sa propre structure et entre par le circuit ouvert.
+##
+## Rien n'est hérité : aucun joueur, aucun sponsor, aucune place en Challengers.
+## La différence avec `assign_player_org` n'est pas cosmétique — c'est une autre
+## courbe de difficulté, où les six premières semaines servent à trouver cinq
+## joueurs avant le premier match, sous peine de forfait.
+##
+## config : {"name", "tag", "country", "region", "color", "owner", "capital"}
+## `capital` est en cents.
+static func found_org(world: World, config: Dictionary) -> Organization:
+	var region := str(config.get("region", "EMEA"))
+	var league_key := OPEN_LEAGUE_PREFIX + region.to_lower()
+	var module := GameRegistry.get_module("valorant")
+
+	var o := Organization.new()
+	o.id = world.ids.next(Ids.ORG)
+	o.name = str(config.get("name", "Nouvelle structure")).strip_edges()
+	o.tag = str(config.get("tag", "NEW")).strip_edges().to_upper()
+	o.region = region
+	o.country = str(config.get("country", "FR"))
+	o.color_primary = str(config.get("color", "#ff5a3c"))
+	o.founded_year = GameDate.year_of(world.today)
+	var tier := capital_tier(str(config.get("capital_tier", "seed")))
+	o.owner = int(tier["owner"]) as Organization.Owner
+	o.games = ["valorant"]
+	o.ledger = Ledger.new()
+	o.ledger.cash = Money.from_units(float(tier["units"]))
+
+	# Personne ne vous connaît. C'est le vrai handicap du mode : la réputation
+	# pèse sur ce qu'un agent libre accepte de signer, sur les sponsors qu'on
+	# peut décrocher et sur les revenus de contenu.
+	o.reputation = 220
+	o.fanbase = 1_800
+	o.brand_value = Money.from_units(25_000.0)
+	o.facilities = Facilities.default_levels()
+	o.board_confidence = float(tier["confidence"])
+	o.budgets["marketing"] = Money.from_units(600.0)
+	world.orgs[o.id] = o
+
+	var r := Roster.new()
+	r.id = world.ids.next(Ids.ROSTER)
+	r.org_id = o.id
+	r.game_id = module.id()
+	r.name = o.name
+	r.region = region
+	r.league_key = league_key
+	r.tactic = module.default_tactic()
+	r.training = TrainingSystem.DEFAULT_PLAN.duplicate()
+	# Un groupe qui ne s'est jamais entraîné ensemble : la cohésion se
+	# construira match après match.
+	r.chemistry = 25.0
+	world.rosters[r.id] = r
+	o.add_roster(module.id(), r.id)
+
+	# Un seul encadrant, et pas un bon. Sans marché du staff, laisser la
+	# structure sans entraîneur du tout la condamnerait définitivement.
+	_make_staff(world, o, region, 18.0)
+
+	_enter_open_circuit(world, r, league_key)
+
+	world.player_org_id = o.id
+	world.player_roster_id = r.id
+	world.player_game_id = module.id()
+	o.is_player_controlled = true
+	o.objectives = BoardSystem.season_objectives(world, o)
+	if bool(tier["promotion_expected"]):
+		# Celui qui a mis l'argent veut voir la montée. Le calcul de rang
+		# attendu ne l'aurait jamais formulé pour une équipe sans joueurs.
+		o.objectives.insert(0, {"key": "promotion",
+			"label": "Décrocher la montée en Challengers dès la première saison",
+			"target": 1, "weight": 2.5, "met": false, "evaluated": false})
+	_founding_news(world, o, r)
+	return o
+
+
+## Inscrit l'équipe dans la compétition du circuit ouvert déjà construite.
+##
+## La saison est bâtie avant que le joueur ne fonde quoi que ce soit : on ne
+## peut donc pas compter sur `build_season` pour recruter les participants.
+## On refuse d'inscrire une phase déjà lancée — arriver au milieu d'un
+## championnat fausserait le calendrier de tout le monde.
+static func _enter_open_circuit(world: World, r: Roster,
+		league_key: String) -> void:
+	for cid in world.competitions:
+		var comp: Competition = world.competitions[cid]
+		if comp.key != league_key or comp.season_year != world.season_year:
+			continue
+		if not comp.participants.has(r.id):
+			comp.participants.append(r.id)
+		if not r.competition_ids.has(comp.id):
+			r.competition_ids.append(comp.id)
+		for st in comp.stages:
+			if st.status == Stage.Status.PENDING and not st.participants.has(r.id):
+				st.participants.append(r.id)
+		return
+	Log.w("worldgen", "Aucun circuit ouvert « %s » : la structure fondée "
+		% league_key + "n'est engagée dans aucune compétition.")
+
+
+static func _founding_news(world: World, o: Organization, r: Roster) -> void:
+	var comp_name := "le circuit ouvert"
+	for cid in r.competition_ids:
+		var c := world.competition(cid)
+		if c != null:
+			comp_name = c.name
+	var first_match := "à la reprise du circuit"
+	var day := _first_stage_day(world, r)
+	if day > 0:
+		first_match = "le %s" % GameDate.format_long(day)
+	world.add_news(world.today, "%s est née" % o.name,
+		("Vous fondez %s. Personne ne vous attend, et c'est la seule bonne "
+		+ "nouvelle : il n'y a rien à défendre.\n\n"
+		+ "Capital : %s\nEngagement : %s\nEffectif : aucun joueur sous contrat"
+		+ "\n\nLe championnat commence %s. Une équipe qui ne présente pas cinq "
+		+ "joueurs déclare forfait — le marché des agents libres est votre "
+		+ "première urgence, avant même les sponsors.")
+		% [o.name, Money.fmt(o.cash()), comp_name, first_match], "board")
+
+
+static func _first_stage_day(world: World, r: Roster) -> int:
+	var best := 0
+	for cid in r.competition_ids:
+		var c := world.competition(cid)
+		if c == null:
+			continue
+		for st in c.stages:
+			if best == 0 or st.start_day < best:
+				best = st.start_day
+	return best
+
+
 ## Le joueur reprend une structure existante. On lui donne le contrôle, on fixe
 ## les objectifs du board et on lui envoie son premier message.
 static func assign_player_org(world: World, org_id: String) -> void:

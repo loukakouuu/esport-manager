@@ -53,9 +53,9 @@ console : `Godot_v4.7.2-stable_win64_console.exe`.
 
 ## Une fois le jeu lancé
 
-1. **Choisir le mode** — *Reprendre une structure* est le mode complet : vous
-   héritez d'une maison qui existe, avec son effectif, sa trésorerie et ses
-   attentes. *Fonder votre structure* est annoncé mais pas encore ouvert.
+1. **Choisir le mode** — *Reprendre une structure* : vous héritez d'une maison
+   qui existe, avec son effectif, sa trésorerie et ses attentes.
+   *Fonder votre structure* : vous partez de rien (voir plus bas).
    C'est aussi sur cet écran qu'on choisit l'univers (vraies équipes ou univers
    fictif) et la graine du monde — à graine identique, le monde est toujours le
    même.
@@ -66,6 +66,27 @@ console : `Godot_v4.7.2-stable_win64_console.exe`.
 3. **Jouer** — la barre du haut ne bouge jamais : écusson, date, trésorerie,
    résultat mensuel, prochain match, et le bouton **Continuer**. La colonne de
    gauche regroupe les pages par thème.
+
+### Fonder sa structure
+
+L'autre mode, plus dur. Vous choisissez un nom, un sigle, des couleurs, une
+région et un capital — et c'est tout ce que vous avez.
+
+Pas un joueur sous contrat, aucun sponsor, aucune infrastructure, un entraîneur
+débutant, et une réputation nulle qui fera dire non aux bons agents libres.
+Vous entrez au **troisième étage de la pyramide**, le *Circuit ouvert*, et la
+montée en Challengers passe par un barrage en fin de saison.
+
+Le capital est le vrai arbitrage, parce qu'il s'échange contre de la patience :
+
+| | Capital | La direction |
+| --- | --- | --- |
+| **Garage** | 40 k$ | c'est vous : elle ne vous licenciera pas |
+| **Amorçage** | 120 k$ | ni filet, ni pression particulière |
+| **Investisseur** | 320 k$ | exige la montée dès la première saison |
+
+Le championnat démarre mi-février. Une équipe qui ne présente pas cinq joueurs
+déclare forfait : les six premières semaines servent à recruter.
 
 ### Une structure, plusieurs équipes
 
@@ -90,8 +111,9 @@ récupération. Il n'y a pas de bon réglage universel.
   officielle (800 au départ, +3000 sur victoire, bonus de défaite progressif,
   conservation de l'équipement), momentum et tilt, temps morts, clutchs, aces,
   statistiques individuelles et note par joueur.
-- **Compétitions** : 4 ligues VCT partenaires, 4 ligues Challengers, Masters,
-  Champions, Ascension et promotion. Formats championnat, poules, double
+- **Compétitions** : une pyramide à trois étages — 4 ligues VCT partenaires,
+  4 ligues Challengers, 4 Circuits ouverts — plus Masters, Champions,
+  l'Ascension et les barrages de montée. Formats championnat, poules, double
   élimination et système suisse.
 - **Finances** : grand livre à double sens, sponsors par emplacement exclusif,
   subventions de ligue, partage de revenus éditeur, merchandising, contenu,
@@ -143,8 +165,8 @@ comment écrire un pack à la main et les conditions de licence.
 ## Outils de vérification (sans interface)
 
 ```bash
-"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 190 vérifications
-bash tools/check_ui.sh                                           # 29 vues d'écran
+"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 231 vérifications
+bash tools/check_ui.sh                                           # 60 vues d'écran
 "$GODOT" --headless --path . --script res://tools/season.gd      # saison complète
 bash tools/check_all.sh                                          # les trois d'affilée
 

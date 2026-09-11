@@ -22,7 +22,15 @@ func build() -> void:
 		var c: Competition = w.competitions[cid]
 		if c.season_year == w.season_year:
 			comps.append(c)
+	# Les compétitions du joueur d'abord : avec trois étages de pyramide et
+	# quatre régions, la liste dépasse largement la largeur de l'écran, et
+	# retrouver sa propre ligue devenait une chasse au trésor.
+	var mine := r.competition_ids if r != null else ([] as Array[String])
 	comps.sort_custom(func(a: Competition, b: Competition):
+		var a_mine := mine.has(a.id)
+		var b_mine := mine.has(b.id)
+		if a_mine != b_mine:
+			return a_mine
 		if a.tier != b.tier:
 			return a.tier < b.tier
 		return a.name < b.name)
@@ -54,12 +62,53 @@ func build() -> void:
 	if stage == null:
 		add_child(UiKit.subtitle("Compétition non démarrée."))
 		return
+	# Un classement vide n'apprend rien. Tant que la phase n'a pas commencé, ce
+	# qu'on veut savoir c'est QUAND elle commence et QUI y est engagé.
+	if stage.status == Stage.Status.PENDING:
+		add_child(UiKit.label("Phase à venir : %s (%s) — à partir du %s"
+			% [stage.name, stage.format_label(),
+				GameDate.format_long(stage.start_day)], 14, UiKit.TEXT_DIM))
+		# Pas de UiKit.scroll ici : le tableau défile déjà tout seul, et deux
+		# ScrollContainer imbriqués sur le même axe écrasent l'intérieur.
+		add_child(_entrants(w, comp))
+		return
 	add_child(UiKit.label("Phase en cours : %s (%s)"
 		% [stage.name, stage.format_label()], 14, UiKit.TEXT_DIM))
 	if stage.is_bracket():
 		add_child(UiKit.scroll(_bracket(w, comp, stage)))
 	else:
 		add_child(UiKit.scroll(_standings(w, stage)))
+
+
+## Équipes engagées, avant que la moindre rencontre ne soit tirée.
+func _entrants(w: World, comp: Competition) -> Control:
+	var v := UiKit.vbox(6)
+	v.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	v.add_child(UiKit.caption("%d équipes engagées" % comp.participants.size()))
+	var mine: Roster = game().my_roster()
+	var rows: Array = []
+	for rid in comp.participants:
+		var r := w.roster(str(rid))
+		var o := w.org(r.org_id) if r != null else null
+		if o == null:
+			continue
+		var is_mine := mine != null and r.id == mine.id
+		rows.append({
+			"name": {"text": o.name, "bold": is_mine,
+				"color": UiKit.ACCENT if is_mine else UiKit.TEXT},
+			"country": {"text": o.country},
+			"players": {"text": str(r.size()), "sort": r.size(),
+				"color": UiKit.BAD if r.size() < 5 else UiKit.TEXT},
+			"reputation": {"text": str(o.reputation), "sort": o.reputation},
+		})
+	v.add_child(sorted_table("competition.entrants", [
+		{"key": "name", "label": "Structure", "width": 200},
+		{"key": "country", "label": "Pays", "width": 60},
+		{"key": "players", "label": "Joueurs", "width": 70, "align": "right"},
+		{"key": "reputation", "label": "Réputation", "width": 90,
+			"align": "right"},
+	], rows))
+	return v
 
 
 func _standings(w: World, stage: Stage) -> Control:

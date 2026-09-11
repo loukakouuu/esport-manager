@@ -24,8 +24,7 @@ func build() -> void:
 	kpis.add_child(_kpi("Résultat mensuel", Money.fmt(monthly),
 		UiKit.GOOD if monthly >= 0 else UiKit.BAD))
 	kpis.add_child(_kpi("Autonomie",
-		"rentable" if runway < 0 else "%d mois" % runway,
-		UiKit.GOOD if runway < 0 else (UiKit.BAD if runway <= 3 else UiKit.WARN)))
+		UiKit.runway_text(runway), UiKit.runway_color(runway)))
 	kpis.add_child(_kpi("Masse salariale",
 		"%s / an" % Money.fmt_short(FinanceSystem.wage_bill_yearly(w, o)),
 		_wage_color(FinanceSystem.wage_ratio(w, o))))

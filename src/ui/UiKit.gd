@@ -623,6 +623,26 @@ static func attr_color(v: int) -> Color:
 	return Color("#37d6c0")
 
 
+## Autonomie financière en toutes lettres, avec sa couleur.
+##
+## Au-delà de deux ans le chiffre exact n'apprend plus rien — et une structure
+## qui n'a pas encore de salaires en afficherait des centaines de mois, ce qui
+## se lirait comme « tout va bien » alors qu'elle n'a pas d'équipe.
+static func runway_text(months: int, with_suffix: bool = false) -> String:
+	if months < 0:
+		return "rentable"
+	var suffix := " d'autonomie" if with_suffix else ""
+	if months > 24:
+		return "plus de 2 ans" + suffix
+	return "%d mois%s" % [months, suffix]
+
+
+static func runway_color(months: int) -> Color:
+	if months < 0:
+		return GOOD
+	return BAD if months <= 3 else (WARN if months <= 12 else TEXT)
+
+
 static func money_cell(cents: int) -> Dictionary:
 	return {"text": Money.fmt_short(cents), "sort": cents,
 		"color": GOOD if cents >= 0 else BAD}

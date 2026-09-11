@@ -4,20 +4,21 @@ extends Screen
 ##
 ## Deux modes, comme dans les gestionnaires de football :
 ##   - reprendre une structure existante, avec son histoire, ses moyens et ses
-##     contraintes — c'est le mode complet ;
-##   - fonder la sienne, tout créer depuis zéro — annoncé, pas encore ouvert.
+##     contraintes ;
+##   - fonder la sienne, sans effectif ni place garantie, et entrer par le
+##     circuit ouvert.
 ##
-## Le second est affiché VERROUILLÉ plutôt que caché : la promesse fait partie
-## du jeu, et une case grisée dit ce qui arrive mieux qu'une absence.
+## Le mode choisi est mémorisé dans l'état d'affichage sous "start"/"mode" :
+## c'est lui que lit App pour savoir quel écran présenter après la création du
+## monde. Voir WorldGenerator.found_org pour ce que la fondation donne — et
+## surtout pour ce qu'elle ne donne pas.
 
-## Ce que le mode « fonder » apportera. Listé ici parce que c'est un engagement
-## et pas un slogan : chaque ligne est une fonctionnalité à écrire.
 const FOUND_FEATURES := [
-	"Nom, sigle, couleurs et pays de la structure",
-	"Choix des disciplines engagées dès la première saison",
-	"Capital de départ et type de propriétaire",
+	"Nom, sigle, couleurs, région et pays de la structure",
+	"Trois capitaux de départ, du garage au fonds d'investissement",
 	"Effectif à composer entièrement parmi les agents libres",
-	"Entrée par les qualifications ouvertes, sans place garantie",
+	"Entrée par le circuit ouvert, sans place garantie en Challengers",
+	"Une réputation nulle : les bons joueurs commenceront par dire non",
 ]
 
 
@@ -75,6 +76,7 @@ func _takeover_card() -> Control:
 	card.body.add_child(UiKit.vspacer())
 	card.body.add_child(UiKit.separator())
 	var go := UiKit.primary("Choisir une structure  ▶", func():
+		ui("start")["mode"] = "takeover"
 		game().new_world(_seed()))
 	go.custom_minimum_size = Vector2(0, 36)
 	card.body.add_child(go)
@@ -85,32 +87,32 @@ func _found_card() -> Control:
 	var card := UiKit.card("", 9, 16)
 	card.panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	card.panel.add_theme_stylebox_override("panel",
-		UiKit.box(UiKit.BG_SOFT, 8, 16, UiKit.BORDER_SOFT, 1))
+		UiKit.box(UiKit.BG_PANEL, 8, 16, UiKit.INFO, 1))
 
 	var head := UiKit.hbox(8)
-	head.add_child(UiKit.label("Fonder votre structure", UiKit.FS_H3,
-		UiKit.TEXT_DIM, true))
+	head.add_child(UiKit.heading("Fonder votre structure"))
 	head.add_child(UiKit.spacer())
-	head.add_child(UiKit.pill("bientôt", UiKit.WARN, true))
+	head.add_child(UiKit.pill("mode difficile", UiKit.INFO, true))
 	card.body.add_child(head)
 
 	card.body.add_child(UiKit.wrap(
 		"Partir de rien : une marque à inventer, un capital à placer, un "
 		+ "effectif à composer parmi les agents libres, et aucune place "
-		+ "garantie en compétition. Un mode plus dur, et une autre façon de "
-		+ "lire les mêmes chiffres.",
-		UiKit.FS_BODY_L, UiKit.TEXT_FAINT))
+		+ "garantie en compétition. Vous entrez par le circuit ouvert, au "
+		+ "troisième étage de la pyramide, et vous remontez.",
+		UiKit.FS_BODY_L, UiKit.TEXT_DIM))
 
 	card.body.add_child(UiKit.gap(2))
 	for line in FOUND_FEATURES:
-		card.body.add_child(_bullet(str(line), UiKit.TEXT_FAINT))
+		card.body.add_child(_bullet(str(line), UiKit.TEXT_DIM))
 
 	card.body.add_child(UiKit.vspacer())
 	card.body.add_child(UiKit.separator())
-	var locked := UiKit.button("Indisponible pour l'instant")
-	locked.disabled = true
-	locked.custom_minimum_size = Vector2(0, 36)
-	card.body.add_child(locked)
+	var go := UiKit.button("Créer ma structure  ▶", func():
+		ui("start")["mode"] = "found"
+		game().new_world(_seed()))
+	go.custom_minimum_size = Vector2(0, 36)
+	card.body.add_child(go)
 	return card.panel
 
 

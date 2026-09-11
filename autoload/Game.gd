@@ -45,6 +45,22 @@ func abandon_world() -> void:
 	state_changed.emit()
 
 
+## Fonder une structure de zéro plutôt que d'en reprendre une.
+##
+## Le monde doit déjà exister (les concurrents et le calendrier sont générés en
+## amont) : on n'y ajoute que la structure du joueur. Voir
+## WorldGenerator.found_org pour ce qui est volontairement absent — effectif,
+## sponsors, place garantie.
+func found_org(config: Dictionary) -> bool:
+	if world == null:
+		return false
+	var org := WorldGenerator.found_org(world, config)
+	if org == null:
+		return false
+	state_changed.emit()
+	return true
+
+
 func choose_org(org_id: String) -> void:
 	WorldGenerator.assign_player_org(world, org_id)
 	state_changed.emit()

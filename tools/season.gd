@@ -39,6 +39,8 @@ func _initialize() -> void:
 	print("Saison simulée : %d jours, %d séries, %d ms"
 		% [days, matches, Time.get_ticks_msec() - t1])
 
+	_print_league(world, "open_emea")
+	_print_league(world, "promo_emea")
 	_print_league(world, "chal_emea")
 	_print_league(world, "vct_emea")
 	_print_finances(world)

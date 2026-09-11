@@ -28,26 +28,11 @@ Ces entrées étaient en priorité 1 et 2 ; elles sont faites.
   `World.player_roster_id`, `ClubScreen`, barre de sections dans `App`. Une
   structure aligne ses disciplines réelles ; seules celles que `GameRegistry`
   simule donnent une équipe.
-
----
-
-## Priorité 0 — La promesse affichée qu'il faut tenir
-
-### 0.1 Mode « fonder sa structure »
-`StartScreen` l'annonce et le décrit ligne par ligne (voir `FOUND_FEATURES`) :
-tant qu'il est verrouillé, c'est une dette visible par le joueur. Ce qui manque
-n'est pas énorme — le monde sait déjà se générer sans structure joueur :
-
-1. un écran de création (nom, sigle, couleurs, pays, disciplines, propriétaire,
-   capital) ;
-2. une `Organization` construite à la main plutôt que depuis `orgs.json`, avec
-   un `Roster` vide et un budget de départ ;
-3. une entrée en compétition par les qualifications ouvertes plutôt qu'une
-   place héritée — c'est le vrai morceau, `SeasonBuilder` suppose aujourd'hui
-   que chaque ligue a son effectif d'équipes.
-
-*Fichiers : nouvel écran, `WorldGenerator` (fabrique d'org joueur),
-`SeasonBuilder` (place ouverte).*
+- **Mode « fonder sa structure »** → `FoundScreen`, `WorldGenerator.found_org`,
+  et un troisième étage de pyramide dans `season_valorant.json` : quatre
+  Circuits ouverts et quatre barrages vers les Challengers. On démarre sans
+  joueur, sans sponsor et sans place garantie ; le capital choisi s'échange
+  contre la patience de la direction.
 
 ---
 
@@ -165,7 +150,9 @@ deuxième jeu.
 | Les postes des joueurs importés sont générés | `tools/import_liquipedia.gd` | Faible — voir 1.4 |
 | Les sections se reconnaissent par le nom, qui diffère d'un wiki à l'autre | `tools/import_liquipedia.gd` | Faible — une section manquée vaut mieux qu'une inventée, mais une table d'alias serait plus juste |
 | La hiérarchie sportive des équipes réelles est tirée au sort | `WorldGenerator._spread_strength` | Moyenne — jouable et honnête, mais les gains cumulés publiés par Liquipedia donneraient un classement réel |
-| Le mode « fonder sa structure » est annoncé mais verrouillé | `StartScreen` | Moyenne — c'est une promesse que voit le joueur, voir 0.1 |
+| `Organization.Owner` n'a aucun effet en jeu | `Organization`, `BoardSystem` | Moyenne — cinq types de propriétaire affichés, zéro conséquence ; l'écran de fondation a dû contourner le problème par le capital |
+| `Competition.entry_fee` est lu mais jamais débité | `SeasonBuilder`, `FinanceSystem` | Faible — donnée morte, un engagement gratuit |
+| Pas de marché du staff : une structure fondée garde son entraîneur débutant à vie | `StaffFactory`, voir 2.1 | Moyenne — bloquant à long terme pour le mode fondation |
 | Une section non simulée ne coûte ni ne rapporte rien | `FinanceSystem` | Faible — les autres disciplines restent décoratives tant qu'elles ne sont pas jouables |
 | Pas d'académie créée à la génération | `WorldGenerator`, `YouthSystem` | Faible — la bascule de section la gérerait déjà, il manque le roster |
 

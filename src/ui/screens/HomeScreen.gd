@@ -107,8 +107,7 @@ func _kpi_strip(w: World, o: Organization, r: Roster) -> Control:
 
 
 func _runway_text(w: World, o: Organization) -> String:
-	var months := FinanceSystem.runway_months(w, o)
-	return "rentable" if months < 0 else "%d mois d'autonomie" % months
+	return UiKit.runway_text(FinanceSystem.runway_months(w, o), true)
 
 
 func _grievance_summary(w: World, r: Roster) -> String:
@@ -153,9 +152,11 @@ func _next_matches(w: World, r: Roster) -> Control:
 		return card.panel
 	var upcoming := w.upcoming_for_roster(r.id, 6)
 	if upcoming.is_empty():
-		card.body.add_child(UiKit.label(
-			"Rien de programmé. La prochaine phase de compétition n'a pas "
-			+ "encore été tirée.", UiKit.FS_BODY_L, UiKit.TEXT_DIM))
+		# Le calendrier d'une phase n'est tiré qu'à son ouverture. Dire quand
+		# elle ouvre vaut mieux que « rien de programmé » — c'est la seule
+		# information qui compte quand on doit encore recruter cinq joueurs.
+		card.body.add_child(UiKit.label(_next_stage_text(w, r),
+			UiKit.FS_BODY_L, UiKit.TEXT_DIM))
 		return card.panel
 
 	var rows: Array = []
@@ -188,6 +189,28 @@ func _next_matches(w: World, r: Roster) -> Control:
 		{"key": "round", "label": "Tour", "width": 150, "expand": true},
 	], rows, {"scroll": false}))
 	return card.panel
+
+
+## Prochaine phase à s'ouvrir pour cette équipe, en toutes lettres.
+func _next_stage_text(w: World, r: Roster) -> String:
+	var best: Stage = null
+	var best_comp: Competition = null
+	for cid in r.competition_ids:
+		var c := w.competition(cid)
+		if c == null:
+			continue
+		for st in c.stages:
+			if st.status != Stage.Status.PENDING or st.start_day < w.today:
+				continue
+			if best == null or st.start_day < best.start_day:
+				best = st
+				best_comp = c
+	if best == null:
+		return "Rien de programmé pour l'instant."
+	var days := best.start_day - w.today
+	return "%s — %s s'ouvre le %s (dans %d jours)." \
+		% [best_comp.short_name, best.name,
+			GameDate.format_long(best.start_day), days]
 
 
 ## Niveau moyen estimé du cinq adverse : ce qu'un analyste dirait avant match.
@@ -306,9 +329,8 @@ func _finance_card(w: World, o: Organization) -> Control:
 		UiKit.label("%s / mois" % Money.fmt(monthly), UiKit.FS_BODY_L,
 			UiKit.GOOD if monthly >= 0 else UiKit.BAD), 150))
 	card.body.add_child(UiKit.kv("Autonomie",
-		UiKit.label("rentable" if runway < 0 else "%d mois" % runway,
-			UiKit.FS_BODY_L, UiKit.GOOD if runway < 0
-				else (UiKit.BAD if runway <= 3 else UiKit.WARN)), 150))
+		UiKit.label(UiKit.runway_text(runway), UiKit.FS_BODY_L,
+			UiKit.runway_color(runway)), 150))
 	card.body.add_child(UiKit.kv("Masse salariale",
 		"%s / an" % Money.fmt(FinanceSystem.wage_bill_yearly(w, o)), 150))
 	card.body.add_child(UiKit.kv("Sponsors actifs",

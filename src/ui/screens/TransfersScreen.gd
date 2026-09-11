@@ -70,7 +70,12 @@ func build() -> void:
 	var rows: Array = []
 	for p in candidates:
 		var demand := ContractSystem.salary_demand(w, p, o)
-		var affordable := demand <= FinanceSystem.recurring_monthly_income(w, o) * 12
+		# « Tenable » ne veut pas dire « couvert par les revenus » : une
+		# structure qui démarre n'en a aucun et peut pourtant signer sur son
+		# capital. Tout afficher en rouge dans ce cas ne dirait plus rien.
+		var affordable := demand <= maxi(
+			FinanceSystem.recurring_monthly_income(w, o) * 12,
+			int(float(o.cash()) * 0.45))
 		var current := w.org(p.org_id)
 		var est := ScoutingSystem.estimated_ca(w, p)
 		rows.append({

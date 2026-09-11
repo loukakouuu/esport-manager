@@ -15,6 +15,9 @@ extends RefCounted
 ## Les PNG sont écrits dans user://shots/ et le chemin absolu est imprimé.
 
 const SETUP_DAYS := 80
+## Une structure fondée n'a pas encore joué : on s'arrête avant son premier
+## match, là où le mode a son vrai visage — un effectif à composer.
+const FOUNDED_DAYS := 20
 const SETTLE_FRAMES := 4
 
 
@@ -55,10 +58,28 @@ static func run(app: Control, game: Node) -> void:
 		for league in ["chal_emea", "vct_emea"]:
 			app.call("ui_state", "newgame")["tab"] = league
 			await _shoot_front(app, dir, "picker-%s" % league)
-	var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
-	game.choose_org(str(candidates[candidates.size() / 2]["org_id"]))
-	for _i in SETUP_DAYS:
-		game.advance_day()
+	if want_all or names.has("found"):
+		app.call("ui_state", "start")["mode"] = "found"
+		app.call("ui_state", "found")["name"] = "Atelier Neuf"
+		await _shoot_front(app, dir, "found")
+		app.call("ui_state", "start")["mode"] = "takeover"
+
+	# « founded » remplace la reprise par une fondation : l'état du jeu est
+	# radicalement différent — effectif vide, aucune réputation — et c'est
+	# précisément ce qu'on veut pouvoir regarder.
+	if names.has("founded"):
+		names.erase("founded")
+		game.found_org({
+			"name": "Atelier Neuf", "tag": "AT9", "region": "EMEA",
+			"country": "FR", "color": "#4aa8ff", "capital_tier": "seed",
+		})
+		for _i in FOUNDED_DAYS:
+			game.advance_day()
+	else:
+		var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
+		game.choose_org(str(candidates[candidates.size() / 2]["org_id"]))
+		for _i in SETUP_DAYS:
+			game.advance_day()
 	print("[shots] %s — %s" % [game.my_org().name,
 		GameDate.format_long(game.world.today)])
 
@@ -68,6 +89,7 @@ static func run(app: Control, game: Node) -> void:
 	# Déjà photographiés plus haut : les retirer évite un « écran inconnu ».
 	names.erase("start")
 	names.erase("picker")
+	names.erase("found")
 
 	for name in names:
 		if not all.has(name):

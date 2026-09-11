@@ -598,10 +598,21 @@ func _crumb_detail() -> String:
 # ============================================================================
 
 ## Écrans d'avant-partie, hors navigation : la coquille est vidée et l'écran
-## occupe toute la place. Deux étapes, choisies par l'état du monde — pas de
-## machine à états séparée à tenir à jour.
+## occupe toute la place. L'étape est choisie par l'état du monde plus le mode
+## demandé — pas de machine à états séparée à tenir à jour.
 const START_SCREEN := preload("res://src/ui/screens/StartScreen.gd")
 const PICKER_SCREEN := preload("res://src/ui/screens/NewGameScreen.gd")
+const FOUND_SCREEN := preload("res://src/ui/screens/FoundScreen.gd")
+
+
+## Mode de carrière choisi sur l'écran de démarrage : "takeover" ou "found".
+## Il ne sert qu'entre la création du monde et le choix de la structure.
+func _front_script() -> GDScript:
+	if not game.has_world():
+		return START_SCREEN
+	if str(ui_state("start").get("mode", "takeover")) == "found":
+		return FOUND_SCREEN
+	return PICKER_SCREEN
 
 
 func show_front() -> void:
@@ -615,7 +626,7 @@ func show_front() -> void:
 	_set_chrome_visible(false)
 	_history.clear()
 	_forward.clear()
-	var scr: Screen = (PICKER_SCREEN if game.has_world() else START_SCREEN).new()
+	var scr: Screen = _front_script().new()
 	scr.setup(self)
 	_content.add_child(scr)
 	current_screen = scr

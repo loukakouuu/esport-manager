@@ -13,7 +13,8 @@ const PACK := "__club_test_pack__"
 
 
 static func run() -> Array[TestCase]:
-	return [_catalog(), _declared_games(), _sections_and_selection()]
+	return [_catalog(), _declared_games(), _sections_and_selection(),
+		_founding(), _promotion()]
 
 
 # ============================================================================
@@ -173,6 +174,182 @@ static func _sections_and_selection() -> TestCase:
 	DataPack.set_active("")
 	_cleanup()
 	return t
+
+
+# ============================================================================
+
+## Fonder une structure de zéro.
+##
+## Ce que ce test protège vraiment, c'est la PROMESSE du mode : on n'hérite de
+## rien. Un jour où quelqu'un « aiderait » le joueur en lui glissant cinq
+## joueurs ou une place en Challengers, le mode perdrait sa raison d'être sans
+## qu'aucun plantage ne le signale.
+static func _founding() -> TestCase:
+	var t := TestCase.new("Fondation — entrer par le circuit ouvert")
+	_cleanup()
+	DataPack.set_active("")
+
+	var w := WorldGenerator.generate(20260105, GameDate.from_ymd(2026, 1, 5))
+
+	# Le troisième étage de la pyramide doit exister avant qu'on y entre.
+	var open_comp := _comp_with_key(w, "open_emea")
+	var promo := _comp_with_key(w, "promo_emea")
+	t.check(open_comp != null, "le circuit ouvert EMEA est au calendrier")
+	t.check(promo != null, "le barrage Challengers EMEA aussi")
+	if open_comp == null or promo == null:
+		return t
+	t.eq(open_comp.tier, 3, "le circuit ouvert est un troisième étage")
+	t.check(promo.kind == Competition.Kind.ASCENSION,
+		"le barrage se comporte comme une Ascension")
+	var promotes := ""
+	for rule_v in promo.qualification_rules:
+		if (rule_v as Dictionary).has("promotes_to"):
+			promotes = str((rule_v as Dictionary)["promotes_to"])
+	t.eq(promotes, "chal_emea", "le barrage mène bien aux Challengers")
+
+	var before := open_comp.participants.size()
+	var org := WorldGenerator.found_org(w, {
+		"name": "Atelier Test", "tag": "ATT", "region": "EMEA",
+		"country": "FR", "color": "#ff5a3c", "capital_tier": "backed",
+	})
+	t.check(org != null, "la structure est créée")
+	if org == null:
+		return t
+
+	t.eq(w.player_org_id, org.id, "le joueur la dirige")
+	t.check(org.is_player_controlled, "elle est marquée comme telle")
+	t.eq(org.name, "Atelier Test", "le nom saisi est repris")
+	t.eq(org.tag, "ATT", "le sigle aussi")
+	t.eq(org.founded_year, 2026, "elle est fondée l'année en cours")
+
+	# Ce dont on N'hérite PAS.
+	var r := w.roster(w.player_roster_id)
+	t.check(r != null, "une équipe est bien créée")
+	if r == null:
+		return t
+	t.eq(r.size(), 0, "aucun joueur sous contrat")
+	t.eq(r.league_key, "open_emea", "engagée dans le circuit ouvert")
+	t.eq(org.sponsor_deals.size(), 0, "aucun sponsor signé")
+	t.check(org.reputation < 500, "la réputation est nulle ou presque")
+	for kind in Facilities.Kind.values():
+		t.eq(org.facility_level(kind), 0, "aucune infrastructure")
+		break
+
+	# Un entraîneur, et un seul : sans marché du staff, zéro encadrant
+	# condamnerait la structure pour toujours.
+	t.eq(org.staff_ids.size(), 1, "un seul encadrant au départ")
+	t.check(r.head_coach_id != "", "et c'est l'entraîneur principal")
+
+	# Le capital est le vrai arbitrage du mode.
+	var tier := WorldGenerator.capital_tier("backed")
+	t.eq(org.cash(), Money.from_units(float(tier["units"])),
+		"le capital correspond au palier choisi")
+	t.near(org.board_confidence, float(tier["confidence"]), 0.01,
+		"la patience de la direction aussi")
+	t.check(org.owner == Organization.Owner.INVESTOR,
+		"un capital d'investisseur amène un investisseur")
+	var has_promotion := false
+	for obj_v in org.objectives:
+		if str((obj_v as Dictionary)["key"]) == "promotion":
+			has_promotion = true
+	t.check(has_promotion, "qui exige la montée dès la première saison")
+
+	var modest := WorldGenerator.capital_tier("garage")
+	t.check(float(modest["confidence"]) > float(tier["confidence"]),
+		"moins d'argent veut dire plus de patience — c'est l'arbitrage")
+
+	# Inscription en compétition.
+	t.eq(open_comp.participants.size(), before + 1,
+		"l'équipe est inscrite au circuit ouvert")
+	t.check(open_comp.participants.has(r.id), "et c'est bien la sienne")
+	t.check(r.competition_ids.has(open_comp.id),
+		"l'équipe connaît sa compétition")
+	t.check((open_comp.stages[0] as Stage).participants.has(r.id),
+		"elle figure dans la première phase, qui n'a pas commencé")
+
+	# Sans cinq joueurs, la feuille de match est vide : c'est ce qui déclenche
+	# le forfait déjà géré par CompetitionEngine.
+	var sheet := TeamSheetBuilder.build(w, r.id)
+	t.check(sheet != null, "une feuille de match se construit quand même")
+	if sheet != null:
+		t.eq(sheet.lineup.size(), 0, "mais elle est vide — donc forfait")
+
+	# La partie doit survivre à une sauvegarde.
+	var back := World.from_dict(w.to_dict())
+	t.eq(back.player_org_id, org.id, "la structure fondée survit au rechargement")
+	t.eq(back.my_roster().league_key, "open_emea",
+		"et son engagement aussi")
+	return t
+
+
+## La montée du circuit ouvert vers les Challengers.
+##
+## Le barrage réutilise la mécanique de l'Ascension, mais un étage plus bas :
+## c'est un chemin que personne n'avait encore emprunté. On force donc le
+## résultat des deux compétitions puis on déclenche le changement de saison,
+## plutôt que de simuler huit mois pour vérifier deux affectations.
+static func _promotion() -> TestCase:
+	var t := TestCase.new("Pyramide — montée du circuit ouvert")
+	_cleanup()
+	DataPack.set_active("")
+
+	var w := WorldGenerator.generate(555, GameDate.from_ymd(2026, 1, 5))
+	var barrage := _comp_with_key(w, "promo_emea")
+	var chal := _comp_with_key(w, "chal_emea")
+	var open_comp := _comp_with_key(w, "open_emea")
+	if barrage == null or chal == null or open_comp == null:
+		t.check(false, "les trois compétitions existent")
+		return t
+
+	var climber := w.roster(open_comp.participants[0])
+	var faller := w.roster(chal.participants[chal.participants.size() - 1])
+	t.eq(climber.league_key, "open_emea", "le prétendant part du circuit ouvert")
+	t.eq(faller.league_key, "chal_emea", "et le menacé, des Challengers")
+
+	barrage.status = Competition.Status.FINISHED
+	barrage.final_ranking = [climber.id] as Array[String]
+	chal.status = Competition.Status.FINISHED
+	chal.final_ranking = [faller.id] as Array[String]
+
+	var reputation_before := w.org(climber.org_id).reputation
+	SeasonBuilder.roll_over(w, 2027)
+
+	t.eq(climber.league_key, "chal_emea",
+		"le vainqueur du barrage monte en Challengers")
+	t.eq(faller.league_key, "open_emea",
+		"et le dernier des Challengers redescend")
+	t.check(w.org(climber.org_id).reputation > reputation_before,
+		"la montée fait gagner de la réputation")
+
+	# La saison suivante doit réinscrire chacun dans sa NOUVELLE ligue, sinon
+	# la promotion n'aurait aucune conséquence sportive.
+	#
+	# On précise l'année : le calendrier de 2026 est encore là. Il n'est purgé
+	# qu'au changement de saison SUIVANT, `_archive_finished` s'exécutant avant
+	# que `season_year` ne soit incrémenté.
+	var next_chal := _comp_with_key(w, "chal_emea", 2027)
+	var next_open := _comp_with_key(w, "open_emea", 2027)
+	if next_chal == null or next_open == null:
+		t.check(false, "la saison 2027 est construite")
+		return t
+	t.eq(next_chal.season_year, 2027, "la saison 2027 est construite")
+	t.check(next_chal.participants.has(climber.id),
+		"le promu joue les Challengers l'année suivante")
+	t.check(next_open.participants.has(faller.id),
+		"le relégué joue le circuit ouvert")
+	t.check(not next_chal.participants.has(faller.id),
+		"et il ne figure plus en Challengers")
+	return t
+
+
+## `year` à 0 : n'importe quelle saison.
+static func _comp_with_key(world: World, key: String,
+		year: int = 0) -> Competition:
+	for cid in world.competitions:
+		var c: Competition = world.competitions[cid]
+		if c.key == key and (year == 0 or c.season_year == year):
+			return c
+	return null
 
 
 # ============================================================================

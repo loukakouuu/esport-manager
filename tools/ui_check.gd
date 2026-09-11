@@ -2,11 +2,14 @@ extends SceneTree
 
 ## Vérification de l'interface en headless.
 ##
-## Trois contrôles :
+## Quatre contrôles :
 ##  1. chaque écran se CONSTRUIT sans erreur d'exécution sur un monde réel ;
 ##  2. chaque ONGLET de chaque écran se construit aussi — sinon on ne teste
 ##     qu'un sixième de la fiche joueur ;
-##  3. l'arbre produit respecte les invariants de mise en page de Godot.
+##  3. l'arbre produit respecte les invariants de mise en page de Godot ;
+##  4. le tout sur DEUX états du monde — une structure installée et une
+##     structure fondée le matin même, qui seule passe par les branches
+##     « il n'y a rien à montrer ».
 ##
 ## Le contrôle 3 existe parce que le contrôle 1 seul est un piège : un écran
 ## peut se construire parfaitement et s'afficher n'importe comment. Le bug
@@ -28,6 +31,7 @@ const SINGLE_CHILD_CONTAINERS := [
 const SCREENS := {
 	"StartScreen": "res://src/ui/screens/StartScreen.gd",
 	"NewGameScreen": "res://src/ui/screens/NewGameScreen.gd",
+	"FoundScreen": "res://src/ui/screens/FoundScreen.gd",
 	"HomeScreen": "res://src/ui/screens/HomeScreen.gd",
 	"ClubScreen": "res://src/ui/screens/ClubScreen.gd",
 	"SquadScreen": "res://src/ui/screens/SquadScreen.gd",
@@ -48,17 +52,49 @@ const SCREENS := {
 const TAB_CONSTANTS := ["TABS", "VIEWS"]
 
 
-func _initialize() -> void:
-	var game := preload("res://autoload/Game.gd").new()
-	game.name = "Game"
-	root.add_child(game)
+## Deux états du monde, parce qu'un seul ne prouve pas grand-chose.
+##
+## La plupart des défauts d'affichage vivent dans les branches « il n'y a rien
+## à montrer » : pas de match programmé, effectif vide, phase pas commencée,
+## aucun classement. Une structure installée depuis deux mois ne passe jamais
+## par ces branches ; une structure fondée le matin même n'y passe que par là.
+const SCENARIOS := [
+	["reprise", "structure de Challengers, deux mois de jeu"],
+	["fondation", "structure fondée de zéro, avant le premier match"],
+]
 
-	print("Génération du monde de test…")
+
+func _initialize() -> void:
+	var failures := 0
+	var views := 0
+	for entry_v in SCENARIOS:
+		var entry: Array = entry_v
+		print("\n### %s — %s" % [str(entry[0]), str(entry[1])])
+		var result := _pass(str(entry[0]))
+		views += int(result[0])
+		failures += int(result[1])
+
+	print("\n%d vue(s) vérifiée(s), %d écran(s) en défaut" % [views, failures])
+	quit(1 if failures > 0 else 0)
+
+
+## Construit un monde selon le scénario puis balaie tous les écrans.
+## Renvoie [vues vérifiées, écrans en défaut].
+func _pass(kind: String) -> Array:
+	var game := preload("res://autoload/Game.gd").new()
+	game.name = "Game_" + kind
+	root.add_child(game)
 	game.new_world(4242)
-	var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
-	game.choose_org(str(candidates[0]["org_id"]))
-	for _i in 70:
-		game.advance_day()
+	if kind == "fondation":
+		game.found_org({
+			"name": "Atelier Test", "tag": "ATT", "region": "EMEA",
+			"country": "FR", "color": "#4aa8ff", "capital_tier": "seed",
+		})
+	else:
+		var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
+		game.choose_org(str(candidates[0]["org_id"]))
+		for _i in 70:
+			game.advance_day()
 
 	var stub := preload("res://tools/AppStub.gd").new()
 	stub.game = game
@@ -76,6 +112,8 @@ func _initialize() -> void:
 		scr.setup(stub)
 		stub.add_child(scr)
 		if name == "PlayerScreen":
+			# Effectif vide : la fiche joueur doit encaisser un identifiant
+			# absent sans planter — c'est l'état d'une structure fondée.
 			var r = game.my_roster()
 			scr.set("player_id", r.player_ids[0] if not r.player_ids.is_empty() else "")
 
@@ -102,9 +140,9 @@ func _initialize() -> void:
 		stub.force_tab = ""
 		scr.queue_free()
 
-	print("\n%d vue(s) vérifiée(s), %d écran(s) en défaut"
-		% [views_checked, failures])
-	quit(1 if failures > 0 else 0)
+	stub.queue_free()
+	game.queue_free()
+	return [views_checked, failures]
 
 
 ## Clés d'onglets déclarées par un écran, ou [""] s'il n'en a pas.
@@ -155,6 +193,45 @@ func _check_scroll(sc: ScrollContainer, problems: Array[String],
 			problems.append("%s : défilement vertical désactivé mais l'enfant "
 				% path + "%s n'a pas SIZE_EXPAND — il sera réduit à sa hauteur "
 				% c.get_class() + "minimale")
+	_check_nested_scroll(sc, sc, problems, path)
+
+
+## Deux ScrollContainer imbriqués qui défilent sur LE MÊME AXE : l'extérieur
+## donne à l'intérieur sa hauteur (ou largeur) minimale, c'est-à-dire zéro, et
+## le contenu disparaît sans erreur.
+##
+## L'imbrication reste légitime sur des axes DIFFÉRENTS — c'est exactement ce
+## que fait UiKit.data_table, dont le défilement horizontal contient le
+## défilement vertical. On ne signale donc que le recouvrement d'axe.
+func _check_nested_scroll(outer: ScrollContainer, node: Node,
+		problems: Array[String], path: String) -> void:
+	for i in node.get_child_count():
+		var child := node.get_child(i)
+		if child is ScrollBar:
+			continue
+		if child is ScrollContainer:
+			var inner := child as ScrollContainer
+			var shared := _shared_axes(outer, inner)
+			for axis in shared:
+				problems.append("%s : deux ScrollContainer imbriqués défilent "
+					% path + "en %s — l'intérieur sera écrasé à zéro" % axis)
+			if not shared.is_empty():
+				continue   # déjà signalé, inutile de descendre plus loin
+		# On descend même à travers un ScrollContainer d'axe compatible : la
+		# hauteur se transmet, et le conflit peut apparaître deux niveaux plus
+		# bas (data_table place son défilement vertical sous l'horizontal).
+		_check_nested_scroll(outer, child, problems, path)
+
+
+func _shared_axes(a: ScrollContainer, b: ScrollContainer) -> Array[String]:
+	var out: Array[String] = []
+	if a.vertical_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED \
+			and b.vertical_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
+		out.append("vertical")
+	if a.horizontal_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED \
+			and b.horizontal_scroll_mode != ScrollContainer.SCROLL_MODE_DISABLED:
+		out.append("horizontal")
+	return out
 
 
 func _count(node: Node) -> int:

@@ -15,6 +15,12 @@
       { "name": "Split 1 — playoffs", "format": "double_elim", "start": "04-01", "end": "04-15", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
       { "name": "Split 2 — saison régulière", "format": "round_robin", "start": "05-13", "end": "06-24", "best_of": 3, "qualifiers": 8 },
       { "name": "Split 2 — playoffs", "format": "double_elim", "start": "07-01", "end": "07-15", "best_of": 3, "final_best_of": 5, "qualifiers": 2 }
+    ],
+    "open_season": [
+      { "name": "Split 1 — saison régulière", "format": "round_robin", "start": "02-18", "end": "04-01", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 1 — playoffs", "format": "double_elim", "start": "04-08", "end": "04-18", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
+      { "name": "Split 2 — saison régulière", "format": "round_robin", "start": "05-20", "end": "07-01", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 2 — playoffs", "format": "double_elim", "start": "07-08", "end": "07-18", "best_of": 3, "final_best_of": 5, "qualifiers": 2 }
     ]
   },
 
@@ -27,7 +33,12 @@
     { "key": "chal_emea",     "name": "Challengers EMEA",     "short_name": "CHAL EMEA", "region": "EMEA",     "tier": 2, "teams": 12, "prestige": 3600, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
     { "key": "chal_americas", "name": "Challengers Americas", "short_name": "CHAL AMER", "region": "AMERICAS", "tier": 2, "teams": 12, "prestige": 3500, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
     { "key": "chal_pacific",  "name": "Challengers Pacific",  "short_name": "CHAL PAC",  "region": "PACIFIC",  "tier": 2, "teams": 12, "prestige": 3400, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
-    { "key": "chal_china",    "name": "Challengers China",    "short_name": "CHAL CN",   "region": "CHINA",    "tier": 2, "teams": 12, "prestige": 3400, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false }
+    { "key": "chal_china",    "name": "Challengers China",    "short_name": "CHAL CN",   "region": "CHINA",    "tier": 2, "teams": 12, "prestige": 3400, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 90000, "entry_fee": 4000, "stages_preset": "challengers_season", "lan": false },
+
+    { "key": "open_emea",     "name": "Circuit ouvert EMEA",     "short_name": "OPEN EMEA", "region": "EMEA",     "tier": 3, "teams": 10, "prestige": 1200, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 14000, "entry_fee": 600, "stages_preset": "open_season", "lan": false },
+    { "key": "open_americas", "name": "Circuit ouvert Americas", "short_name": "OPEN AMER", "region": "AMERICAS", "tier": 3, "teams": 10, "prestige": 1200, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 14000, "entry_fee": 600, "stages_preset": "open_season", "lan": false },
+    { "key": "open_pacific",  "name": "Circuit ouvert Pacific",  "short_name": "OPEN PAC",  "region": "PACIFIC",  "tier": 3, "teams": 10, "prestige": 1150, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 12000, "entry_fee": 600, "stages_preset": "open_season", "lan": false },
+    { "key": "open_china",    "name": "Circuit ouvert China",    "short_name": "OPEN CN",   "region": "CHINA",    "tier": 3, "teams": 10, "prestige": 1150, "stipend_yearly": 0, "rev_share_yearly": 0, "prize_pool": 12000, "entry_fee": 600, "stages_preset": "open_season", "lan": false }
   ],
 
   "internationals": [
@@ -89,6 +100,64 @@
       "seed_from": [
         { "comp_key": "chal_emea", "stage": 1, "places": 4 },
         { "comp_key": "chal_emea", "stage": 3, "places": 4 }
+      ]
+    },
+
+    {
+      "_comment": "Barrages du circuit ouvert vers les Challengers. Meme mecanique que l'Ascension : le vainqueur monte, le dernier de Challengers descend. C'est la porte d'entree du mode 'fonder sa structure'.",
+      "key": "promo_emea", "name": "Barrage Challengers EMEA", "short_name": "Barrage EMEA", "region": "EMEA",
+      "tier": 3, "kind": "ascension", "prestige": 2200, "prize_pool": 20000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "chal_emea",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-19", "end": "08-28", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "open_emea", "stage": 1, "places": 2 },
+        { "comp_key": "open_emea", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "promo_americas", "name": "Barrage Challengers Americas", "short_name": "Barrage AMER", "region": "AMERICAS",
+      "tier": 3, "kind": "ascension", "prestige": 2200, "prize_pool": 20000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "chal_americas",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-19", "end": "08-28", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "open_americas", "stage": 1, "places": 2 },
+        { "comp_key": "open_americas", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "promo_pacific", "name": "Barrage Challengers Pacific", "short_name": "Barrage PAC", "region": "PACIFIC",
+      "tier": 3, "kind": "ascension", "prestige": 2100, "prize_pool": 18000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "chal_pacific",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-19", "end": "08-28", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "open_pacific", "stage": 1, "places": 2 },
+        { "comp_key": "open_pacific", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "promo_china", "name": "Barrage Challengers China", "short_name": "Barrage CN", "region": "CHINA",
+      "tier": 3, "kind": "ascension", "prestige": 2100, "prize_pool": 18000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "chal_china",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-19", "end": "08-28", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "open_china", "stage": 1, "places": 2 },
+        { "comp_key": "open_china", "stage": 3, "places": 2 }
       ]
     }
   ],
