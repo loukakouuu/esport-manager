@@ -22,6 +22,10 @@ static func _ensure_dir() -> void:
 		DirAccess.make_dir_recursive_absolute(SAVE_DIR)
 
 
+static func meta_path_for(slot_name: String) -> String:
+	return "%s/%s.meta.json" % [SAVE_DIR, slot_name]
+
+
 static func path_for(slot_name: String) -> String:
 	return "%s/%s%s" % [SAVE_DIR, slot_name.validate_filename(), EXTENSION]
 
@@ -41,6 +45,10 @@ static func save(world: World, slot_name: String) -> bool:
 		return false
 	f.store_string(JSON.stringify(payload))
 	f.close()
+	# Fiche d'accompagnement NON compressée : l'écran de démarrage doit pouvoir
+	# afficher « Karmine Corp — 12 mars 2026 » sans désarchiver et analyser
+	# plusieurs mégaoctets de monde.
+	DataFile.save_json(meta_path_for(slot_name), payload["meta"])
 	Log.i("save", "Partie sauvegardée dans %s" % path_for(slot_name))
 	return true
 
@@ -98,17 +106,36 @@ static func list_slots() -> Array:
 	for file in dir.get_files():
 		if not file.ends_with(EXTENSION):
 			continue
-		out.append({
-			"slot": file.trim_suffix(EXTENSION),
-			"path": "%s/%s" % [SAVE_DIR, file],
-		})
+		var slot := file.trim_suffix(EXTENSION)
+		var entry := {"slot": slot, "path": "%s/%s" % [SAVE_DIR, file]}
+		var meta := _read_meta(slot)
+		for k in meta:
+			entry[k] = meta[k]
+		out.append(entry)
+	out.sort_custom(func(a, b): return str(a["slot"]) < str(b["slot"]))
 	return out
+
+
+## Fiche d'une sauvegarde, lue sans passer par le cache de DataFile : elle
+## change à chaque sauvegarde, un cache y afficherait une date périmée.
+static func _read_meta(slot_name: String) -> Dictionary:
+	var path := meta_path_for(slot_name)
+	if not FileAccess.file_exists(path):
+		return {}
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return {}
+	var json := JSON.new()
+	var ok := json.parse(f.get_as_text()) == OK
+	f.close()
+	return json.data if ok and json.data is Dictionary else {}
 
 
 static func delete_slot(slot_name: String) -> bool:
 	var path := path_for(slot_name)
 	if not FileAccess.file_exists(path):
 		return false
+	DirAccess.remove_absolute(meta_path_for(slot_name))
 	return DirAccess.remove_absolute(path) == OK
 
 

@@ -24,9 +24,48 @@ func build() -> void:
 	main.add_child(_next_matches(w, r))
 	main.add_child(_last_result(w))
 	main.add_child(_alerts(w, r))
+	side.add_child(_sections_card())
 	side.add_child(_finance_card(w, o))
 	side.add_child(_board_card(w, o))
 	side.add_child(_news_card(w))
+
+
+# ============================================================================
+# Sections de la structure
+# ============================================================================
+
+## Rappel permanent que la maison ne se résume pas à l'équipe affichée. Absent
+## quand il n'y a qu'une section : une carte qui répète l'évidence encombre.
+func _sections_card() -> Control:
+	var entries: Array = game().sections()
+	if entries.size() <= 1:
+		return UiKit.gap(0)
+	var card := UiKit.card("Sections de la structure", 5, 12)
+	for entry_v in entries:
+		var entry: Dictionary = entry_v
+		var game_id := str(entry["game_id"])
+		var playable := bool(entry["playable"])
+		var row := UiKit.hbox(8)
+		row.add_child(UiKit.pill(GameCatalog.short(game_id),
+			GameCatalog.color(game_id), bool(entry["current"])))
+		var l := UiKit.label(GameCatalog.label(game_id), UiKit.FS_BODY_L,
+			UiKit.TEXT if playable else UiKit.TEXT_FAINT)
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(l)
+		if bool(entry["current"]):
+			row.add_child(UiKit.pill("dirigée", UiKit.ACCENT, true))
+		elif playable:
+			var rid := str(entry["roster_id"])
+			row.add_child(UiKit.ghost("Diriger", func():
+				if game().select_roster(rid):
+					navigate("squad")))
+		else:
+			row.add_child(UiKit.label("non simulée", UiKit.FS_SMALL,
+				UiKit.TEXT_FAINT))
+		card.body.add_child(row)
+	card.body.add_child(UiKit.ghost("Voir la structure ▸",
+		func(): navigate("club")))
+	return card.panel
 
 
 # ============================================================================

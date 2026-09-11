@@ -14,6 +14,7 @@ extends Control
 
 const SCREENS := {
 	"home": preload("res://src/ui/screens/HomeScreen.gd"),
+	"club": preload("res://src/ui/screens/ClubScreen.gd"),
 	"squad": preload("res://src/ui/screens/SquadScreen.gd"),
 	"player": preload("res://src/ui/screens/PlayerScreen.gd"),
 	"tactics": preload("res://src/ui/screens/TacticsScreen.gd"),
@@ -30,8 +31,9 @@ const SCREENS := {
 
 ## Navigation : [section, [[clé, libellé], …]]
 const NAV_GROUPS := [
-	["Structure", [
+	["Direction", [
 		["home", "Accueil"],
+		["club", "Structure"],
 		["finance", "Finances"],
 		["facilities", "Infrastructures"],
 		["inbox", "Messages"],
@@ -52,7 +54,8 @@ const NAV_GROUPS := [
 ]
 
 const TITLES := {
-	"home": "Accueil", "squad": "Effectif", "player": "Fiche joueur",
+	"home": "Accueil", "club": "Structure",
+	"squad": "Effectif", "player": "Fiche joueur",
 	"tactics": "Tactique", "training": "Entraînement", "dynamics": "Vestiaire",
 	"calendar": "Calendrier", "competition": "Classements",
 	"transfers": "Marché", "finance": "Finances",
@@ -76,6 +79,11 @@ var _identity: HBoxContainer
 var _clock: HBoxContainer
 var _actions: HBoxContainer
 var _crumb: HBoxContainer
+var _topbar: PanelContainer
+var _sidebar: PanelContainer
+var _crumb_bar: PanelContainer
+var _section_bar: PanelContainer
+var _sections: HBoxContainer
 var _content: MarginContainer
 var _nav_box: VBoxContainer
 
@@ -95,7 +103,7 @@ func _ready() -> void:
 	if game.has_world() and game.world.player_org_id != "":
 		navigate("home")
 	else:
-		_show_new_game()
+		show_front()
 
 
 ## Noms des écrans navigables, dans l'ordre du menu.
@@ -143,6 +151,7 @@ func _build_shell() -> void:
 	right.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	body.add_child(right)
 	right.add_child(_build_crumb_bar())
+	right.add_child(_build_section_bar())
 
 	_content = MarginContainer.new()
 	_content.add_theme_constant_override("margin_left", 16)
@@ -155,7 +164,8 @@ func _build_shell() -> void:
 
 
 func _build_topbar() -> Control:
-	var p := PanelContainer.new()
+	_topbar = PanelContainer.new()
+	var p := _topbar
 	p.add_theme_stylebox_override("panel", _flat(UiKit.BG_SOFT, 0, 1))
 	var h := UiKit.hbox(18)
 	h.custom_minimum_size = Vector2(0, 56)
@@ -177,7 +187,8 @@ func _build_topbar() -> Control:
 
 
 func _build_sidebar() -> Control:
-	var p := PanelContainer.new()
+	_sidebar = PanelContainer.new()
+	var p := _sidebar
 	p.add_theme_stylebox_override("panel", _flat(UiKit.BG_SOFT, 1, 0))
 	p.custom_minimum_size = Vector2(186, 0)
 	var m := MarginContainer.new()
@@ -192,7 +203,8 @@ func _build_sidebar() -> Control:
 
 
 func _build_crumb_bar() -> Control:
-	var p := PanelContainer.new()
+	_crumb_bar = PanelContainer.new()
+	var p := _crumb_bar
 	p.add_theme_stylebox_override("panel", _flat(UiKit.BG, 0, 1))
 	var m := MarginContainer.new()
 	m.add_theme_constant_override("margin_left", 12)
@@ -204,6 +216,86 @@ func _build_crumb_bar() -> Control:
 	_crumb.custom_minimum_size = Vector2(0, 26)
 	m.add_child(_crumb)
 	return p
+
+
+## Barre des SECTIONS de la structure : une structure esport aligne plusieurs
+## équipes (autres disciplines, académie), et toute la partie « Équipe » du
+## menu s'applique à celle qui est sélectionnée ici.
+##
+## La barre est masquée quand il n'y a qu'une section : une barre d'onglets à
+## un seul onglet n'apprend rien et vole de la hauteur.
+func _build_section_bar() -> Control:
+	_section_bar = PanelContainer.new()
+	_section_bar.add_theme_stylebox_override("panel", _flat(UiKit.BG_SOFT, 0, 1))
+	var m := MarginContainer.new()
+	m.add_theme_constant_override("margin_left", 12)
+	m.add_theme_constant_override("margin_right", 12)
+	m.add_theme_constant_override("margin_top", 4)
+	m.add_theme_constant_override("margin_bottom", 4)
+	_section_bar.add_child(m)
+	_sections = UiKit.hbox(6)
+	m.add_child(_sections)
+	_section_bar.visible = false
+	return _section_bar
+
+
+func _rebuild_sections() -> void:
+	if _sections == null:
+		return
+	for c in _sections.get_children():
+		c.queue_free()
+	if not game.has_world() or game.my_org() == null:
+		_section_bar.visible = false
+		return
+	var entries: Array = game.sections()
+	_section_bar.visible = entries.size() > 1
+	if entries.size() <= 1:
+		return
+
+	_sections.add_child(UiKit.caption("Sections"))
+	for entry_v in entries:
+		var entry: Dictionary = entry_v
+		_sections.add_child(_section_chip(entry))
+	_sections.add_child(UiKit.spacer())
+	if current_name != "club":
+		_sections.add_child(UiKit.ghost("Voir la structure",
+			func(): navigate("club")))
+
+
+func _section_chip(entry: Dictionary) -> Control:
+	var game_id := str(entry["game_id"])
+	var playable := bool(entry["playable"])
+	var current := bool(entry["current"])
+	var color := GameCatalog.color(game_id)
+
+	var b := Button.new()
+	b.text = "  %s · %s  " % [GameCatalog.short(game_id), str(entry["detail"])]
+	b.focus_mode = Control.FOCUS_NONE
+	b.custom_minimum_size = Vector2(0, 24)
+	b.add_theme_font_size_override("font_size", UiKit.FS_SMALL)
+	var bg := Color(color.r, color.g, color.b, 0.20) if current else UiKit.BG_ROW
+	var sb := UiKit.box(bg, 4, 4, color if current else UiKit.BORDER_SOFT, 1)
+	b.add_theme_stylebox_override("normal", sb)
+	b.add_theme_stylebox_override("hover", UiKit.box(UiKit.BG_PANEL_HI, 4, 4,
+		color, 1))
+	b.add_theme_stylebox_override("pressed", sb)
+	b.add_theme_stylebox_override("disabled", UiKit.box(UiKit.BG, 4, 4,
+		UiKit.BORDER_SOFT, 1))
+	b.add_theme_color_override("font_color",
+		UiKit.TEXT if current else UiKit.TEXT_DIM)
+	b.add_theme_color_override("font_hover_color", UiKit.TEXT)
+	b.add_theme_color_override("font_disabled_color", UiKit.TEXT_FAINT)
+	if not playable:
+		b.disabled = true
+		b.tooltip_text = "%s : section de la structure, pas encore simulée." \
+			% GameCatalog.label(game_id)
+		return b
+	var rid := str(entry["roster_id"])
+	b.tooltip_text = "Diriger cette équipe"
+	b.pressed.connect(func():
+		if game.select_roster(rid):
+			navigate("squad"))
+	return b
 
 
 ## Bordure fine sur un seul côté : droite pour la colonne, bas pour les barres.
@@ -219,6 +311,15 @@ func _flat(bg: Color, right: int, bottom: int) -> StyleBoxFlat:
 # ============================================================================
 # Navigation
 # ============================================================================
+
+## Barre haute, menu et fil d'Ariane : visibles en partie, cachés avant.
+func _set_chrome_visible(on: bool) -> void:
+	for panel in [_topbar, _sidebar, _crumb_bar]:
+		if panel != null:
+			panel.visible = on
+	if not on and _section_bar != null:
+		_section_bar.visible = false
+
 
 func navigate(screen_name: String, args: Dictionary = {}) -> void:
 	if not SCREENS.has(screen_name):
@@ -248,6 +349,7 @@ func go_forward() -> void:
 
 
 func _show(screen_name: String, args: Dictionary) -> void:
+	_set_chrome_visible(true)
 	current_name = screen_name
 	current_args = args
 	for c in _content.get_children():
@@ -263,8 +365,8 @@ func _show(screen_name: String, args: Dictionary) -> void:
 
 
 func _on_state_changed() -> void:
-	if game.has_world() and game.world.player_org_id == "":
-		_show_new_game()
+	if not game.has_world() or game.world.player_org_id == "":
+		show_front()
 		return
 	if current_screen != null and is_instance_valid(current_screen):
 		current_screen.refresh()
@@ -275,6 +377,7 @@ func _rebuild_chrome() -> void:
 	_rebuild_topbar()
 	_rebuild_nav()
 	_rebuild_crumb()
+	_rebuild_sections()
 
 
 # ============================================================================
@@ -295,7 +398,7 @@ func _rebuild_topbar() -> void:
 	_identity.add_child(UiKit.crest(o.name, UiKit.color_from_id(o.id), 34))
 	var idn := UiKit.vbox(0)
 	idn.add_child(UiKit.label(o.name, UiKit.FS_LEAD, UiKit.TEXT, true))
-	idn.add_child(UiKit.label(_league_name(w, o), UiKit.FS_SMALL, UiKit.TEXT_DIM))
+	idn.add_child(UiKit.label(_identity_line(w, o), UiKit.FS_SMALL, UiKit.TEXT_DIM))
 	_identity.add_child(idn)
 
 	var date_box := UiKit.vbox(0)
@@ -333,6 +436,24 @@ func _rebuild_topbar() -> void:
 	var go := UiKit.primary("Continuer  ▶", func(): game.advance_day())
 	go.custom_minimum_size = Vector2(118, 34)
 	_actions.add_child(go)
+
+
+## Deuxième ligne de la barre haute : la compétition, et la section dirigée dès
+## qu'il y en a plusieurs — sinon on ne saurait pas de quelle équipe parlent
+## les écrans « Effectif » ou « Entraînement ».
+func _identity_line(w: World, o: Organization) -> String:
+	var league := _league_name(w, o)
+	var r: Roster = game.my_roster()
+	if r == null:
+		return league
+	var extra: Array[String] = []
+	if o.games.size() > 1:
+		extra.append(GameCatalog.label(r.game_id))
+	if r.is_academy:
+		extra.append("académie")
+	if extra.is_empty():
+		return league
+	return "%s · %s" % [league, " · ".join(extra)]
 
 
 func _league_name(w: World, o: Organization) -> String:
@@ -473,16 +594,28 @@ func _crumb_detail() -> String:
 
 
 # ============================================================================
-# Nouvelle partie
+# Avant la partie
 # ============================================================================
 
-func _show_new_game() -> void:
+## Écrans d'avant-partie, hors navigation : la coquille est vidée et l'écran
+## occupe toute la place. Deux étapes, choisies par l'état du monde — pas de
+## machine à états séparée à tenir à jour.
+const START_SCREEN := preload("res://src/ui/screens/StartScreen.gd")
+const PICKER_SCREEN := preload("res://src/ui/screens/NewGameScreen.gd")
+
+
+func show_front() -> void:
 	for c in _content.get_children():
 		c.queue_free()
-	for box in [_nav_box, _identity, _clock, _actions, _crumb]:
+	for box in [_nav_box, _identity, _clock, _actions, _crumb, _sections]:
 		for c in box.get_children():
 			c.queue_free()
-	var scr := preload("res://src/ui/screens/NewGameScreen.gd").new()
+	# Les écrans d'avant-partie occupent tout l'écran : une barre haute vide
+	# et un menu inutilisable au-dessus feraient croire à un bug d'affichage.
+	_set_chrome_visible(false)
+	_history.clear()
+	_forward.clear()
+	var scr: Screen = (PICKER_SCREEN if game.has_world() else START_SCREEN).new()
 	scr.setup(self)
 	_content.add_child(scr)
 	current_screen = scr

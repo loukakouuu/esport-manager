@@ -10,7 +10,7 @@ echo "== Reindexation des classes globales =="
 "$GODOT" --headless --path "$PROJECT_DIR" --editor --quit >/dev/null 2>&1
 
 echo "== Tests unitaires =="
-timeout 240 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/run_tests.gd 2>&1 | grep -v -E "$FILTER"
+timeout 360 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/run_tests.gd 2>&1 | grep -v -E "$FILTER"
 UNIT=$?
 
 echo "== Construction des ecrans =="

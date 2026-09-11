@@ -14,6 +14,7 @@ func _initialize() -> void:
 	suites.append_array(SimTests.run())
 	suites.append_array(SquadTests.run())
 	suites.append_array(PackTests.run())
+	suites.append_array(ClubTests.run())
 
 	var total := 0
 	var failed := 0

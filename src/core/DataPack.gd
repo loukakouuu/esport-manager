@@ -25,7 +25,17 @@ extends RefCounted
 ## Voir docs/DATA_PACKS.md pour le format, et tools/import_liquipedia.gd pour
 ## un générateur de pack à partir de données publiques.
 
+## Packs installés par l'utilisateur — ils gagnent sur les packs livrés.
 const PACKS_DIR := "user://packs"
+
+## Packs LIVRÉS avec le jeu. Le dépôt étant privé, le pack « vraies équipes »
+## voyage avec le jeu au lieu de devoir être importé sur chaque machine.
+## S'il devait un jour devenir public, supprimer ce dossier suffit : rien
+## d'autre dans le code ne connaît de marque déposée.
+const BUNDLED_DIR := "res://packs"
+
+## Pack actif au premier lancement, s'il est présent.
+const DEFAULT_PACK := "vct_2026"
 const MANIFEST := "pack.json"
 ## Préfixe des chemins de données du jeu, remplacé par la racine du pack.
 const DATA_ROOT := "res://data/"
@@ -48,8 +58,20 @@ static func set_active(pack_id: String) -> void:
 	DataFile.clear_cache()
 
 
-static func root_of(pack_id: String) -> String:
+## Racine effective d'un pack : la version installée par l'utilisateur si elle
+## existe, sinon celle livrée avec le jeu. Réimporter « vct_2026 » avec des
+## données plus fraîches ne demande donc pas de toucher au dépôt.
+## Emplacement où ÉCRIRE un pack : toujours celui de l'utilisateur. Les packs
+## livrés font partie du dépôt et ne sont pas modifiés par un import.
+static func user_root_of(pack_id: String) -> String:
 	return "%s/%s" % [PACKS_DIR, pack_id]
+
+
+static func root_of(pack_id: String) -> String:
+	var user_root := "%s/%s" % [PACKS_DIR, pack_id]
+	if FileAccess.file_exists("%s/%s" % [user_root, MANIFEST]):
+		return user_root
+	return "%s/%s" % [BUNDLED_DIR, pack_id]
 
 
 ## Chemin effectif d'un fichier de données, pack actif pris en compte.
@@ -74,16 +96,30 @@ static func overrides(path: String) -> bool:
 ##           "attribution", "files": [chemins relatifs remplacés]}]
 static func installed() -> Array:
 	var out: Array = []
-	var dir := DirAccess.open(PACKS_DIR)
-	if dir == null:
-		return out
-	for name in dir.get_directories():
-		var m := manifest(name)
-		if m.is_empty():
+	var seen := {}
+	# Les packs de l'utilisateur passent en premier : à identifiant égal, c'est
+	# sa version qui doit apparaître, pas celle livrée.
+	for dir_path in [PACKS_DIR, BUNDLED_DIR]:
+		var dir := DirAccess.open(dir_path)
+		if dir == null:
 			continue
-		out.append(m)
+		for name in dir.get_directories():
+			if seen.has(name):
+				continue
+			var m := manifest(name)
+			if m.is_empty():
+				continue
+			seen[name] = true
+			out.append(m)
 	out.sort_custom(func(a, b): return str(a["name"]) < str(b["name"]))
 	return out
+
+
+## Pack à activer au démarrage. Appelé une fois par Game : le contenu livré
+## reste accessible, mais l'expérience par défaut est celle des vraies équipes.
+static func boot() -> void:
+	if exists(DEFAULT_PACK):
+		set_active(DEFAULT_PACK)
 
 
 static func manifest(pack_id: String) -> Dictionary:
@@ -104,6 +140,7 @@ static func manifest(pack_id: String) -> Dictionary:
 	var d: Dictionary = json.data if json.data is Dictionary else {}
 	d["id"] = pack_id
 	d["files"] = _files_of(pack_id)
+	d["bundled"] = not path.begins_with(PACKS_DIR)
 	_manifest_cache[pack_id] = d
 	return d
 

@@ -1,0 +1,933 @@
+{
+	"_comment": "Pack généré depuis Liquipedia (CC-BY-SA 3.0). Les ligues VCT sont réelles ; les Challengers restent fictifs, faute de source équivalente. Marques appartenant à leurs détenteurs.",
+	"leagues": {
+		"chal_americas": [
+			{
+				"color": "#fdcb6e",
+				"country": "US",
+				"name": "Golden Ridge",
+				"owner": "investor",
+				"strength": 60.0,
+				"tag": "GDR"
+			},
+			{
+				"color": "#6d4c41",
+				"country": "BR",
+				"name": "Cafezinho",
+				"owner": "celebrity",
+				"strength": 58.0,
+				"tag": "CFZ"
+			},
+			{
+				"color": "#c0392b",
+				"country": "US",
+				"name": "Redwood",
+				"owner": "self_funded",
+				"strength": 57.0,
+				"tag": "RDW"
+			},
+			{
+				"color": "#00b894",
+				"country": "BR",
+				"name": "Ola Sul",
+				"owner": "endemic",
+				"strength": 55.0,
+				"tag": "OSL"
+			},
+			{
+				"color": "#8e44ad",
+				"country": "US",
+				"name": "Bayou Gaming",
+				"owner": "self_funded",
+				"strength": 53.0,
+				"tag": "BYU"
+			},
+			{
+				"color": "#0984e3",
+				"country": "US",
+				"name": "Hudson Line",
+				"owner": "investor",
+				"strength": 52.0,
+				"tag": "HDL"
+			},
+			{
+				"color": "#e67e22",
+				"country": "US",
+				"name": "Mustang Nine",
+				"owner": "self_funded",
+				"strength": 51.0,
+				"tag": "MS9"
+			},
+			{
+				"color": "#d63031",
+				"country": "CA",
+				"name": "Toronto Vertex",
+				"owner": "self_funded",
+				"strength": 49.0,
+				"tag": "TRV"
+			},
+			{
+				"color": "#00cec9",
+				"country": "CL",
+				"name": "Andes Collective",
+				"owner": "self_funded",
+				"strength": 47.0,
+				"tag": "AND"
+			},
+			{
+				"color": "#27ae60",
+				"country": "MX",
+				"name": "Sierra Union",
+				"owner": "self_funded",
+				"strength": 45.0,
+				"tag": "SRU"
+			},
+			{
+				"color": "#74b9ff",
+				"country": "AR",
+				"name": "Pampas",
+				"owner": "self_funded",
+				"strength": 43.0,
+				"tag": "PMP"
+			},
+			{
+				"color": "#fab1a0",
+				"country": "CO",
+				"name": "Cristal Esports",
+				"owner": "self_funded",
+				"strength": 41.0,
+				"tag": "CRS"
+			}
+		],
+		"chal_china": [
+			{
+				"color": "#d4ac0d",
+				"country": "CN",
+				"name": "Golden Crane",
+				"owner": "investor",
+				"strength": 59.0,
+				"tag": "GCR"
+			},
+			{
+				"color": "#c0392b",
+				"country": "CN",
+				"name": "Red Lantern",
+				"owner": "endemic",
+				"strength": 57.0,
+				"tag": "RLN"
+			},
+			{
+				"color": "#16a085",
+				"country": "CN",
+				"name": "Yulong",
+				"owner": "self_funded",
+				"strength": 55.0,
+				"tag": "YLG"
+			},
+			{
+				"color": "#0984e3",
+				"country": "CN",
+				"name": "Yangtze",
+				"owner": "self_funded",
+				"strength": 53.0,
+				"tag": "YTZ"
+			},
+			{
+				"color": "#27ae60",
+				"country": "CN",
+				"name": "Bamboo Nine",
+				"owner": "self_funded",
+				"strength": 51.0,
+				"tag": "BB9"
+			},
+			{
+				"color": "#95a5a6",
+				"country": "CN",
+				"name": "Mist Peak",
+				"owner": "investor",
+				"strength": 50.0,
+				"tag": "MSP"
+			},
+			{
+				"color": "#7f8c8d",
+				"country": "CN",
+				"name": "Stone Forest",
+				"owner": "self_funded",
+				"strength": 49.0,
+				"tag": "STF"
+			},
+			{
+				"color": "#74b9ff",
+				"country": "CN",
+				"name": "Harbin Frost",
+				"owner": "self_funded",
+				"strength": 47.0,
+				"tag": "HBF"
+			},
+			{
+				"color": "#2ecc71",
+				"country": "CN",
+				"name": "Jade Rise",
+				"owner": "self_funded",
+				"strength": 46.0,
+				"tag": "JDR"
+			},
+			{
+				"color": "#ff7eb9",
+				"country": "CN",
+				"name": "Peony",
+				"owner": "celebrity",
+				"strength": 44.0,
+				"tag": "PNY"
+			},
+			{
+				"color": "#5dade2",
+				"country": "CN",
+				"name": "Nanhai",
+				"owner": "self_funded",
+				"strength": 42.0,
+				"tag": "NNH"
+			},
+			{
+				"color": "#b7791f",
+				"country": "CN",
+				"name": "Silk Nine",
+				"owner": "self_funded",
+				"strength": 40.0,
+				"tag": "SK9"
+			}
+		],
+		"chal_emea": [
+			{
+				"color": "#00b894",
+				"country": "GB",
+				"name": "Hexline",
+				"owner": "investor",
+				"strength": 60.0,
+				"tag": "HXL"
+			},
+			{
+				"color": "#0984e3",
+				"country": "FR",
+				"name": "Vireo",
+				"owner": "self_funded",
+				"strength": 58.0,
+				"tag": "VIR"
+			},
+			{
+				"color": "#636e72",
+				"country": "DE",
+				"name": "Steelbloom",
+				"owner": "endemic",
+				"strength": 57.0,
+				"tag": "STB"
+			},
+			{
+				"color": "#d63031",
+				"country": "TR",
+				"name": "Kartal Esports",
+				"owner": "self_funded",
+				"strength": 56.0,
+				"tag": "KTL"
+			},
+			{
+				"color": "#6c5ce7",
+				"country": "ES",
+				"name": "Nightfall",
+				"owner": "celebrity",
+				"strength": 55.0,
+				"tag": "NGF"
+			},
+			{
+				"color": "#2d3436",
+				"country": "GB",
+				"name": "Ravenspire",
+				"owner": "self_funded",
+				"strength": 54.0,
+				"tag": "RVS"
+			},
+			{
+				"color": "#00cec9",
+				"country": "SE",
+				"name": "Kalmar Nine",
+				"owner": "investor",
+				"strength": 53.0,
+				"tag": "KL9"
+			},
+			{
+				"color": "#e17055",
+				"country": "FR",
+				"name": "Concorde",
+				"owner": "self_funded",
+				"strength": 50.0,
+				"tag": "CCD"
+			},
+			{
+				"color": "#341f97",
+				"country": "PL",
+				"name": "Vanta EU",
+				"owner": "self_funded",
+				"strength": 49.0,
+				"tag": "VNE"
+			},
+			{
+				"color": "#74b9ff",
+				"country": "FI",
+				"name": "Boreal",
+				"owner": "self_funded",
+				"strength": 46.0,
+				"tag": "BOR"
+			},
+			{
+				"color": "#b2bec3",
+				"country": "IE",
+				"name": "Silvermoor",
+				"owner": "self_funded",
+				"strength": 44.0,
+				"tag": "SVM"
+			},
+			{
+				"color": "#fdcb6e",
+				"country": "PT",
+				"name": "Lisbon Rise",
+				"owner": "self_funded",
+				"strength": 42.0,
+				"tag": "LSR"
+			}
+		],
+		"chal_pacific": [
+			{
+				"color": "#ff7eb9",
+				"country": "KR",
+				"name": "Hallyu",
+				"owner": "celebrity",
+				"strength": 60.0,
+				"tag": "HLY"
+			},
+			{
+				"color": "#e17055",
+				"country": "JP",
+				"name": "Kansai Rise",
+				"owner": "investor",
+				"strength": 58.0,
+				"tag": "KSR"
+			},
+			{
+				"color": "#d63031",
+				"country": "KR",
+				"name": "Hanwoo",
+				"owner": "self_funded",
+				"strength": 56.0,
+				"tag": "HNW"
+			},
+			{
+				"color": "#6c5ce7",
+				"country": "JP",
+				"name": "Nagareboshi",
+				"owner": "endemic",
+				"strength": 54.0,
+				"tag": "NGB"
+			},
+			{
+				"color": "#0984e3",
+				"country": "PH",
+				"name": "Barangay",
+				"owner": "self_funded",
+				"strength": 52.0,
+				"tag": "BRY"
+			},
+			{
+				"color": "#c0392b",
+				"country": "ID",
+				"name": "Rajawali",
+				"owner": "self_funded",
+				"strength": 50.0,
+				"tag": "RJW"
+			},
+			{
+				"color": "#00b894",
+				"country": "ID",
+				"name": "Batavia",
+				"owner": "self_funded",
+				"strength": 48.0,
+				"tag": "BTV"
+			},
+			{
+				"color": "#fdcb6e",
+				"country": "TH",
+				"name": "Siam Nine",
+				"owner": "investor",
+				"strength": 46.0,
+				"tag": "SM9"
+			},
+			{
+				"color": "#16a085",
+				"country": "MY",
+				"name": "Naga Line",
+				"owner": "self_funded",
+				"strength": 45.0,
+				"tag": "NGL"
+			},
+			{
+				"color": "#74b9ff",
+				"country": "SG",
+				"name": "Merlion",
+				"owner": "self_funded",
+				"strength": 44.0,
+				"tag": "MRL"
+			},
+			{
+				"color": "#b7791f",
+				"country": "AU",
+				"name": "Outback Nine",
+				"owner": "self_funded",
+				"strength": 42.0,
+				"tag": "OB9"
+			},
+			{
+				"color": "#e84393",
+				"country": "IN",
+				"name": "Delhi Vertex",
+				"owner": "self_funded",
+				"strength": 40.0,
+				"tag": "DLV"
+			}
+		],
+		"vct_americas": [
+			{
+				"color": "#4cc7a8",
+				"country": "US",
+				"games": [
+					"valorant"
+				],
+				"name": "100 Thieves",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "1T"
+			},
+			{
+				"color": "#c74cc7",
+				"country": "US",
+				"games": [
+					"valorant"
+				],
+				"name": "Cloud9",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "CLO"
+			},
+			{
+				"color": "#c7c14c",
+				"country": "US",
+				"games": [
+					"valorant"
+				],
+				"name": "Evil Geniuses",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "EG"
+			},
+			{
+				"color": "#a8c74c",
+				"country": "BR",
+				"games": [
+					"valorant"
+				],
+				"name": "FURIA",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "FUR"
+			},
+			{
+				"color": "#4c9cc7",
+				"country": "AR",
+				"games": [
+					"valorant"
+				],
+				"name": "KRÜ Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "KE"
+			},
+			{
+				"color": "#64c74c",
+				"country": "AR",
+				"games": [
+					"valorant"
+				],
+				"name": "Leviatán",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "LEV"
+			},
+			{
+				"color": "#714cc7",
+				"country": "BR",
+				"games": [
+					"valorant"
+				],
+				"name": "LOUD",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "LOU"
+			},
+			{
+				"color": "#c74cb6",
+				"country": "BR",
+				"games": [
+					"valorant"
+				],
+				"name": "MIBR",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "MIB"
+			},
+			{
+				"color": "#4cc7b4",
+				"country": "US",
+				"games": [
+					"valorant"
+				],
+				"name": "NRG",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "NRG"
+			},
+			{
+				"color": "#4c4ec7",
+				"country": "US",
+				"games": [
+					"valorant"
+				],
+				"name": "Sentinels",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "SEN"
+			},
+			{
+				"color": "#4c7fc7",
+				"country": "DE",
+				"games": [
+					"valorant"
+				],
+				"name": "G2 Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "GE"
+			},
+			{
+				"color": "#4cc7b6",
+				"country": "US",
+				"games": [
+					"valorant"
+				],
+				"name": "ENVY",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "ENV"
+			}
+		],
+		"vct_china": [
+			{
+				"color": "#4cc760",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "All Gamers",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "AG"
+			},
+			{
+				"color": "#8fc74c",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "Bilibili Gaming",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "BG"
+			},
+			{
+				"color": "#4c96c7",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "EDward Gaming",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "EG"
+			},
+			{
+				"color": "#4c9ec7",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "FunPlus Phoenix",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "FP"
+			},
+			{
+				"color": "#62c74c",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "JD Gaming",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "JG"
+			},
+			{
+				"color": "#c7ae4c",
+				"country": "HK",
+				"games": [
+					"valorant"
+				],
+				"name": "Nova Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "NE"
+			},
+			{
+				"color": "#c74ca2",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "Titan Esports Club",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TEC"
+			},
+			{
+				"color": "#5e4cc7",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "Trace Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TE"
+			},
+			{
+				"color": "#4c8fc7",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "TYLOO",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TYL"
+			},
+			{
+				"color": "#c7544c",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "Wolves Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "WE"
+			},
+			{
+				"color": "#c74ca0",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "XLG Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "XE"
+			},
+			{
+				"color": "#c7874c",
+				"country": "CN",
+				"games": [
+					"valorant"
+				],
+				"name": "Dragon Ranger Gaming",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "DRG"
+			}
+		],
+		"vct_emea": [
+			{
+				"color": "#c74cae",
+				"country": "TR",
+				"games": [
+					"valorant"
+				],
+				"name": "BBL Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "BE"
+			},
+			{
+				"color": "#c7984c",
+				"country": "GB",
+				"games": [
+					"valorant"
+				],
+				"name": "Fnatic",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "FNA"
+			},
+			{
+				"color": "#8f4cc7",
+				"country": "TR",
+				"games": [
+					"valorant"
+				],
+				"name": "FUT Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "FE"
+			},
+			{
+				"color": "#4c56c7",
+				"country": "FR",
+				"games": [
+					"valorant"
+				],
+				"name": "Gentle Mates",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "GM"
+			},
+			{
+				"color": "#77c74c",
+				"country": "GB",
+				"games": [
+					"valorant"
+				],
+				"name": "GIANTX",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "GIA"
+			},
+			{
+				"color": "#834cc7",
+				"country": "FR",
+				"games": [
+					"valorant"
+				],
+				"name": "Karmine Corp",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "KC"
+			},
+			{
+				"color": "#4cc78b",
+				"country": "UA",
+				"games": [
+					"valorant"
+				],
+				"name": "Natus Vincere",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "NV"
+			},
+			{
+				"color": "#6c4cc7",
+				"country": "ES",
+				"games": [
+					"valorant"
+				],
+				"name": "Team Heretics",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TH"
+			},
+			{
+				"color": "#4c4ec7",
+				"country": "NL",
+				"games": [
+					"valorant"
+				],
+				"name": "Team Liquid",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TL"
+			},
+			{
+				"color": "#4cc798",
+				"country": "FR",
+				"games": [
+					"valorant"
+				],
+				"name": "Team Vitality",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TV"
+			},
+			{
+				"color": "#4cc768",
+				"country": "TR",
+				"games": [
+					"valorant"
+				],
+				"name": "PCIFIC Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "PE"
+			},
+			{
+				"color": "#c14cc7",
+				"country": "HU",
+				"games": [
+					"valorant"
+				],
+				"name": "Eternal Fire",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "EF"
+			}
+		],
+		"vct_pacific": [
+			{
+				"color": "#a8c74c",
+				"country": "JP",
+				"games": [
+					"valorant"
+				],
+				"name": "DetonatioN FocusMe",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "DF"
+			},
+			{
+				"color": "#c34cc7",
+				"country": "KR",
+				"games": [
+					"valorant"
+				],
+				"name": "DRX",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "DRX"
+			},
+			{
+				"color": "#4cc5c7",
+				"country": "TH",
+				"games": [
+					"valorant"
+				],
+				"name": "FULL SENSE",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "FS"
+			},
+			{
+				"color": "#c7664c",
+				"country": "KR",
+				"games": [
+					"valorant"
+				],
+				"name": "Gen.G Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "GE"
+			},
+			{
+				"color": "#c74c8f",
+				"country": "IN",
+				"games": [
+					"valorant"
+				],
+				"name": "Global Esports",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "GE"
+			},
+			{
+				"color": "#5e4cc7",
+				"country": "SG",
+				"games": [
+					"valorant"
+				],
+				"name": "Paper Rex",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "PR"
+			},
+			{
+				"color": "#4cc750",
+				"country": "ID",
+				"games": [
+					"valorant"
+				],
+				"name": "Rex Regum Qeon",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "RRQ"
+			},
+			{
+				"color": "#4cc766",
+				"country": "KR",
+				"games": [
+					"valorant"
+				],
+				"name": "T1",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "T1"
+			},
+			{
+				"color": "#4c66c7",
+				"country": "PH",
+				"games": [
+					"valorant"
+				],
+				"name": "Team Secret",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "TS"
+			},
+			{
+				"color": "#b94cc7",
+				"country": "JP",
+				"games": [
+					"valorant"
+				],
+				"name": "ZETA DIVISION",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "ZD"
+			},
+			{
+				"color": "#c74c89",
+				"country": "JP",
+				"games": [
+					"valorant"
+				],
+				"name": "VARREL",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "VAR"
+			},
+			{
+				"color": "#6a4cc7",
+				"country": "KR",
+				"games": [
+					"valorant"
+				],
+				"name": "Nongshim RedForce",
+				"owner": "investor",
+				"strength": 80,
+				"tag": "NR"
+			}
+		]
+	}
+}

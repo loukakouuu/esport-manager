@@ -40,8 +40,17 @@ static func run(app: Control, game: Node) -> void:
 	var dir := "user://shots"
 	DirAccess.make_dir_recursive_absolute(dir)
 
+	# Écrans d'AVANT-PARTIE : ils ne figurent pas dans SCREENS (ils n'ont ni
+	# navigation ni barre haute) et doivent être photographiés au bon moment —
+	# l'accueil avant que le monde existe, le sélecteur juste après.
+	var want_all := names.size() == 1 and names[0] == "all"
+	if want_all or names.has("start"):
+		await _shoot_front(app, dir, "start")
+
 	print("[shots] préparation du monde…")
 	game.new_world(20260105)
+	if want_all or names.has("picker"):
+		await _shoot_front(app, dir, "picker")
 	var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
 	game.choose_org(str(candidates[candidates.size() / 2]["org_id"]))
 	for _i in SETUP_DAYS:
@@ -50,8 +59,11 @@ static func run(app: Control, game: Node) -> void:
 		GameDate.format_long(game.world.today)])
 
 	var all: Array[String] = app.call("screen_names")
-	if names.size() == 1 and names[0] == "all":
+	if want_all:
 		names = all
+	# Déjà photographiés plus haut : les retirer évite un « écran inconnu ».
+	names.erase("start")
+	names.erase("picker")
 
 	for name in names:
 		if not all.has(name):
@@ -80,6 +92,19 @@ static func run(app: Control, game: Node) -> void:
 
 	print("[shots] dossier : %s/shots" % OS.get_user_data_dir())
 	app.get_tree().quit(0)
+
+
+## Capture un écran d'avant-partie. `show_front()` choisit lui-même entre
+## l'accueil et le sélecteur selon qu'un monde existe : le nom passé ici ne
+## sert qu'à nommer le fichier.
+static func _shoot_front(app: Control, dir: String, name: String) -> void:
+	app.call("show_front")
+	for _f in SETTLE_FRAMES:
+		await RenderingServer.frame_post_draw
+	var img := app.get_viewport().get_texture().get_image()
+	var path := "%s/%s.png" % [dir, name]
+	img.save_png(path)
+	print("[shots] %s -> %s" % [name, path])
 
 
 ## Clé d'état d'affichage utilisée par un écran. Convention du projet : le nom

@@ -163,7 +163,7 @@ static func _world_override() -> TestCase:
 # ============================================================================
 
 static func _write_pack(files: Dictionary) -> void:
-	var root := DataPack.root_of(TEST_PACK)
+	var root := DataPack.user_root_of(TEST_PACK)
 	DirAccess.make_dir_recursive_absolute(root + "/world")
 	DataFile.save_json(root + "/" + DataPack.MANIFEST, {
 		"name": "Pack de test",
@@ -180,7 +180,7 @@ static func _write_pack(files: Dictionary) -> void:
 static func _cleanup() -> void:
 	DataPack.set_active("")
 	DataPack.forget()
-	var root := DataPack.root_of(TEST_PACK)
+	var root := DataPack.user_root_of(TEST_PACK)
 	_remove_recursive(root)
 
 

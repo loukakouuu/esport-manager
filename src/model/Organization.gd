@@ -31,6 +31,13 @@ var color_primary: String = "#e04141"
 var color_secondary: String = "#141414"
 var founded_year: int = 2020
 
+## Disciplines réellement alignées par la structure ("valorant", "lol", "cs2"…).
+## C'est l'identité de la MAISON, pas la liste de ce que le jeu sait simuler :
+## Karmine Corp aligne LoL et Valorant qu'on sache ou non jouer LoL. Seules les
+## disciplines présentes dans GameRegistry donnent lieu à un Roster ; les
+## autres restent affichées comme sections non simulées. Voir GameCatalog.
+var games: Array[String] = ["valorant"]
+
 # --- Finance ---------------------------------------------------------------
 var ledger: Ledger = null
 var sponsor_deals: Array[SponsorDeal] = []
@@ -97,6 +104,29 @@ func all_roster_ids() -> Array[String]:
 	return out
 
 
+## La structure aligne-t-elle cette discipline ?
+func has_game(game_id: String) -> bool:
+	return games.has(game_id)
+
+
+## Disciplines de la structure que le jeu sait simuler.
+func playable_games() -> Array[String]:
+	var out: Array[String] = []
+	for g in games:
+		if GameCatalog.playable(g):
+			out.append(g)
+	return out
+
+
+## Disciplines annoncées mais pas encore simulées — affichées, jamais jouées.
+func upcoming_games() -> Array[String]:
+	var out: Array[String] = []
+	for g in games:
+		if not GameCatalog.playable(g):
+			out.append(g)
+	return out
+
+
 func active_sponsors(today: int) -> Array[SponsorDeal]:
 	var out: Array[SponsorDeal] = []
 	for s in sponsor_deals:
@@ -146,7 +176,7 @@ func to_dict() -> Dictionary:
 	return {
 		"id": id, "name": name, "tag": tag, "region": region, "country": country,
 		"color_primary": color_primary, "color_secondary": color_secondary,
-		"founded_year": founded_year,
+		"founded_year": founded_year, "games": games.duplicate(),
 		"ledger": ledger.to_dict() if ledger != null else null,
 		"sponsor_deals": deals, "loans": lns,
 		"facilities": facilities.duplicate(),
@@ -171,6 +201,9 @@ static func from_dict(d: Dictionary) -> Organization:
 	o.color_primary = d.get("color_primary", "#e04141")
 	o.color_secondary = d.get("color_secondary", "#141414")
 	o.founded_year = int(d.get("founded_year", 2020))
+	o.games = GameCatalog.sanitize(d.get("games", ["valorant"]))
+	if o.games.is_empty():
+		o.games = ["valorant"]
 	var ld = d.get("ledger", null)
 	o.ledger = Ledger.from_dict(ld) if ld != null else Ledger.new()
 	for sd in d.get("sponsor_deals", []):

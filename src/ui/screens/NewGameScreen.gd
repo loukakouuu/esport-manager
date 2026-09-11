@@ -1,13 +1,13 @@
 extends Screen
 
-## Écran de démarrage : pack de données, graine, puis choix de la structure.
+## Choix de la structure à reprendre.
 ##
-## Le choix par défaut met en avant les structures de Challengers : la campagne
-## la plus intéressante consiste à monter en VCT via l'Ascension, pas à hériter
-## d'une équipe déjà installée.
-
-var _league_filter := "chal_emea"
-var _seed_value := 0
+## Deux temps, comme dans les gestionnaires de football : on parcourt les
+## ligues à gauche, on inspecte une maison à droite, et on ne s'engage qu'après
+## avoir vu ce qu'on hérite — l'effectif, les moyens, les sections sur les
+## autres jeux et ce que la direction attend.
+##
+## L'écran précédent (StartScreen) a déjà créé le monde : ici, tout est réel.
 
 const LEAGUES := [
 	["chal_emea", "Challengers EMEA"],
@@ -22,152 +22,228 @@ const LEAGUES := [
 
 
 func build() -> void:
-	add_child(UiKit.title("Esport Manager"))
-	add_child(UiKit.subtitle(
-		"Prenez la direction d'une structure esport. Recrutez, entraînez, "
-		+ "négociez, et tenez la trésorerie assez longtemps pour gagner."))
+	add_child(page_header("Choisir une structure",
+		"Cliquez une ligne pour l'inspecter, puis confirmez la reprise.", [
+			UiKit.ghost("◀ Changer d'univers", func():
+				game().abandon_world()),
+		]))
+	add_child(tab_bar("newgame", LEAGUES, "chal_emea"))
 
-	if not game().has_world():
-		_build_setup()
-		return
-	_build_org_picker()
-
-
-# ============================================================================
-# Création du monde
-# ============================================================================
-
-func _build_setup() -> void:
 	var parts := split(420)
 	var main: VBoxContainer = parts[0]
 	var side: VBoxContainer = parts[1]
 
-	var card := UiKit.card("Nouvelle partie", 10, 14)
-	main.add_child(card.panel)
-
-	var row := UiKit.hbox(10)
-	row.add_child(UiKit.label("Graine du monde", UiKit.FS_BODY_L, UiKit.TEXT_DIM))
-	var seed_field := UiKit.line_edit("graine",
-		str(Time.get_unix_time_from_system() as int), 170)
-	row.add_child(seed_field)
-	card.body.add_child(row)
-	card.body.add_child(UiKit.label(
-		"À graine identique, le monde généré est toujours le même : deux "
-		+ "parties comparables se lancent avec la même valeur.",
-		UiKit.FS_SMALL, UiKit.TEXT_FAINT))
-
-	card.body.add_child(UiKit.separator())
-	card.body.add_child(UiKit.primary("Créer le monde", func():
-		_seed_value = int(seed_field.text) if seed_field.text.is_valid_int() \
-			else int(Time.get_unix_time_from_system())
-		game().new_world(_seed_value)
-		refresh()))
-	card.body.add_child(UiKit.button("Charger la dernière partie", func():
-		if game().load_game("partie1"):
-			app.navigate("home")))
-
-	side.add_child(_pack_card())
-
-
-## Choix du pack de données. Voir src/core/DataPack.gd pour le pourquoi :
-## le jeu est livré avec un univers fictif, un pack peut le remplacer.
-func _pack_card() -> Control:
-	var card := UiKit.card("Univers", 8, 14)
-	var packs := DataPack.installed()
-	var active := DataPack.active()
-
-	card.body.add_child(_pack_row("", "Univers fictif (livré avec le jeu)",
-		"96 structures et environ 700 joueurs inventés.", active == ""))
-	for pack_v in packs:
-		var pack: Dictionary = pack_v
-		card.body.add_child(_pack_row(str(pack["id"]), str(pack.get("name", pack["id"])),
-			str(pack.get("description", "")), active == str(pack["id"])))
-
-	if packs.is_empty():
-		card.body.add_child(UiKit.separator())
-		card.body.add_child(UiKit.wrap(
-			"Aucun pack installé. Un pack remplace tout ou partie du contenu : "
-			+ "structures, joueurs, noms. Pour en construire un à partir de "
-			+ "données publiques, voir docs/DATA_PACKS.md.",
-			UiKit.FS_BODY, UiKit.TEXT_FAINT))
-	else:
-		var attribution := DataPack.attribution_of(active)
-		if attribution != "":
-			card.body.add_child(UiKit.separator())
-			card.body.add_child(UiKit.wrap(attribution, UiKit.FS_SMALL,
-				UiKit.TEXT_FAINT))
-	return card.panel
-
-
-func _pack_row(pack_id: String, name: String, description: String,
-		is_active: bool) -> Control:
-	var panel := UiKit.panel(10, UiKit.BG_PANEL_HI if is_active else UiKit.BG_ROW)
-	var v := UiKit.vbox(2)
-	panel.add_child(v)
-	var head := UiKit.hbox(8)
-	head.add_child(UiKit.label(name, UiKit.FS_BODY_L,
-		UiKit.ACCENT if is_active else UiKit.TEXT, is_active))
-	head.add_child(UiKit.spacer())
-	if is_active:
-		head.add_child(UiKit.pill("actif", UiKit.ACCENT, true))
-	else:
-		head.add_child(UiKit.ghost("Utiliser", func():
-			DataPack.set_active(pack_id)
-			refresh()))
-	v.add_child(head)
-	if description != "":
-		v.add_child(UiKit.label(description, UiKit.FS_SMALL, UiKit.TEXT_DIM))
-	return panel
-
-
-# ============================================================================
-# Choix de la structure
-# ============================================================================
-
-func _build_org_picker() -> void:
-	add_child(tab_bar("newgame", LEAGUES, "chal_emea"))
-	_league_filter = current_tab("newgame", "chal_emea")
-
-	var orgs := WorldGenerator.selectable_orgs(world(), _league_filter)
+	var league := current_tab("newgame", "chal_emea")
+	var orgs := WorldGenerator.selectable_orgs(world(), league)
 	if orgs.is_empty():
-		add_child(UiKit.empty_state("Aucune structure dans cette ligue.",
-			"Le pack de données actif ne la renseigne peut-être pas."))
+		main.add_child(UiKit.empty_state("Aucune structure dans cette ligue.",
+			"L'univers actif ne la renseigne peut-être pas."))
 		return
 
+	main.add_child(_org_table(orgs))
+	main.add_child(UiKit.wrap(
+		"Commencez par les Challengers : la campagne consiste à monter en VCT "
+		+ "via l'Ascension. Une structure de ligue partenaire donne des moyens "
+		+ "immédiats, et une direction bien moins patiente.",
+		UiKit.FS_SMALL, UiKit.TEXT_FAINT))
+
+	side.add_child(_detail_card(_selected_id(orgs)))
+
+
+# ============================================================================
+# Liste
+# ============================================================================
+
+func _org_table(orgs: Array) -> Control:
 	var columns := [
-		{"key": "name", "label": "Structure", "width": 190},
-		{"key": "country", "label": "Pays", "width": 50},
-		{"key": "reputation", "label": "Réputation", "width": 90, "align": "right"},
-		{"key": "fans", "label": "Fans", "width": 90, "align": "right"},
-		{"key": "cash", "label": "Trésorerie", "width": 110, "align": "right"},
-		{"key": "owner", "label": "Propriétaire", "width": 170},
-		{"key": "difficulty", "label": "Difficulté", "width": 120},
+		{"key": "name", "label": "Structure", "width": 168},
+		{"key": "country", "label": "Pays", "width": 46},
+		{"key": "sections", "label": "Sections", "width": 128},
+		{"key": "reputation", "label": "Réputation", "width": 88, "align": "right"},
+		{"key": "fans", "label": "Fans", "width": 78, "align": "right"},
+		{"key": "cash", "label": "Trésorerie", "width": 104, "align": "right"},
+		{"key": "difficulty", "label": "Difficulté", "width": 110},
 	]
 	var rows: Array = []
 	for entry_v in orgs:
 		var e: Dictionary = entry_v
 		var o := world().org(str(e["org_id"]))
+		var games: Array = e.get("games", ["valorant"])
 		rows.append({
 			"_id": str(e["org_id"]),
 			"name": {"text": str(e["name"]), "bold": true},
 			"country": {"text": o.country},
+			"sections": {"text": _sections_text(games), "sort": games.size(),
+				"color": UiKit.TEXT_DIM},
 			"reputation": {"text": str(int(e["reputation"])),
 				"sort": int(e["reputation"])},
 			"fans": {"text": _short(int(e["fanbase"])), "sort": int(e["fanbase"])},
 			"cash": UiKit.money_cell(int(e["cash"])),
-			"owner": {"text": str(e["owner"])},
 			"difficulty": _difficulty(int(e["reputation"]), int(e["cash"])),
 		})
-	add_child(sorted_table("newgame.orgs", columns, rows, {
+	return sorted_table("newgame.orgs", columns, rows, {
 		"row_clicked": func(org_id):
-			game().choose_org(str(org_id))
-			app.navigate("home"),
-	}))
-	add_child(UiKit.label(
-		"Commencez par les Challengers : la campagne consiste à monter en VCT "
-		+ "via l'Ascension. Cliquez une ligne pour prendre la structure.",
-		UiKit.FS_SMALL, UiKit.TEXT_FAINT))
+			ui("newgame")["org_id"] = str(org_id)
+			refresh(),
+	})
 
+
+func _sections_text(games: Array) -> String:
+	var parts: Array[String] = []
+	for g in games:
+		parts.append(GameCatalog.short(str(g)))
+	return " ".join(parts)
+
+
+## Structure inspectée : celle qu'on a cliquée, sinon la première de la liste.
+func _selected_id(orgs: Array) -> String:
+	var wanted := str(ui("newgame").get("org_id", ""))
+	for e_v in orgs:
+		if str((e_v as Dictionary)["org_id"]) == wanted:
+			return wanted
+	return str((orgs[0] as Dictionary)["org_id"])
+
+
+# ============================================================================
+# Fiche de la structure
+# ============================================================================
+
+func _detail_card(org_id: String) -> Control:
+	var w := world()
+	var o := w.org(org_id)
+	if o == null:
+		return UiKit.empty_state("Sélectionnez une structure.")
+
+	var card := UiKit.card("", 9, 14)
+	card.panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
+
+	var head := UiKit.hbox(10)
+	head.add_child(UiKit.crest(o.tag, UiKit.color_from_id(o.id), 44))
+	var idn := UiKit.vbox(1)
+	idn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	idn.add_child(UiKit.label(o.name, UiKit.FS_H3, UiKit.TEXT, true))
+	var sub := UiKit.hbox(6)
+	sub.add_child(UiKit.pill(o.country))
+	sub.add_child(UiKit.pill(o.owner_label(), UiKit.INFO))
+	sub.add_child(UiKit.label("fondée en %d" % o.founded_year, UiKit.FS_SMALL,
+		UiKit.TEXT_FAINT))
+	idn.add_child(sub)
+	head.add_child(idn)
+	card.body.add_child(head)
+
+	var stats := UiKit.hbox(14)
+	stats.add_child(UiKit.stat_block("Réputation", UiKit.stars(o.stars())))
+	stats.add_child(UiKit.stat_block("Fans", _short(o.fanbase)))
+	stats.add_child(UiKit.stat_block("Trésorerie", Money.fmt_short(o.cash())))
+	card.body.add_child(stats)
+
+	card.body.add_child(UiKit.separator())
+	card.body.add_child(_sections_block(o))
+
+	card.body.add_child(UiKit.separator())
+	card.body.add_child(_squad_block(o))
+
+	card.body.add_child(UiKit.separator())
+	card.body.add_child(_board_block(o))
+
+	card.body.add_child(UiKit.vspacer())
+	var take := UiKit.primary("Prendre la direction de %s" % o.name, func():
+		game().choose_org(o.id)
+		navigate("home"))
+	take.custom_minimum_size = Vector2(0, 38)
+	card.body.add_child(take)
+	return card.panel
+
+
+## Les disciplines de la maison. Une structure esport est rarement mono-jeu :
+## on affiche donc TOUTES ses sections, y compris celles que le moteur ne sait
+## pas encore simuler — les cacher donnerait une image fausse de ce qu'on
+## reprend.
+func _sections_block(o: Organization) -> Control:
+	var v := UiKit.vbox(5)
+	v.add_child(UiKit.caption("Sections de la structure"))
+	for g in o.games:
+		var game_id := str(g)
+		var playable := GameCatalog.playable(game_id)
+		var row := UiKit.hbox(8)
+		row.add_child(UiKit.pill(GameCatalog.short(game_id),
+			GameCatalog.color(game_id), true))
+		var l := UiKit.label(GameCatalog.label(game_id), UiKit.FS_BODY_L,
+			UiKit.TEXT if playable else UiKit.TEXT_DIM)
+		l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+		row.add_child(l)
+		row.add_child(UiKit.pill("jouable" if playable else "non simulée",
+			UiKit.GOOD if playable else UiKit.TEXT_FAINT, playable))
+		v.add_child(row)
+	if not o.upcoming_games().is_empty():
+		v.add_child(UiKit.wrap(
+			"Les sections non simulées existent dans la structure et pèsent "
+			+ "sur son image, mais ne se dirigent pas encore.",
+			UiKit.FS_SMALL, UiKit.TEXT_FAINT))
+	return v
+
+
+func _squad_block(o: Organization) -> Control:
+	var w := world()
+	var v := UiKit.vbox(4)
+	var r := w.main_roster(o.id, "valorant")
+	if r == null:
+		v.add_child(UiKit.label("Aucun effectif Valorant.", UiKit.FS_BODY,
+			UiKit.TEXT_FAINT))
+		return v
+
+	var module := w.module_for(r.game_id)
+	var head := UiKit.hbox(8)
+	head.add_child(UiKit.caption("Effectif Valorant"))
+	head.add_child(UiKit.spacer())
+	head.add_child(UiKit.label("%d joueurs" % r.size(), UiKit.FS_SMALL,
+		UiKit.TEXT_FAINT))
+	v.add_child(head)
+
+	# Avant la reprise, on montre l'effectif tel qu'il est : le brouillard du
+	# scouting ne commence qu'une fois la structure entre vos mains.
+	var players := w.players_of(r.id)
+	players.sort_custom(func(a: Player, b: Player):
+		return a.current_ability > b.current_ability)
+	for p in players.slice(0, 6):
+		var row := UiKit.hbox(8)
+		row.add_child(UiKit.label(p.display_name(), UiKit.FS_BODY_L,
+			UiKit.TEXT if r.starters.has(p.id) else UiKit.TEXT_DIM,
+			r.starters.has(p.id)))
+		if p.is_igl:
+			row.add_child(UiKit.pill("IGL", UiKit.INFO))
+		row.add_child(UiKit.spacer())
+		row.add_child(UiKit.label(module.role_label(r.role_of(p)),
+			UiKit.FS_SMALL, UiKit.TEXT_DIM))
+		row.add_child(UiKit.label("%d ans" % p.age(w.today), UiKit.FS_SMALL,
+			UiKit.TEXT_FAINT))
+		v.add_child(row)
+	return v
+
+
+func _board_block(o: Organization) -> Control:
+	var v := UiKit.vbox(4)
+	v.add_child(UiKit.caption("Ce que la direction attendra"))
+	var objectives := BoardSystem.season_objectives(world(), o)
+	if objectives.is_empty():
+		v.add_child(UiKit.label("Aucun objectif formulé.", UiKit.FS_BODY,
+			UiKit.TEXT_FAINT))
+	for obj_v in objectives:
+		var obj: Dictionary = obj_v
+		v.add_child(_bullet(str(obj.get("label", ""))))
+	return v
+
+
+func _bullet(text: String) -> Control:
+	var h := UiKit.hbox(7)
+	h.add_child(UiKit.label("—", UiKit.FS_BODY, UiKit.TEXT_FAINT))
+	var l := UiKit.wrap(text, UiKit.FS_BODY, UiKit.TEXT_DIM)
+	l.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	h.add_child(l)
+	return h
+
+
+# ============================================================================
 
 func _difficulty(reputation: int, cash: int) -> Dictionary:
 	var score := float(reputation) / 3000.0 \

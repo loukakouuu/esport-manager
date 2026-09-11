@@ -18,6 +18,12 @@ var last_player_fixture: Fixture = null
 var busy := false
 
 
+func _ready() -> void:
+	# Le pack livré « vraies équipes » est l'expérience par défaut ; l'univers
+	# fictif reste sélectionnable à l'écran de démarrage.
+	DataPack.boot()
+
+
 func has_world() -> bool:
 	return world != null
 
@@ -27,6 +33,16 @@ func new_world(seed_value: int, start_day: int = -1) -> World:
 	world = WorldGenerator.generate(seed_value, start)
 	world_loaded.emit()
 	return world
+
+
+## Revenir à l'écran de démarrage en jetant le monde généré. Utilisé quand on
+## veut changer d'univers avant d'avoir choisi une structure : le monde n'a
+## alors aucune valeur, rien n'est perdu.
+func abandon_world() -> void:
+	world = null
+	last_player_result = null
+	last_player_fixture = null
+	state_changed.emit()
 
 
 func choose_org(org_id: String) -> void:
@@ -39,9 +55,62 @@ func my_org() -> Organization:
 
 
 func my_roster() -> Roster:
-	if world == null or world.player_org_id == "":
-		return null
-	return world.main_roster(world.player_org_id, world.player_game_id)
+	return world.my_roster() if world != null else null
+
+
+# ============================================================================
+# Sections de la structure
+# ============================================================================
+
+## Bascule la gestion sur une autre équipe de la structure (autre discipline,
+## académie…). Refuse une équipe qui n'appartient pas au joueur : la sélection
+## de section ne doit jamais devenir une porte dérobée vers un rival.
+func select_roster(roster_id: String) -> bool:
+	if world == null:
+		return false
+	var r := world.roster(roster_id)
+	if r == null or r.org_id != world.player_org_id:
+		return false
+	world.player_roster_id = r.id
+	world.player_game_id = r.game_id
+	state_changed.emit()
+	return true
+
+
+## Toutes les sections de la structure dirigée, dans l'ordre du catalogue.
+## Chaque entrée : {game_id, roster_id, label, detail, playable, current}.
+## Une section « annoncée » (roster_id vide) correspond à une discipline que la
+## structure aligne dans la réalité mais que le moteur ne simule pas encore.
+func sections() -> Array:
+	var out: Array = []
+	if world == null:
+		return out
+	var o := my_org()
+	if o == null:
+		return out
+	var current := my_roster()
+	var current_id := current.id if current != null else ""
+	for g in o.games:
+		var rosters := world.rosters_of(o.id)
+		var found := false
+		for r in rosters:
+			if r.game_id != g:
+				continue
+			found = true
+			out.append({
+				"game_id": g, "roster_id": r.id,
+				"label": GameCatalog.label(g),
+				"detail": "Académie" if r.is_academy else "Équipe principale",
+				"playable": true, "current": r.id == current_id,
+			})
+		if not found:
+			out.append({
+				"game_id": g, "roster_id": "",
+				"label": GameCatalog.label(g),
+				"detail": "Section non simulée",
+				"playable": false, "current": false,
+			})
+	return out
 
 
 # ============================================================================

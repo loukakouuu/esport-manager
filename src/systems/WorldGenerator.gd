@@ -81,6 +81,7 @@ static func _make_org(world: World, module: GameModule, league_key: String,
 	o.founded_year = GameDate.year_of(world.today) - rng.range_i(2, 14)
 	o.owner = OWNER_MAP.get(str(entry.get("owner", "self_funded")),
 		Organization.Owner.SELF_FUNDED)
+	o.games = _declared_games(entry, strength, rng, o.name)
 	o.ledger = Ledger.new()
 
 	# Réputation et audience : exponentielles, comme dans la réalité — l'écart
@@ -106,6 +107,43 @@ static func _make_org(world: World, module: GameModule, league_key: String,
 	o.ledger.cash = int(float(monthly_cost) * months)
 	o.budgets["marketing"] = Money.pct(monthly_cost, rng.range_f(2.0, 6.0))
 	return o
+
+
+## Disciplines alignées par la structure.
+##
+## Un pack de données peut les déclarer ("games": ["valorant", "lol"]) — c'est
+## le cas du pack VCT, alimenté par les portails Liquipedia de chaque jeu.
+## Sinon on en tire un jeu plausible à partir de la puissance : une écurie
+## majeure aligne plusieurs sections, un club de Challengers une seule.
+##
+## Le tirage passe par un RNG DÉRIVÉ et non par le flux principal : ajouter
+## cette information ne devait pas décaler tous les mondes existants à graine
+## identique.
+static func _declared_games(entry: Dictionary, strength: float,
+		rng: Rng, org_name: String) -> Array[String]:
+	var declared := GameCatalog.sanitize(entry.get("games", []))
+	if not declared.is_empty():
+		# La discipline simulée est celle des ligues du monde : une structure
+		# engagée en VCT aligne forcément Valorant, quoi que dise le pack.
+		if not declared.has("valorant"):
+			declared.insert(0, "valorant")
+		return declared
+
+	var side := rng.derive("games:%s" % org_name)
+	var extra := 0
+	if strength >= 82.0:
+		extra = side.range_i(2, 4)
+	elif strength >= 72.0:
+		extra = side.range_i(1, 3)
+	elif strength >= 62.0:
+		extra = side.range_i(0, 2)
+	elif strength >= 52.0:
+		extra = side.range_i(0, 1)
+	var pool: Array = ["cs2", "lol", "rl", "apex", "r6", "dota2", "ow2"]
+	side.shuffle(pool)
+	var picked: Array = pool.slice(0, extra)
+	picked.append("valorant")
+	return GameCatalog.sanitize(picked)
 
 
 ## Infrastructures de départ. Elles sont volontairement modestes : une équipe
@@ -193,6 +231,10 @@ const DATA_ROSTERS := "res://data/world/rosters.json"
 ##   {"teams": {"Fnatic": {"players": [{"tag", "first", "last", "country",
 ##                                      "born", "igl", "sub"}]}}}
 static func real_roster_for(org_name: String) -> Array:
+	# Aucun pack ne fournit ce fichier dans l'univers fictif : on vérifie avant
+	# de charger, sinon la génération crache un avertissement par structure.
+	if not FileAccess.file_exists(DataPack.resolve(DATA_ROSTERS)):
+		return []
 	var d = DataFile.load_json(DATA_ROSTERS, {})
 	if not (d is Dictionary):
 		return []
@@ -433,6 +475,10 @@ static func assign_player_org(world: World, org_id: String) -> void:
 	if o == null:
 		return
 	world.player_org_id = org_id
+	# On ouvre sur la section principale : le joueur peut ensuite basculer sur
+	# une autre équipe de la maison (académie, autre discipline).
+	var main := world.main_roster(org_id, world.player_game_id)
+	world.player_roster_id = main.id if main != null else ""
 	o.is_player_controlled = true
 	o.objectives = BoardSystem.season_objectives(world, o)
 	world.add_news(world.today, "Bienvenue chez %s" % o.name,
@@ -457,6 +503,7 @@ static func selectable_orgs(world: World, league_key: String = "") -> Array:
 			"org_id": o.id, "name": o.name, "tag": o.tag,
 			"league_key": r.league_key, "region": o.region,
 			"reputation": o.reputation, "cash": o.cash(),
+			"games": o.games.duplicate(),
 			"fanbase": o.fanbase, "owner": o.owner_label(),
 		})
 	out.sort_custom(func(a, b): return int(a["reputation"]) > int(b["reputation"]))

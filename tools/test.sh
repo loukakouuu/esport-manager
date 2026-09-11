@@ -8,5 +8,5 @@ PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 SCRIPT="res://tools/run_tests.gd"
 [ "${1:-}" = "smoke" ] && SCRIPT="res://tools/smoke.gd"
 "$GODOT" --headless --path "$PROJECT_DIR" --editor --quit >/dev/null 2>&1
-timeout 180 "$GODOT" --headless --path "$PROJECT_DIR" --script "$SCRIPT" 2>&1 \
+timeout 360 "$GODOT" --headless --path "$PROJECT_DIR" --script "$SCRIPT" 2>&1 \
   | grep -v -E "RID allocations|PagedAllocator|Unreferenced static string|wait_to_finish|A Thread object"

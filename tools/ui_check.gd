@@ -26,7 +26,10 @@ const SINGLE_CHILD_CONTAINERS := [
 ]
 
 const SCREENS := {
+	"StartScreen": "res://src/ui/screens/StartScreen.gd",
+	"NewGameScreen": "res://src/ui/screens/NewGameScreen.gd",
 	"HomeScreen": "res://src/ui/screens/HomeScreen.gd",
+	"ClubScreen": "res://src/ui/screens/ClubScreen.gd",
 	"SquadScreen": "res://src/ui/screens/SquadScreen.gd",
 	"PlayerScreen": "res://src/ui/screens/PlayerScreen.gd",
 	"TacticsScreen": "res://src/ui/screens/TacticsScreen.gd",
@@ -39,7 +42,6 @@ const SCREENS := {
 	"FacilitiesScreen": "res://src/ui/screens/FacilitiesScreen.gd",
 	"InboxScreen": "res://src/ui/screens/InboxScreen.gd",
 	"MatchScreen": "res://src/ui/screens/MatchScreen.gd",
-	"NewGameScreen": "res://src/ui/screens/NewGameScreen.gd",
 }
 
 ## Constantes d'écran décrivant une barre d'onglets, dans l'ordre de recherche.

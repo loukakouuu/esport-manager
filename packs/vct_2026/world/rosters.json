@@ -1,0 +1,1808 @@
+{
+	"_comment": "Effectifs réels. Le moteur reprend les identités et génère tout le reste : attributs, potentiel, contrats.",
+	"teams": {
+		"100 Thieves": {
+			"players": [
+				{
+					"born": "2003-07-26",
+					"country": "US",
+					"first": "Peter",
+					"igl": false,
+					"last": "Mazuryk",
+					"sub": false,
+					"tag": "Asuna"
+				},
+				{
+					"born": "2004-03-13",
+					"country": "US",
+					"first": "Sean",
+					"igl": false,
+					"last": "Bezerra",
+					"sub": false,
+					"tag": "bang"
+				},
+				{
+					"born": "2002-12-22",
+					"country": "US",
+					"first": "Matthew",
+					"igl": false,
+					"last": "Panganiban",
+					"sub": false,
+					"tag": "Cryocells"
+				},
+				{
+					"born": "2007-07-18",
+					"country": "CA",
+					"first": "Timothée",
+					"igl": false,
+					"last": "Lavigne Dupont",
+					"sub": false,
+					"tag": "Timotino"
+				},
+				{
+					"born": "2004-09-01",
+					"country": "US",
+					"first": "Jordan",
+					"igl": true,
+					"last": "Pulwer",
+					"sub": false,
+					"tag": "vora"
+				}
+			]
+		},
+		"All Gamers": {
+			"players": [
+				{
+					"born": "2004-05-28",
+					"country": "CN",
+					"first": "Huang",
+					"igl": false,
+					"last": "Zhihao",
+					"sub": false,
+					"tag": "K1ra"
+				},
+				{
+					"born": "2003-03-21",
+					"country": "CN",
+					"first": "Yang",
+					"igl": false,
+					"last": "Yong",
+					"sub": false,
+					"tag": "Shr1mp"
+				},
+				{
+					"born": "1999-??-??",
+					"country": "CN",
+					"first": "Liu",
+					"igl": false,
+					"last": "Zhening",
+					"sub": false,
+					"tag": "Septem7"
+				},
+				{
+					"born": "2007-04-08",
+					"country": "RU",
+					"first": "Roman",
+					"igl": false,
+					"last": "Smirnov",
+					"sub": false,
+					"tag": "f4ngeer"
+				},
+				{
+					"born": "2004-09-20",
+					"country": "CN",
+					"first": "Gao",
+					"igl": false,
+					"last": "Ruiqi",
+					"sub": false,
+					"tag": "iamgrq"
+				},
+				{
+					"born": "2007-07-14",
+					"country": "TW",
+					"first": "Lai",
+					"igl": false,
+					"last": "You-ze",
+					"sub": true,
+					"tag": "Youze"
+				},
+				{
+					"born": "2004-11-27",
+					"country": "CN",
+					"first": "Zhang",
+					"igl": false,
+					"last": "Zeyang",
+					"sub": true,
+					"tag": "Bai"
+				}
+			]
+		},
+		"Bilibili Gaming": {
+			"players": [
+				{
+					"born": "2006-09-09",
+					"country": "CN",
+					"first": "Wang",
+					"igl": false,
+					"last": "Xiaojie",
+					"sub": false,
+					"tag": "rushia"
+				},
+				{
+					"born": "2003-10-14",
+					"country": "CN",
+					"first": "Yuxiang",
+					"igl": false,
+					"last": "Liu",
+					"sub": false,
+					"tag": "Knight"
+				},
+				{
+					"born": "2003-3-21",
+					"country": "SG",
+					"first": "Marcus",
+					"igl": false,
+					"last": "Tan",
+					"sub": false,
+					"tag": "nephh"
+				},
+				{
+					"igl": false,
+					"sub": false,
+					"tag": "whzy"
+				},
+				{
+					"born": "2008-02-29",
+					"country": "CN",
+					"first": "Gu",
+					"igl": false,
+					"last": "Yiming",
+					"sub": false,
+					"tag": "yilai"
+				},
+				{
+					"born": "2006-07-25",
+					"country": "CN",
+					"first": "Yang",
+					"igl": false,
+					"last": "Renyu",
+					"sub": true,
+					"tag": "bud"
+				}
+			]
+		},
+		"Cloud9": {
+			"players": [
+				{
+					"born": "2005-04-30",
+					"country": "US",
+					"first": "Francis",
+					"igl": false,
+					"last": "Hoang",
+					"sub": false,
+					"tag": "OXY"
+				},
+				{
+					"born": "2000-07-19",
+					"country": "US",
+					"first": "Erick",
+					"igl": false,
+					"last": "Bach",
+					"sub": false,
+					"tag": "Xeppaa"
+				},
+				{
+					"born": "1998-03-02",
+					"country": "US",
+					"first": "Jordan",
+					"igl": false,
+					"last": "Montemurro",
+					"sub": false,
+					"tag": "Zellsis"
+				},
+				{
+					"born": "2006-08-22",
+					"country": "US",
+					"first": "Jack",
+					"igl": false,
+					"last": "Foote",
+					"sub": false,
+					"tag": "Jackk"
+				},
+				{
+					"born": "2004-07-08",
+					"country": "",
+					"first": "Jaden",
+					"igl": false,
+					"last": "Anderson",
+					"sub": false,
+					"tag": "Notexxd"
+				}
+			]
+		},
+		"DetonatioN FocusMe": {
+			"players": [
+				{
+					"born": "2003-04-08",
+					"country": "JP",
+					"first": "Ibuki",
+					"igl": false,
+					"last": "Seki",
+					"sub": false,
+					"tag": "Meiy"
+				},
+				{
+					"born": "2003-12-20",
+					"country": "KR",
+					"first": "Yu",
+					"igl": false,
+					"last": "Gwang-hui",
+					"sub": false,
+					"tag": "akame"
+				},
+				{
+					"born": "1997-02-15",
+					"country": "JP",
+					"first": "Tomonori",
+					"igl": true,
+					"last": "Okimura",
+					"sub": false,
+					"tag": "SSeeS"
+				},
+				{
+					"born": "2007-01-10",
+					"country": "JP",
+					"first": "Amon",
+					"igl": false,
+					"last": "Mateus Okakura",
+					"sub": false,
+					"tag": "Caedye"
+				},
+				{
+					"born": "2007-01-05",
+					"country": "JP",
+					"first": "Kazuya",
+					"igl": false,
+					"last": "Ikeda",
+					"sub": false,
+					"tag": "yatsuka"
+				}
+			]
+		},
+		"Dragon Ranger Gaming": {
+			"players": [
+				{
+					"born": "2002-08-02",
+					"country": "RU",
+					"first": "Ilya",
+					"igl": false,
+					"last": "Ushakov",
+					"sub": false,
+					"tag": "vo0kashu"
+				},
+				{
+					"born": "2002-08-09",
+					"country": "CN",
+					"first": "Qu",
+					"igl": false,
+					"last": "Donghao",
+					"sub": false,
+					"tag": "Life"
+				},
+				{
+					"born": "2002-10-31",
+					"country": "TW",
+					"first": "Shao",
+					"igl": false,
+					"last": "Yi-chun",
+					"sub": false,
+					"tag": "Nicc"
+				},
+				{
+					"born": "2006-09-13",
+					"country": "TW",
+					"first": "Lin",
+					"igl": false,
+					"last": "Ting-yu",
+					"sub": false,
+					"tag": "SpiritZ1"
+				},
+				{
+					"born": "2001-08-02",
+					"country": "CN",
+					"first": "Rui",
+					"igl": true,
+					"last": "Luo",
+					"sub": false,
+					"tag": "Flex1n"
+				},
+				{
+					"born": "2003-01-08",
+					"country": "CN",
+					"first": "Haoran",
+					"igl": false,
+					"last": "Zhang",
+					"sub": true,
+					"tag": "Akeman"
+				}
+			]
+		},
+		"EDward Gaming": {
+			"players": [
+				{
+					"born": "2003-11-27",
+					"country": "CN",
+					"first": "Wan",
+					"igl": false,
+					"last": "Shunzhi",
+					"sub": false,
+					"tag": "CHICHOO"
+				},
+				{
+					"born": "2004-03-03",
+					"country": "CN",
+					"first": "Yongkang",
+					"igl": false,
+					"last": "",
+					"sub": false,
+					"tag": "ZmjjKK"
+				},
+				{
+					"born": "2005-03-19",
+					"country": "CN",
+					"first": "Zhang",
+					"igl": false,
+					"last": "Juntai",
+					"sub": false,
+					"tag": "Jieni7"
+				},
+				{
+					"born": "2002-12-05",
+					"country": "CN",
+					"first": "Senxu",
+					"igl": false,
+					"last": "Wang",
+					"sub": false,
+					"tag": "nobody"
+				},
+				{
+					"born": "2002-06-08",
+					"country": "CN",
+					"first": "Zhang",
+					"igl": false,
+					"last": "Zhao",
+					"sub": false,
+					"tag": "Smoggy"
+				},
+				{
+					"born": "2003-10-04",
+					"country": "CN",
+					"first": "Wang",
+					"igl": false,
+					"last": "Qingchuan",
+					"sub": true,
+					"tag": "cb"
+				}
+			]
+		},
+		"ENVY": {
+			"players": [
+				{
+					"born": "2002-09-07",
+					"country": "US",
+					"first": "Maximilian",
+					"igl": false,
+					"last": "Mazanov",
+					"sub": false,
+					"tag": "Demon1"
+				},
+				{
+					"born": "2002-07-31",
+					"country": "US",
+					"first": "Evan",
+					"igl": false,
+					"last": "Grady",
+					"sub": false,
+					"tag": "Eggsterr"
+				},
+				{
+					"born": "2001-08-14",
+					"country": "CL",
+					"first": "Angelo",
+					"igl": false,
+					"last": "Mori",
+					"sub": false,
+					"tag": "keznit"
+				},
+				{
+					"born": "2004-10-18",
+					"country": "US",
+					"first": "Matteo",
+					"igl": true,
+					"last": "Weber",
+					"sub": false,
+					"tag": "P0PPIN"
+				},
+				{
+					"born": "2003-04-28",
+					"country": "US",
+					"first": "Daniel",
+					"igl": false,
+					"last": "Abedrabbo",
+					"sub": false,
+					"tag": "Rossy"
+				},
+				{
+					"born": "2008-06-04",
+					"country": "US",
+					"first": "Alex",
+					"igl": false,
+					"last": "Banyasz",
+					"sub": true,
+					"tag": "canezerra"
+				}
+			]
+		},
+		"Eternal Fire": {
+			"players": [
+				{
+					"born": "2001-01-02",
+					"country": "TR",
+					"first": "Baran",
+					"igl": false,
+					"last": "Yılmaz",
+					"sub": false,
+					"tag": "Izzy"
+				},
+				{
+					"igl": false,
+					"sub": false,
+					"tag": "echo"
+				},
+				{
+					"born": "2004-09-04",
+					"country": "TR",
+					"first": "Anıl",
+					"igl": true,
+					"last": "Dağdeviren",
+					"sub": false,
+					"tag": "nekky"
+				},
+				{
+					"born": "2006-06-02",
+					"country": "TR",
+					"first": "Soner",
+					"igl": false,
+					"last": "Ekiz",
+					"sub": false,
+					"tag": "audaz"
+				},
+				{
+					"born": "2006-04-27",
+					"country": "TR",
+					"first": "Enes",
+					"igl": false,
+					"last": "Yiğiter",
+					"sub": false,
+					"tag": "Favian"
+				}
+			]
+		},
+		"Evil Geniuses": {
+			"players": [
+				{
+					"born": "1996-09-29",
+					"country": "LT",
+					"first": "Emil",
+					"igl": false,
+					"last": "Maile",
+					"sub": false,
+					"tag": "Bao"
+				},
+				{
+					"born": "2000-07-06",
+					"country": "BR",
+					"first": "Douglas",
+					"igl": false,
+					"last": "",
+					"sub": false,
+					"tag": "dgzin"
+				},
+				{
+					"born": "1997-07-16",
+					"country": "US",
+					"first": "Phat",
+					"igl": false,
+					"last": "Le",
+					"sub": false,
+					"tag": "supamen"
+				},
+				{
+					"born": "2002-05-05",
+					"country": "US",
+					"first": "Jake",
+					"igl": true,
+					"last": "Hass",
+					"sub": false,
+					"tag": "Paincakes"
+				},
+				{
+					"born": "2005-07-11",
+					"country": "MX",
+					"first": "Javan",
+					"igl": false,
+					"last": "Varela",
+					"sub": false,
+					"tag": "zerona"
+				}
+			]
+		},
+		"FULL SENSE": {
+			"players": [
+				{
+					"igl": false,
+					"sub": false,
+					"tag": "Leviathan"
+				},
+				{
+					"born": "2005-03-06",
+					"country": "TH",
+					"first": "Jittana",
+					"igl": false,
+					"last": "Nokngam",
+					"sub": false,
+					"tag": "JitboyS"
+				},
+				{
+					"born": "2003-07-05",
+					"country": "TH",
+					"first": "Tanate",
+					"igl": false,
+					"last": "Teerasawad",
+					"sub": false,
+					"tag": "killua"
+				},
+				{
+					"born": "2004-10-08",
+					"country": "TH",
+					"first": "Papaphat",
+					"igl": false,
+					"last": "Sriprapha",
+					"sub": false,
+					"tag": "Primmie"
+				},
+				{
+					"born": "1996-11-15",
+					"country": "TH",
+					"first": "Thanamethk",
+					"igl": true,
+					"last": "Mahatthananuyut",
+					"sub": false,
+					"tag": "Crws"
+				},
+				{
+					"born": "2003-12-27",
+					"country": "TH",
+					"first": "Chinnakrit",
+					"igl": false,
+					"last": "Phoojaroen",
+					"sub": true,
+					"tag": "seph1roth"
+				}
+			]
+		},
+		"FURIA": {
+			"players": [
+				{
+					"born": "2005-10-08",
+					"country": "",
+					"first": "Torogul",
+					"igl": false,
+					"last": "Baidyldaev",
+					"sub": false,
+					"tag": "alym"
+				},
+				{
+					"born": "2003-11-29",
+					"country": "BR",
+					"first": "Arthur",
+					"igl": false,
+					"last": "Araujo",
+					"sub": false,
+					"tag": "artzin"
+				},
+				{
+					"born": "2001-05-14",
+					"country": "CA",
+					"first": "Daniel",
+					"igl": false,
+					"last": "Vucenovic",
+					"sub": false,
+					"tag": "eeiu"
+				},
+				{
+					"born": "2003-01-15",
+					"country": "CA",
+					"first": "GianFranco",
+					"igl": false,
+					"last": "Potestio",
+					"sub": false,
+					"tag": "koalanoob"
+				},
+				{
+					"born": "2002-08-16",
+					"country": "US",
+					"first": "Michael",
+					"igl": true,
+					"last": "Yerrow",
+					"sub": false,
+					"tag": "nerve"
+				},
+				{
+					"born": "2006-07-19",
+					"country": "BR",
+					"first": "Luiz",
+					"igl": false,
+					"last": "Henrique Ferlin Tessaro",
+					"sub": true,
+					"tag": "basic"
+				}
+			]
+		},
+		"FUT Esports": {
+			"players": [
+				{
+					"born": "2005-11-08",
+					"country": "TR",
+					"first": "Eray",
+					"igl": false,
+					"last": "Budak",
+					"sub": false,
+					"tag": "yetujey"
+				},
+				{
+					"born": "2004-10-25",
+					"country": "TR",
+					"first": "Doğan",
+					"igl": false,
+					"last": "Gözgen",
+					"sub": false,
+					"tag": "xeus"
+				},
+				{
+					"born": "2006-02-24",
+					"country": "TR",
+					"first": "Okan",
+					"igl": false,
+					"last": "Alaçam",
+					"sub": false,
+					"tag": "KROSTALY"
+				},
+				{
+					"born": "2008-03-24",
+					"country": "TR",
+					"first": "Efe",
+					"igl": false,
+					"last": "Tur",
+					"sub": false,
+					"tag": "s0pp"
+				},
+				{
+					"born": "1996-04-29",
+					"country": "TR",
+					"first": "Volkan",
+					"igl": true,
+					"last": "Yönal",
+					"sub": false,
+					"tag": "sociablEE"
+				}
+			]
+		},
+		"Fnatic": {
+			"players": [
+				{
+					"born": "1995-05-25",
+					"country": "GB",
+					"first": "Jake",
+					"igl": true,
+					"last": "Howlett",
+					"sub": false,
+					"tag": "Boaster"
+				},
+				{
+					"born": "2005-06-10",
+					"country": "TR",
+					"first": "Emir",
+					"igl": false,
+					"last": "Ali Beder",
+					"sub": false,
+					"tag": "Alfajer"
+				},
+				{
+					"born": "2004-08-08",
+					"country": "PL",
+					"first": "Kajetan",
+					"igl": false,
+					"last": "Haremski",
+					"sub": false,
+					"tag": "kaajak"
+				},
+				{
+					"born": "1997-12-20",
+					"country": "US",
+					"first": "Austin",
+					"igl": false,
+					"last": "Roberts",
+					"sub": false,
+					"tag": "crashies"
+				},
+				{
+					"born": "2004-10-14",
+					"country": "FR",
+					"first": "Clément",
+					"igl": false,
+					"last": "Millard",
+					"sub": false,
+					"tag": "CyvOph"
+				},
+				{
+					"born": "2003-10-18",
+					"country": "FR",
+					"first": "Sylvain",
+					"igl": false,
+					"last": "Pattyn",
+					"sub": true,
+					"tag": "Veqaj"
+				}
+			]
+		},
+		"FunPlus Phoenix": {
+			"players": [
+				{
+					"born": "2002-12-12",
+					"country": "CN",
+					"first": "Yang",
+					"igl": false,
+					"last": "Zhang",
+					"sub": false,
+					"tag": "AAAAY"
+				},
+				{
+					"born": "2004-04-19",
+					"country": "TW",
+					"first": "Po-lin",
+					"igl": true,
+					"last": "Chang",
+					"sub": false,
+					"tag": "BerLIN"
+				},
+				{
+					"born": "2003-11-28",
+					"country": "CH",
+					"first": "Blendi",
+					"igl": false,
+					"last": "Kovaci",
+					"sub": false,
+					"tag": "KovaQ"
+				},
+				{
+					"igl": false,
+					"sub": false,
+					"tag": "Ben1Ley"
+				},
+				{
+					"born": "2004-10-18",
+					"country": "TW",
+					"first": "Tai-keng",
+					"igl": false,
+					"last": "Ou",
+					"sub": false,
+					"tag": "Setrod"
+				}
+			]
+		},
+		"G2 Esports": {
+			"players": [
+				{
+					"born": "1995-06-23",
+					"country": "US",
+					"first": "Andrej",
+					"igl": false,
+					"last": "Francisty",
+					"sub": false,
+					"tag": "babybay"
+				},
+				{
+					"born": "1999-06-24",
+					"country": "US",
+					"first": "Alexander",
+					"igl": false,
+					"last": "Mor",
+					"sub": false,
+					"tag": "jawgemo"
+				},
+				{
+					"born": "2003-11-24",
+					"country": "US",
+					"first": "Nathan",
+					"igl": false,
+					"last": "Orf",
+					"sub": false,
+					"tag": "leaf"
+				},
+				{
+					"born": "2004-12-09",
+					"country": "US",
+					"first": "Trent",
+					"igl": false,
+					"last": "Cairns",
+					"sub": false,
+					"tag": "trent"
+				},
+				{
+					"born": "2003-01-04",
+					"country": "US",
+					"first": "Jacob",
+					"igl": true,
+					"last": "Batio",
+					"sub": false,
+					"tag": "valyn"
+				}
+			]
+		},
+		"GIANTX": {
+			"players": [
+				{
+					"born": "2005-10-15",
+					"country": "PL",
+					"first": "Miłosz",
+					"igl": false,
+					"last": "Tomasz Duda",
+					"sub": false,
+					"tag": "westside"
+				},
+				{
+					"born": "2005-03-31",
+					"country": "RO",
+					"first": "Eduard-George",
+					"igl": false,
+					"last": "Hanceriuc",
+					"sub": false,
+					"tag": "ara"
+				},
+				{
+					"born": "2003-09-03",
+					"country": "PL",
+					"first": "Grzegorz",
+					"igl": false,
+					"last": "Ryczko",
+					"sub": false,
+					"tag": "GRUBINHO"
+				},
+				{
+					"born": "2002-06-21",
+					"country": "BE",
+					"first": "Karel",
+					"igl": false,
+					"last": "Ivo Maeckelbergh",
+					"sub": false,
+					"tag": "Flickless"
+				},
+				{
+					"born": "2003-10-10",
+					"country": "RU",
+					"first": "Kirill",
+					"igl": true,
+					"last": "Nekhozhin",
+					"sub": false,
+					"tag": "Cloud"
+				}
+			]
+		},
+		"Gen.G Esports": {
+			"players": [
+				{
+					"born": "",
+					"country": "CA",
+					"first": "Ash",
+					"igl": false,
+					"last": "Bang",
+					"sub": false,
+					"tag": "Ash"
+				},
+				{
+					"born": "2002-10-21",
+					"country": "KR",
+					"first": "Kim",
+					"igl": false,
+					"last": "Won-tae",
+					"sub": false,
+					"tag": "Karon"
+				},
+				{
+					"born": "1999-07-20",
+					"country": "KR",
+					"first": "Kim",
+					"igl": false,
+					"last": "Na-ra",
+					"sub": false,
+					"tag": "t3xture"
+				},
+				{
+					"born": "2000-12-24",
+					"country": "KR",
+					"first": "Kim",
+					"igl": false,
+					"last": "Jong-min",
+					"sub": false,
+					"tag": "Lakia"
+				},
+				{
+					"born": "2007-10-16",
+					"country": "KR",
+					"first": "Kim",
+					"igl": false,
+					"last": "Dong-ha",
+					"sub": false,
+					"tag": "ZynX"
+				},
+				{
+					"born": "2006-10-29",
+					"country": "KR",
+					"first": "Park",
+					"igl": false,
+					"last": "Ki-tae",
+					"sub": true,
+					"tag": "KiTae"
+				}
+			]
+		},
+		"Gentle Mates": {
+			"players": [
+				{
+					"born": "2005-05-14",
+					"country": "CZ",
+					"first": "Patrik",
+					"igl": false,
+					"last": "Hušek",
+					"sub": false,
+					"tag": "Minny"
+				},
+				{
+					"born": "2003-08-07",
+					"country": "IT",
+					"first": "Taranvir",
+					"igl": false,
+					"last": "Singh",
+					"sub": false,
+					"tag": "bipo"
+				},
+				{
+					"born": "2003-12-11",
+					"country": "PH",
+					"first": "Conner",
+					"igl": false,
+					"last": "Garcia",
+					"sub": false,
+					"tag": "GLYPH"
+				},
+				{
+					"born": "2004-10-21",
+					"country": "CZ",
+					"first": "Martin",
+					"igl": false,
+					"last": "Pátek",
+					"sub": false,
+					"tag": "marteen"
+				},
+				{
+					"born": "2001-08-28",
+					"country": "PL",
+					"first": "Patryk",
+					"igl": true,
+					"last": "Kopczyński",
+					"sub": false,
+					"tag": "starxo"
+				}
+			]
+		},
+		"JD Gaming": {
+			"players": [
+				{
+					"born": "2004-07-21",
+					"country": "CN",
+					"first": "Niu",
+					"igl": false,
+					"last": "Zhe",
+					"sub": false,
+					"tag": "zhe"
+				},
+				{
+					"born": "2004-2-20",
+					"country": "TW",
+					"first": "Yung-chieh",
+					"igl": false,
+					"last": "Huang",
+					"sub": false,
+					"tag": "Yuicaw"
+				},
+				{
+					"born": "2003-04-04",
+					"country": "HK",
+					"first": "Colin",
+					"igl": false,
+					"last": "Patrick Chung",
+					"sub": false,
+					"tag": "coconut"
+				},
+				{
+					"born": "2005-03-18",
+					"country": "KR",
+					"first": "Young-chan",
+					"igl": false,
+					"last": "",
+					"sub": false,
+					"tag": "stew"
+				},
+				{
+					"born": "2005-03-01",
+					"country": "HK",
+					"first": "Ho Chung",
+					"igl": true,
+					"last": "Yeung",
+					"sub": false,
+					"tag": "jkuro"
+				},
+				{
+					"born": "2006-03-19",
+					"country": "CN",
+					"first": "Zilin",
+					"igl": false,
+					"last": "Zhang",
+					"sub": true,
+					"tag": "kklin"
+				}
+			]
+		},
+		"KRÜ Esports": {
+			"players": [
+				{
+					"born": "2007-06-02",
+					"country": "AR",
+					"first": "Jesús",
+					"igl": false,
+					"last": "Larrosa",
+					"sub": false,
+					"tag": "Dantedeu5"
+				},
+				{
+					"born": "2005-02-24",
+					"country": "BR",
+					"first": "Felipe",
+					"igl": false,
+					"last": "Basso",
+					"sub": false,
+					"tag": "Less"
+				},
+				{
+					"born": "2001-06-30",
+					"country": "BR",
+					"first": "Leonardo",
+					"igl": false,
+					"last": "Serrati",
+					"sub": false,
+					"tag": "mwzera"
+				},
+				{
+					"born": "1997-03-08",
+					"country": "AR",
+					"first": "Matias",
+					"igl": true,
+					"last": "Delipetro",
+					"sub": false,
+					"tag": "Saadhak"
+				},
+				{
+					"born": "2004-06-16",
+					"country": "BR",
+					"first": "Caio",
+					"igl": false,
+					"last": "Morita",
+					"sub": false,
+					"tag": "silentzz"
+				}
+			]
+		},
+		"Karmine Corp": {
+			"players": [
+				{
+					"born": "2004-10-05",
+					"country": "",
+					"first": "Hazem",
+					"igl": true,
+					"last": "Khaled",
+					"sub": false,
+					"tag": "avez"
+				},
+				{
+					"born": "2002-07-16",
+					"country": "XX",
+					"first": "Dmitrii",
+					"igl": false,
+					"last": "Iliushin",
+					"sub": false,
+					"tag": "SUYGETSU"
+				},
+				{
+					"born": "2004-06-03",
+					"country": "",
+					"first": "Dastan",
+					"igl": false,
+					"last": "Zhumagali",
+					"sub": false,
+					"tag": "dos9"
+				},
+				{
+					"born": "2006-11-05",
+					"country": "TR",
+					"first": "Burak",
+					"igl": false,
+					"last": "Alkan",
+					"sub": false,
+					"tag": "LêwN"
+				},
+				{
+					"born": "2002-11-25",
+					"country": "US",
+					"first": "Marshall",
+					"igl": false,
+					"last": "Massey",
+					"sub": false,
+					"tag": "N4RRATE"
+				}
+			]
+		},
+		"LOUD": {
+			"players": [
+				{
+					"born": "2005-08-02",
+					"country": "BR",
+					"first": "Cauan",
+					"igl": false,
+					"last": "Pereira",
+					"sub": false,
+					"tag": "cauanzin"
+				},
+				{
+					"born": "2005-03-25",
+					"country": "CO",
+					"first": "Sebastián",
+					"igl": false,
+					"last": "Castro Cicuamia",
+					"sub": false,
+					"tag": "Darker"
+				},
+				{
+					"born": "2008-02-12",
+					"country": "CL",
+					"first": "Roberto",
+					"igl": false,
+					"last": "Lobos",
+					"sub": false,
+					"tag": "erde"
+				},
+				{
+					"born": "2007-03-07",
+					"country": "BR",
+					"first": "Lucca",
+					"igl": false,
+					"last": "Travaioli",
+					"sub": false,
+					"tag": "lukxo"
+				},
+				{
+					"born": "2002-07-03",
+					"country": "",
+					"first": "Leandro",
+					"igl": false,
+					"last": "Moreno",
+					"sub": false,
+					"tag": "Virtyy"
+				}
+			]
+		},
+		"Leviatán": {
+			"players": [
+				{
+					"born": "2007-11-08",
+					"country": "BR",
+					"first": "Guilherme",
+					"igl": false,
+					"last": "Oliveira",
+					"sub": false,
+					"tag": "blowz"
+				},
+				{
+					"born": "2001-10-23",
+					"country": "CL",
+					"first": "Francisco",
+					"igl": true,
+					"last": "Aravena",
+					"sub": false,
+					"tag": "kiNgg"
+				},
+				{
+					"born": "",
+					"country": "PH",
+					"first": "Neon",
+					"igl": false,
+					"last": "",
+					"sub": false,
+					"tag": "Neon"
+				},
+				{
+					"born": "2007-02-07",
+					"country": "BR",
+					"first": "Eduardo",
+					"igl": false,
+					"last": "Nagahama",
+					"sub": false,
+					"tag": "Sato"
+				},
+				{
+					"born": "2007-06-02",
+					"country": "BR",
+					"first": "Rodrigo",
+					"igl": false,
+					"last": "Lombardi",
+					"sub": false,
+					"tag": "spikeziN"
+				}
+			]
+		},
+		"MIBR": {
+			"players": [
+				{
+					"born": "2003-06-15",
+					"country": "BR",
+					"first": "Erick",
+					"igl": false,
+					"last": "Santos",
+					"sub": false,
+					"tag": "aspas"
+				},
+				{
+					"born": "2001-06-29",
+					"country": "CL",
+					"first": "Roberto",
+					"igl": false,
+					"last": "Rivas",
+					"sub": false,
+					"tag": "Mazino"
+				},
+				{
+					"born": "1999-08-02",
+					"country": "US",
+					"first": "Ian",
+					"igl": false,
+					"last": "Botsch",
+					"sub": false,
+					"tag": "tex"
+				},
+				{
+					"born": "2006-04-27",
+					"country": "US",
+					"first": "Andrew",
+					"igl": false,
+					"last": "Maust",
+					"sub": false,
+					"tag": "Verno"
+				},
+				{
+					"born": "2005-03-19",
+					"country": "US",
+					"first": "Zachary",
+					"igl": false,
+					"last": "Patrone",
+					"sub": false,
+					"tag": "zekken"
+				}
+			]
+		},
+		"NRG": {
+			"players": [
+				{
+					"born": "2000-06-05",
+					"country": "US",
+					"first": "Brock",
+					"igl": false,
+					"last": "Somerhalder",
+					"sub": false,
+					"tag": "brawk"
+				},
+				{
+					"born": "2000-03-02",
+					"country": "US",
+					"first": "Ethan",
+					"igl": false,
+					"last": "Cole Arnold",
+					"sub": false,
+					"tag": "Ethan"
+				},
+				{
+					"born": "2003-09-12",
+					"country": "GB",
+					"first": "Georgio",
+					"igl": false,
+					"last": "Sanassy",
+					"sub": false,
+					"tag": "keiko"
+				},
+				{
+					"born": "2003-12-16",
+					"country": "CA",
+					"first": "Adam",
+					"igl": false,
+					"last": "Pampuch",
+					"sub": false,
+					"tag": "mada"
+				},
+				{
+					"born": "2002-12-03",
+					"country": "US",
+					"first": "Logan",
+					"igl": false,
+					"last": "Jenkins",
+					"sub": false,
+					"tag": "skuba"
+				}
+			]
+		},
+		"Natus Vincere": {
+			"players": [
+				{
+					"born": "2004-11-28",
+					"country": "PL",
+					"first": "Dawid",
+					"igl": false,
+					"last": "Czarnecki",
+					"sub": false,
+					"tag": "Filu"
+				},
+				{
+					"born": "2006-03-10",
+					"country": "NL",
+					"first": "Emirhan",
+					"igl": false,
+					"last": "Kat",
+					"sub": false,
+					"tag": "hiro"
+				},
+				{
+					"born": "2004-07-19",
+					"country": "TR",
+					"first": "Uğur",
+					"igl": false,
+					"last": "Güç",
+					"sub": false,
+					"tag": "Ruxic"
+				},
+				{
+					"born": "2002-04-24",
+					"country": "US",
+					"first": "Caide",
+					"igl": true,
+					"last": "Heaton",
+					"sub": false,
+					"tag": "chloric"
+				},
+				{
+					"born": "2006-05-22",
+					"country": "",
+					"first": "Abdullah",
+					"igl": false,
+					"last": "Al-Twaijri",
+					"sub": false,
+					"tag": "ExiT"
+				},
+				{
+					"born": "2008-02-09",
+					"country": "UA",
+					"first": "Herman",
+					"igl": false,
+					"last": "Skrypka",
+					"sub": true,
+					"tag": "Kolosha"
+				},
+				{
+					"born": "2007-06-14",
+					"country": "TR",
+					"first": "Berkcan",
+					"igl": false,
+					"last": "Şentürk",
+					"sub": true,
+					"tag": "ComeBack"
+				}
+			]
+		},
+		"Nova Esports": {
+			"players": [
+				{
+					"born": "2002-12-18",
+					"country": "CN",
+					"first": "Zhao",
+					"igl": false,
+					"last": "Zejun",
+					"sub": false,
+					"tag": "Ezeir"
+				},
+				{
+					"born": "2004-05-20",
+					"country": "CN",
+					"first": "Guang",
+					"igl": false,
+					"last": "Honglin",
+					"sub": false,
+					"tag": "GuanG"
+				},
+				{
+					"born": "1999-11-13",
+					"country": "TW",
+					"first": "Bijan",
+					"igl": false,
+					"last": "Moeinzadeh",
+					"sub": false,
+					"tag": "qiutiaN"
+				},
+				{
+					"born": "2008-02-15",
+					"country": "RU",
+					"first": "Mikhail",
+					"igl": false,
+					"last": "Vanyushin",
+					"sub": false,
+					"tag": "swagzor"
+				},
+				{
+					"born": "2004-02-20",
+					"country": "TW",
+					"first": "Chiu",
+					"igl": false,
+					"last": "Chien-chih",
+					"sub": false,
+					"tag": "Green"
+				},
+				{
+					"born": "2001-08-22",
+					"country": "CN",
+					"first": "Chen",
+					"igl": false,
+					"last": "Yijie",
+					"sub": true,
+					"tag": "OBONE"
+				}
+			]
+		},
+		"PCIFIC Esports": {
+			"players": [
+				{
+					"born": "2005-08-13",
+					"country": "MX",
+					"first": "Johann",
+					"igl": false,
+					"last": "Hernandez",
+					"sub": false,
+					"tag": "seven"
+				},
+				{
+					"born": "2006-02-16",
+					"country": "PL",
+					"first": "Patryk",
+					"igl": false,
+					"last": "Koczyba",
+					"sub": false,
+					"tag": "NINJA"
+				},
+				{
+					"born": "2002-05-29",
+					"country": "DE",
+					"first": "Felix",
+					"igl": false,
+					"last": "Brandl",
+					"sub": false,
+					"tag": "al0rante"
+				},
+				{
+					"born": "2002-01-18",
+					"country": "TR",
+					"first": "Mehmet",
+					"igl": false,
+					"last": "Yağız İpek",
+					"sub": false,
+					"tag": "cNed"
+				},
+				{
+					"born": "2003-01-05",
+					"country": "RS",
+					"first": "Mateja",
+					"igl": true,
+					"last": "Mijović",
+					"sub": false,
+					"tag": "qpert"
+				}
+			]
+		},
+		"Sentinels": {
+			"players": [
+				{
+					"born": "2004-12-16",
+					"country": "BR",
+					"first": "Gabriel",
+					"igl": false,
+					"last": "Cortez",
+					"sub": false,
+					"tag": "cortezia"
+				},
+				{
+					"born": "2004-01-08",
+					"country": "CA",
+					"first": "Gurjiwan",
+					"igl": false,
+					"last": "Gill",
+					"sub": false,
+					"tag": "Jerrwin"
+				},
+				{
+					"born": "1998-09-21",
+					"country": "MA",
+					"first": "Amine",
+					"igl": true,
+					"last": "Ouarid",
+					"sub": false,
+					"tag": "johnqt"
+				},
+				{
+					"born": "2000-03-31",
+					"country": "CA",
+					"first": "Jonah",
+					"igl": false,
+					"last": "Pulice",
+					"sub": false,
+					"tag": "JonahP"
+				},
+				{
+					"born": "2007-04-23",
+					"country": "US",
+					"first": "Yassin",
+					"igl": false,
+					"last": "Aboulalazm",
+					"sub": false,
+					"tag": "reduxx"
+				},
+				{
+					"born": "1996-09-14",
+					"country": "US",
+					"first": "Victor",
+					"igl": false,
+					"last": "Wong",
+					"sub": true,
+					"tag": "Victor"
+				}
+			]
+		},
+		"TYLOO": {
+			"players": [
+				{
+					"born": "2004-10-20",
+					"country": "CN",
+					"first": "Zhang",
+					"igl": false,
+					"last": "Zhen",
+					"sub": false,
+					"tag": "Scales"
+				},
+				{
+					"born": "2007-08-14",
+					"country": "ID",
+					"first": "Moses",
+					"igl": false,
+					"last": "Jonathan",
+					"sub": false,
+					"tag": "Splash"
+				},
+				{
+					"born": "1995-12-11",
+					"country": "CN",
+					"first": "Li",
+					"igl": true,
+					"last": "Wei",
+					"sub": false,
+					"tag": "sword9"
+				},
+				{
+					"born": "2004-02-16",
+					"country": "CN",
+					"first": "Shen",
+					"igl": false,
+					"last": "Zhiwei",
+					"sub": false,
+					"tag": "Erv"
+				},
+				{
+					"born": "2001-09-23",
+					"country": "CN",
+					"first": "Sun",
+					"igl": false,
+					"last": "Kelun",
+					"sub": false,
+					"tag": "slowly"
+				}
+			]
+		},
+		"Team Vitality": {
+			"players": [
+				{
+					"born": "2008-03-04",
+					"country": "",
+					"first": "Ștefan",
+					"igl": false,
+					"last": "Mîtcu",
+					"sub": false,
+					"tag": "Sayonara"
+				},
+				{
+					"born": "2004-07-25",
+					"country": "PL",
+					"first": "Dawid",
+					"igl": false,
+					"last": "Święć",
+					"sub": false,
+					"tag": "PROFEK"
+				},
+				{
+					"born": "2001-07-22",
+					"country": "FI",
+					"first": "Elias",
+					"igl": true,
+					"last": "Olkkonen",
+					"sub": false,
+					"tag": "Jamppi"
+				},
+				{
+					"born": "2003-02-06",
+					"country": "FI",
+					"first": "Nikita",
+					"igl": false,
+					"last": "Sirmitev",
+					"sub": false,
+					"tag": "Derke"
+				},
+				{
+					"born": "2002-8-16",
+					"country": "RU",
+					"first": "Timofey",
+					"igl": false,
+					"last": "Khromov",
+					"sub": false,
+					"tag": "Chronicle"
+				}
+			]
+		},
+		"Titan Esports Club": {
+			"players": [
+				{
+					"born": "2005-06-25",
+					"country": "CN",
+					"first": "Zhao",
+					"igl": false,
+					"last": "Zihao",
+					"sub": false,
+					"tag": "Dynamite"
+				},
+				{
+					"born": "2003-06-22",
+					"country": "CN",
+					"first": "Mingyang",
+					"igl": false,
+					"last": "",
+					"sub": false,
+					"tag": "Spitfires"
+				},
+				{
+					"born": "2002-08-04",
+					"country": "CN",
+					"first": "Guo",
+					"igl": true,
+					"last": "Haodong",
+					"sub": false,
+					"tag": "Haodong"
+				},
+				{
+					"born": "2003-10-17",
+					"country": "CN",
+					"first": "Ding",
+					"igl": false,
+					"last": "Dajian",
+					"sub": false,
+					"tag": "CoCo"
+				},
+				{
+					"born": "2006-09-15",
+					"country": "CN",
+					"first": "Lu",
+					"igl": false,
+					"last": "Yunkun",
+					"sub": false,
+					"tag": "lucas"
+				}
+			]
+		},
+		"Trace Esports": {
+			"players": [
+				{
+					"born": "2004-04-12",
+					"country": "CN",
+					"first": "Han",
+					"igl": true,
+					"last": "Bohao",
+					"sub": false,
+					"tag": "Abo"
+				},
+				{
+					"born": "2003-10-01",
+					"country": "CN",
+					"first": "Zhinan",
+					"igl": false,
+					"last": "Lu",
+					"sub": false,
+					"tag": "Kai"
+				},
+				{
+					"born": "2000-02-20",
+					"country": "CN",
+					"first": "Lifan",
+					"igl": true,
+					"last": "Ran",
+					"sub": false,
+					"tag": "Viva"
+				},
+				{
+					"born": "2004-08-09",
+					"country": "CN",
+					"first": "Yanbo",
+					"igl": false,
+					"last": "Zhao",
+					"sub": false,
+					"tag": "Xlele"
+				},
+				{
+					"born": "2004-09-10",
+					"country": "ID",
+					"first": "Delbert",
+					"igl": false,
+					"last": "Tanoto",
+					"sub": false,
+					"tag": "DeLb"
+				},
+				{
+					"born": "2002-03-28",
+					"country": "CN",
+					"first": "Zhanpeng",
+					"igl": false,
+					"last": "Zhang",
+					"sub": true,
+					"tag": "LuoK1ng"
+				}
+			]
+		},
+		"Wolves Esports": {
+			"players": [
+				{
+					"igl": false,
+					"sub": false,
+					"tag": "glacier"
+				}
+			]
+		}
+	}
+}

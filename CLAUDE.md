@@ -12,6 +12,9 @@ Trois partis pris fondateurs :
    trésorerie et la marque ; elle possède un ou plusieurs rosters. C'est ce qui
    rend le multi-jeu naturel plus tard (un roster Valorant + un roster CS2 dans
    la même entreprise) et ce qui rend la finance crédible aujourd'hui.
+   `Organization.games` déclare les disciplines de la maison, y compris celles
+   que le moteur ne simule pas encore : elles s'affichent comme sections non
+   simulées plutôt que d'être passées sous silence.
 2. **La finance est un vrai système, pas un compteur.** Toute somme d'argent
    passe par une écriture comptable dans un grand livre. Le compte de résultat
    affiché au joueur est littéralement la somme de ce que le moteur a dépensé.
@@ -33,10 +36,12 @@ Discipline livrée : **VALORANT**. L'architecture est multi-jeu dès maintenant
 ## Structure du dépôt
 ```
 res://
-├── data/                      Contenu éditable sans toucher au code
+├── data/                      Contenu éditable sans toucher au code (FICTIF)
 │   ├── games/valorant/        maps.json, agents.json
 │   └── world/                 orgs.json, sponsors.json, names.json,
 │                              season_valorant.json (structure des compétitions)
+├── packs/vct_2026/            Pack livré : vraies structures et vrais joueurs
+│                              (voir docs/DATA_PACKS.md — dépôt privé)
 ├── src/
 │   ├── core/                  Money, Rng, GameDate, Ids, Log, DataFile, DataPack
 │   ├── model/                 Entités pures et sérialisables (World, Player,
@@ -44,7 +49,8 @@ res://
 │   │   │                      + calculs purs : AbilityCalc, RoleFamiliarity,
 │   │   │                      PersonalityCalc, PlayingTime, Attributes
 │   │   └── finance/           Ledger, Transaction, SponsorDeal, Loan
-│   ├── gamemodules/           Interface GameModule + implémentation valorant/
+│   ├── gamemodules/           GameCatalog (disciplines connues), GameModule
+│   │                          (interface) + implémentation valorant/
 │   ├── systems/               Toute la logique de simulation (sans état propre)
 │   ├── save/                  Sauvegarde et migrations
 │   ├── ui/                    UiKit, App, Screen, widgets/, screens/
@@ -82,6 +88,17 @@ res://
 9. **Un écran ne mémorise rien.** Il est détruit et reconstruit à chaque
    rafraîchissement. Onglet actif, tri, filtre : tout passe par
    `App.view_state`, exposé aux écrans par `Screen.ui(clé)`.
+10. **Un écran d'équipe passe par `Game.my_roster()`, jamais par
+    `main_roster()`.** Une structure a plusieurs équipes et le joueur choisit
+    laquelle il dirige (`World.player_roster_id`). Un écran qui rappelle
+    `main_roster()` affiche l'équipe principale quoi qu'il arrive, et la
+    bascule de section devient décorative sans qu'aucun test ne s'en plaigne.
+    Les *systèmes*, eux, ont le droit d'appeler `main_roster()` : ils
+    raisonnent sur une structure, pas sur ce que regarde le joueur.
+11. **Une discipline connue n'est pas une discipline jouable.**
+    `GameCatalog` liste ce que le jeu sait nommer, `GameRegistry` ce qu'il sait
+    simuler. Seul `GameRegistry` crée des rosters, des matchs et des
+    compétitions.
 
 ## Conventions de code
 - Fichiers et classes en **PascalCase** (`Player.gd`), variables et fonctions en
@@ -135,7 +152,16 @@ Fait :
 - [x] Direction : objectifs de saison et confiance
 - [x] Sauvegarde/chargement avec migration de schéma
 - [x] Packs de données remplaçables + importateur Liquipedia
-- [x] Interface complète (14 écrans, 25 vues)
+- [x] Pack VCT 2026 livré et actif par défaut : 48 structures et ~190 joueurs
+      réels, plus leurs sections sur les autres disciplines
+- [x] Écran de démarrage à deux modes — *reprendre une structure* (complet),
+      *fonder la sienne* (verrouillé, annoncé)
+- [x] Structure multi-sections : bascule d'équipe, écran Structure
+- [x] Interface complète (16 écrans, 29 vues)
+
+Pas encore fait, volontairement :
+- [ ] Mode *fonder sa structure* (l'UI l'annonce, le moteur ne le sait pas)
+- [ ] Toute discipline autre que Valorant (annoncées, non simulées)
 
 Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 
@@ -143,7 +169,7 @@ Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 ```bash
 bash tools/check_all.sh    # tests + écrans + saison complète
 ```
-Les trois doivent passer : 129 vérifications unitaires, 25 vues d'écran
+Les trois doivent passer : 190 vérifications unitaires, 29 vues d'écran
 construites sans violation d'invariant, et une saison qui se termine avec des
 classements et des finances cohérents.
 

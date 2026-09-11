@@ -30,6 +30,13 @@ var fixtures: Dictionary = {}
 var player_org_id: String = ""
 var player_game_id: String = "valorant"
 
+## Section actuellement dirigée par l'utilisateur (Roster.id).
+## Une structure peut aligner plusieurs équipes — discipline principale,
+## académie, et demain un autre jeu. Toutes les vues « Équipe » lisent CELLE-CI
+## et pas le roster principal, sinon changer de section n'afficherait rien.
+## Vide = on retombe sur l'équipe principale de `player_game_id`.
+var player_roster_id: String = ""
+
 ## Pack de données avec lequel cette partie a été créée ("" = contenu livré).
 ## Sauvegardé pour que le chargement rétablisse le même univers : recharger une
 ## partie « vraies équipes » avec le contenu fictif afficherait des noms qui ne
@@ -108,6 +115,31 @@ func main_roster(org_id: String, game_id: String) -> Roster:
 	return null
 
 
+## Toutes les équipes d'une structure, disciplines confondues.
+func rosters_of(org_id: String) -> Array[Roster]:
+	var out: Array[Roster] = []
+	var o := org(org_id)
+	if o == null:
+		return out
+	for rid in o.all_roster_ids():
+		var r := roster(rid)
+		if r != null:
+			out.append(r)
+	return out
+
+
+## L'équipe que dirige l'utilisateur en ce moment. Point d'entrée UNIQUE des
+## écrans d'équipe : ne jamais rappeler main_roster() ailleurs, sinon la
+## sélection de section devient décorative.
+func my_roster() -> Roster:
+	if player_org_id == "":
+		return null
+	var r := roster(player_roster_id)
+	if r != null and r.org_id == player_org_id:
+		return r
+	return main_roster(player_org_id, player_game_id)
+
+
 func players_of(roster_id: String) -> Array[Player]:
 	var out: Array[Player] = []
 	var r := roster(roster_id)
@@ -177,6 +209,7 @@ func to_dict() -> Dictionary:
 		"season_year": season_year,
 		"ids": ids.to_dict(), "rng": rng.save_state(),
 		"player_org_id": player_org_id, "player_game_id": player_game_id,
+		"player_roster_id": player_roster_id,
 		"data_pack": data_pack,
 		"inbox": inbox.duplicate(true),
 		"sponsor_market": sponsor_market.duplicate(true),
@@ -202,6 +235,7 @@ static func from_dict(d: Dictionary) -> World:
 	w.rng.load_state(d.get("rng", {}))
 	w.player_org_id = d.get("player_org_id", "")
 	w.player_game_id = d.get("player_game_id", "valorant")
+	w.player_roster_id = str(d.get("player_roster_id", ""))
 	w.data_pack = str(d.get("data_pack", ""))
 	w.inbox = (d.get("inbox", []) as Array).duplicate(true)
 	w.sponsor_market = (d.get("sponsor_market", []) as Array).duplicate(true)

@@ -20,7 +20,34 @@ Ces entrées étaient en priorité 1 et 2 ; elles sont faites.
 - **Interface** → `UiKit` refondu, coquille à barre haute permanente,
   navigation groupée, tableaux triables, onglets, radar et courbes.
 - **Packs de données** → `DataPack`, `tools/import_liquipedia.gd`,
-  `docs/DATA_PACKS.md`. De vraies équipes sans marque déposée dans le dépôt.
+  `docs/DATA_PACKS.md`. Chaîne de résolution à trois niveaux, pack livré dans
+  le dépôt (qui est privé), pack utilisateur prioritaire.
+- **Écran de démarrage à deux modes** → `StartScreen`. *Reprendre une
+  structure* est complet ; *fonder la sienne* est affiché verrouillé.
+- **Structure multi-sections** → `GameCatalog`, `Organization.games`,
+  `World.player_roster_id`, `ClubScreen`, barre de sections dans `App`. Une
+  structure aligne ses disciplines réelles ; seules celles que `GameRegistry`
+  simule donnent une équipe.
+
+---
+
+## Priorité 0 — La promesse affichée qu'il faut tenir
+
+### 0.1 Mode « fonder sa structure »
+`StartScreen` l'annonce et le décrit ligne par ligne (voir `FOUND_FEATURES`) :
+tant qu'il est verrouillé, c'est une dette visible par le joueur. Ce qui manque
+n'est pas énorme — le monde sait déjà se générer sans structure joueur :
+
+1. un écran de création (nom, sigle, couleurs, pays, disciplines, propriétaire,
+   capital) ;
+2. une `Organization` construite à la main plutôt que depuis `orgs.json`, avec
+   un `Roster` vide et un budget de départ ;
+3. une entrée en compétition par les qualifications ouvertes plutôt qu'une
+   place héritée — c'est le vrai morceau, `SeasonBuilder` suppose aujourd'hui
+   que chaque ligue a son effectif d'équipes.
+
+*Fichiers : nouvel écran, `WorldGenerator` (fabrique d'org joueur),
+`SeasonBuilder` (place ouverte).*
 
 ---
 
@@ -52,6 +79,8 @@ L'importateur ne récupère pas le poste des joueurs : Liquipedia ne le publie
 pas de façon exploitable dans le wikitexte. Les quatorze équipes qui utilisent
 `{{ActiveSquadAuto}}` n'ont pas non plus d'effectif. Deux pistes : `action=parse`
 sur les pages d'équipe pour lire le tableau rendu, ou la clé d'API LPDB v3.
+Les *sections* par discipline, elles, sont désormais importées (portails
+`Portal:Teams` de chaque wiki).
 *Fichiers : `tools/import_liquipedia.gd`.*
 
 ---
@@ -134,6 +163,9 @@ deuxième jeu.
 | L'IA ne règle ni son entraînement ni ses promesses | `AiDirector` | Faible — les valeurs par défaut sont saines |
 | Pas de gestion des visas / quotas régionaux | `TransferSystem` | Moyenne — contrainte réelle du VCT non modélisée |
 | Les postes des joueurs importés sont générés | `tools/import_liquipedia.gd` | Faible — voir 1.4 |
+| Le mode « fonder sa structure » est annoncé mais verrouillé | `StartScreen` | Moyenne — c'est une promesse que voit le joueur, voir 0.1 |
+| Une section non simulée ne coûte ni ne rapporte rien | `FinanceSystem` | Faible — les autres disciplines restent décoratives tant qu'elles ne sont pas jouables |
+| Pas d'académie créée à la génération | `WorldGenerator`, `YouthSystem` | Faible — la bascule de section la gérerait déjà, il manque le roster |
 
 ---
 
@@ -146,7 +178,10 @@ deuxième jeu.
   devient faux et le bug est introuvable.
 - **Mettre du code spécifique à une discipline hors de son module.** C'est la
   seule chose qui puisse tuer l'objectif multi-jeu.
-- **Committer un pack de données contenant de vraies marques.** Les packs
-  vivent dans `user://`, jamais dans le dépôt. Voir `docs/DATA_PACKS.md`.
+- **Mettre une marque déposée ailleurs que dans `packs/`.** Le dépôt étant
+  privé et le jeu non distribué, `packs/vct_2026/` embarque de vrais noms — mais
+  c'est le SEUL endroit. `data/` reste entièrement fictif, et aucun identifiant
+  du code ne cite de marque. Le jour où le projet devrait être publié,
+  supprimer `packs/` doit suffire. Voir `docs/DATA_PACKS.md`.
 - **Faire confiance à « l'écran se construit sans erreur ».** Deux bugs
   d'affichage majeurs sont passés par là. Regarder les captures.

@@ -33,7 +33,7 @@ extends SceneTree
 ##
 ## Le pack vit dans user://, hors du dépôt : rien de tout cela n'est versionné.
 
-const API := "https://liquipedia.net/valorant/api.php"
+const API_BASE := "https://liquipedia.net/%s/api.php"
 ## Débit imposé par Liquipedia pour tout ce qui n'est pas action=parse.
 const RATE_LIMIT_SEC := 30.0
 ## Limite MediaWiki sur le nombre de titres par requête groupée.
@@ -56,6 +56,7 @@ var _pack := "liquipedia"
 var _season := "2026"
 var _stage := "Stage 1"
 var _with_players := true
+var _with_sections := true
 var _dry := false
 var _http: HTTPRequest = null
 var _last_call_msec := 0
@@ -93,6 +94,8 @@ func _parse_args() -> void:
 			_season = arg.substr(9).strip_edges()
 		elif arg.begins_with("--stage="):
 			_stage = arg.substr(8).strip_edges()
+		elif arg == "--no-sections":
+			_with_sections = false
 		elif arg == "--no-players":
 			_with_players = false
 		elif arg == "--dry":
@@ -112,6 +115,7 @@ func _usage(message: String) -> void:
 	print("  --stage        page de ligue à lire : Kickoff, Stage 1, Stage 2…")
 	print("  --pack         dossier créé sous user://packs/ (défaut liquipedia)")
 	print("  --no-players   n'importe que les structures, pas les joueurs")
+	print("  --no-sections  n'interroge pas les autres wikis (une requête par jeu)")
 	print("  --dry          n'écrit rien, montre ce qui serait importé")
 	print("")
 	quit(1)
@@ -184,6 +188,14 @@ func _run() -> void:
 		var infos := await _team_details(team_names)
 		_merge_team_details(leagues, infos)
 		print("  %d fiches complétées (pays, sigle)." % infos.size())
+
+	# Les autres disciplines de la maison. Une structure esport est rarement
+	# mono-jeu, et le jeu affiche ces sections même s'il ne les simule pas.
+	if _with_sections and not team_names.is_empty():
+		print("\nSections par discipline : %d portails à lire…"
+			% SECTION_WIKIS.size())
+		var sections := await _fetch_sections(team_names)
+		_merge_sections(leagues, sections)
 
 	if _with_players and not all_players.is_empty():
 		print("\nFiches joueurs : %d à lire, par lots de %d…"
@@ -279,13 +291,19 @@ func _content_of(page: Dictionary) -> String:
 	return str(rev.get("*", ""))
 
 
-## Une requête, en respectant le débit imposé.
+## Une requête sur le wiki Valorant, en respectant le débit imposé.
 func _api_get(params: Dictionary) -> Dictionary:
+	return await _api_get_on("valorant", params)
+
+
+## Même chose sur un autre wiki Liquipedia (voir SECTION_WIKIS). Le débit est
+## volontairement partagé entre tous les wikis : ils sont hébergés ensemble.
+func _api_get_on(wiki: String, params: Dictionary) -> Dictionary:
 	await _throttle()
 	var query: Array[String] = []
 	for k in params:
 		query.append("%s=%s" % [str(k), str(params[k]).uri_encode()])
-	var url := "%s?%s" % [API, "&".join(query)]
+	var url := "%s?%s" % [API_BASE % wiki, "&".join(query)]
 	var headers := PackedStringArray([
 		"User-Agent: EsportManager-Importer/1.0 (%s)" % _contact,
 		"Accept-Encoding: gzip",
@@ -298,7 +316,7 @@ func _api_get(params: Dictionary) -> Dictionary:
 	if code == 429:
 		print("  ! Liquipedia demande de ralentir (429) — pause de 60 s.")
 		await _sleep(60.0)
-		return await _api_get(params)
+		return await _api_get_on(wiki, params)
 	if code == 406:
 		print("  ! HTTP 406 : User-Agent refusé. Vérifiez --contact.")
 		return {}
@@ -607,11 +625,122 @@ func _color_from(name: String) -> String:
 
 
 # ============================================================================
+# Sections : quelles disciplines la structure aligne-t-elle vraiment ?
+# ============================================================================
+
+## Wikis Liquipedia interrogés pour savoir si une structure a une section
+## ACTIVE sur une autre discipline. Ajouter une ligne suffit à couvrir un jeu
+## de plus ; l'identifiant de gauche doit exister dans GameCatalog.
+const SECTION_WIKIS := [
+	{"game": "cs2", "wiki": "counterstrike", "label": "Counter-Strike"},
+	{"game": "lol", "wiki": "leagueoflegends", "label": "League of Legends"},
+	{"game": "rl", "wiki": "rocketleague", "label": "Rocket League"},
+	{"game": "apex", "wiki": "apexlegends", "label": "Apex Legends"},
+	{"game": "r6", "wiki": "rainbowsix", "label": "Rainbow Six"},
+	{"game": "dota2", "wiki": "dota2", "label": "Dota 2"},
+	{"game": "ow2", "wiki": "overwatch", "label": "Overwatch"},
+]
+
+
+## Complète chaque structure avec la liste de ses disciplines.
+##
+## POURQUOI CE DÉTOUR PLUTÔT QU'UNE VÉRIFICATION D'EXISTENCE DE PAGE
+## « La page Cloud9 existe sur le wiki Counter-Strike » ne veut rien dire : les
+## pages des sections dissoutes restent en ligne, et la catégorie
+## « Disbanded Teams » ne concerne que les structures entièrement fermées. En
+## revanche chaque wiki maintient un Portal:Teams qui sépare explicitement les
+## équipes ACTIVES des équipes dissoutes. Une page par discipline, donc sept
+## requêtes en tout, et une réponse à jour tenue par les contributeurs.
+func _fetch_sections(team_names: Array) -> Dictionary:
+	var out := {}
+	for name in team_names:
+		out[str(name)] = ["valorant"]
+	for entry_v in SECTION_WIKIS:
+		var entry: Dictionary = entry_v
+		var active := await _active_teams_of(str(entry["wiki"]))
+		if active.is_empty():
+			print("  %-18s portail illisible — discipline ignorée."
+				% str(entry["label"]))
+			continue
+		var hits := 0
+		for name in team_names:
+			if active.has(str(name).to_lower()):
+				(out[str(name)] as Array).append(str(entry["game"]))
+				hits += 1
+		print("  %-18s %3d équipes actives, %2d de nos structures"
+			% [str(entry["label"]), active.size(), hits])
+	return out
+
+
+## Noms (en minuscules) des équipes déclarées ACTIVES sur un wiki.
+func _active_teams_of(wiki: String) -> Dictionary:
+	var text := await _wiki_page_text(wiki, "Portal:Teams")
+	if text == "":
+		return {}
+	# Le portail liste d'abord les équipes actives, puis les dissoutes, sous un
+	# titre contenant « Disbanded ». On s'arrête au premier de ces titres.
+	var cut := _disbanded_offset(text)
+	if cut > 0:
+		text = text.substr(0, cut)
+	var out := {}
+	for chunk in text.split("{{Team|", false):
+		var end := chunk.find("}}")
+		if end <= 0:
+			continue
+		var name := chunk.substr(0, end).strip_edges()
+		# {{Team|fnatic|…}} : seul le premier paramètre est le nom.
+		var pipe := name.find("|")
+		if pipe >= 0:
+			name = name.substr(0, pipe).strip_edges()
+		if name != "":
+			out[name.to_lower()] = true
+	return out
+
+
+func _disbanded_offset(text: String) -> int:
+	var lower := text.to_lower()
+	var from := 0
+	while true:
+		var i := lower.find("disbanded", from)
+		if i < 0:
+			return -1
+		# Uniquement dans un titre de section (==…Disbanded…==).
+		var line_start := lower.rfind("\n", i)
+		var line := lower.substr(line_start + 1, i - line_start + 40)
+		if line.begins_with("=="):
+			return line_start
+		from = i + 9
+	return -1
+
+
+## Lecture d'une page sur un AUTRE wiki que celui de Valorant.
+func _wiki_page_text(wiki: String, title: String) -> String:
+	var data := await _api_get_on(wiki, {
+		"action": "query", "prop": "revisions", "rvprop": "content",
+		"rvslots": "main", "titles": title, "format": "json",
+	})
+	var pages = (data.get("query", {}) as Dictionary).get("pages", {})
+	for pid in pages:
+		if int(str(pid)) < 0:
+			continue
+		return _content_of(pages[pid])
+	return ""
+
+
+## Injecte les disciplines trouvées dans les entrées de structures.
+func _merge_sections(leagues: Dictionary, sections: Dictionary) -> void:
+	for key in leagues:
+		for e_v in leagues[key]:
+			var e: Dictionary = e_v
+			var found = sections.get(str(e["name"]), ["valorant"])
+			e["games"] = found
+
+# ============================================================================
 # Écriture du pack
 # ============================================================================
 
 func _write_pack(orgs: Dictionary, rosters: Dictionary, imported: int) -> void:
-	var root_dir := DataPack.root_of(_pack)
+	var root_dir := DataPack.user_root_of(_pack)
 	DirAccess.make_dir_recursive_absolute(root_dir + "/world")
 
 	var teams := imported

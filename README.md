@@ -53,15 +53,31 @@ console : `Godot_v4.7.2-stable_win64_console.exe`.
 
 ## Une fois le jeu lancé
 
-1. **Créer le monde** — laisser la graine proposée ou en saisir une. À graine
-   identique, le monde généré est toujours le même. C'est aussi ici qu'on
-   choisit un *pack de données* (voir plus bas).
-2. **Choisir une structure** — les onglets filtrent par ligue. Commencer par
-   *Challengers EMEA* : la campagne consiste à monter en VCT via l'Ascension.
-   La colonne *Difficulté* résume réputation et trésorerie.
+1. **Choisir le mode** — *Reprendre une structure* est le mode complet : vous
+   héritez d'une maison qui existe, avec son effectif, sa trésorerie et ses
+   attentes. *Fonder votre structure* est annoncé mais pas encore ouvert.
+   C'est aussi sur cet écran qu'on choisit l'univers (vraies équipes ou univers
+   fictif) et la graine du monde — à graine identique, le monde est toujours le
+   même.
+2. **Choisir une structure** — les onglets filtrent par ligue, le panneau de
+   droite détaille celle qu'on inspecte : ses sections sur les autres jeux, son
+   effectif, ce que la direction attendra. Commencer par *Challengers EMEA* :
+   la campagne consiste à monter en VCT via l'Ascension.
 3. **Jouer** — la barre du haut ne bouge jamais : écusson, date, trésorerie,
    résultat mensuel, prochain match, et le bouton **Continuer**. La colonne de
    gauche regroupe les pages par thème.
+
+### Une structure, plusieurs équipes
+
+Une structure esport aligne rarement une seule discipline. Le jeu reprend les
+sections réelles de celle que vous dirigez : la page **Structure** les liste
+toutes, et une barre de sections apparaît sous le fil d'Ariane dès qu'il y en a
+plus d'une. Cliquer sur une section bascule tout le bloc *Équipe* du menu
+— effectif, tactique, entraînement, vestiaire — sur cette équipe-là.
+
+Seul **Valorant** est simulé aujourd'hui. Les autres sections sont affichées
+grisées, avec la mention *non simulée* : elles font partie de la maison et
+s'ouvriront quand la discipline sera jouable, sans recommencer de carrière.
 
 Premier réflexe conseillé : ouvrir **Finances**. Une équipe de Challengers
 démarre légèrement déficitaire — signer des sponsors est la première urgence.
@@ -96,23 +112,28 @@ récupération. Il n'y a pas de bon réglage universel.
   marché avec IA de recrutement, scouting à information imparfaite, relève
   annuelle par les académies, objectifs et confiance de la direction.
 
-## Jouer avec de vraies équipes
+## Vraies équipes
 
-Le jeu est livré avec un univers entièrement fictif — les noms de structures
-esport sont des marques déposées et les joueurs ont un droit à l'image.
+Le pack **VCT 2026** est livré avec le jeu et actif par défaut : 48 structures
+réelles des quatre ligues partenaires et environ 190 joueurs réels — pseudo,
+nom, nationalité, date de naissance.
 
-Comme Football Manager, il accepte des **packs de données** installés en local
-qui remplacent ce contenu. Un importateur construit un pack à partir des pages
-publiques de Liquipedia :
+Les niveaux et les attributs, eux, restent générés : ils n'existent pas comme
+donnée publique. Un vrai joueur importé est un vrai nom, avec le bon âge, sur
+un profil simulé.
+
+Les structures réelles ne déclarent pour l'instant que **Valorant**. Le pack
+livré préfère taire une section plutôt qu'en inventer une : leurs vraies
+sections arrivent avec la passe `--sections` de l'importateur, qui lit les
+portails d'équipes actives de chaque wiki Liquipedia.
+
+L'univers **fictif** reste disponible d'un clic sur l'écran de démarrage, et
+un importateur reconstruit le pack à partir des pages publiques de Liquipedia :
 
 ```bash
 godot --headless --path . --script res://tools/import_liquipedia.gd -- \
-    --contact=vous@example.com
+    --contact=vous@example.com --pack=vct_2026
 ```
-
-Il produit 48 structures réelles et environ 190 joueurs réels (pseudo, nom,
-nationalité, date de naissance). Les niveaux et attributs restent générés par
-le jeu : ils n'existent pas comme donnée publique.
 
 Tout est expliqué dans [`docs/DATA_PACKS.md`](docs/DATA_PACKS.md), y compris
 comment écrire un pack à la main et les conditions de licence.
@@ -120,8 +141,8 @@ comment écrire un pack à la main et les conditions de licence.
 ## Outils de vérification (sans interface)
 
 ```bash
-"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 129 vérifications
-bash tools/check_ui.sh                                           # 25 vues d'écran
+"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 190 vérifications
+bash tools/check_ui.sh                                           # 29 vues d'écran
 "$GODOT" --headless --path . --script res://tools/season.gd      # saison complète
 bash tools/check_all.sh                                          # les trois d'affilée
 
@@ -141,8 +162,15 @@ bash tools/check_all.sh                                          # les trois d'a
 - [`docs/DATA_PACKS.md`](docs/DATA_PACKS.md) — vraies équipes, format des packs
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — suite du développement
 
-## Univers fictif
+## Contenu et marques
 
-Structures, joueurs et sponsors livrés avec le jeu sont entièrement fictifs et
-générés depuis `data/`. Aucune marque ni personne réelle n'est utilisée dans ce
-dépôt.
+`data/` ne contient que du contenu **fictif** : structures, joueurs et sponsors
+inventés. C'est ce qui tourne quand aucun pack n'est actif, et c'est sur lui que
+s'appuient les tests.
+
+`packs/vct_2026/` contient des **noms réels** (structures et joueurs), issus de
+Liquipedia sous licence CC-BY-SA 3.0. Ces noms restent la propriété de leurs
+détenteurs et ce dossier est destiné à un usage **personnel** : ce dépôt n'est
+pas public et le jeu n'est pas distribué. Pour revenir à un projet publiable,
+supprimer `packs/` suffit — aucune autre partie du code ne connaît de marque
+déposée.

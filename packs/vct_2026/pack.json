@@ -1,0 +1,11 @@
+{
+	"attribution": "Contenu issu de Liquipedia, sous licence CC-BY-SA 3.0. Noms et marques appartenant à leurs détenteurs.",
+	"author": "Import Liquipedia",
+	"description": "48 structures réelles du VCT 2026 et 187 joueurs. Les niveaux et les attributs restent générés par le jeu.",
+	"game": "valorant",
+	"license": "CC-BY-SA 3.0",
+	"name": "VCT 2026 — équipes réelles",
+	"note": "Les structures réelles ne déclarent que Valorant : leurs autres sections ne seront exactes qu'après une passe --sections de tools/import_liquipedia.gd. Les ligues Challengers restent fictives.",
+	"source": "https://liquipedia.net/valorant",
+	"version": "2026-09-10"
+}
