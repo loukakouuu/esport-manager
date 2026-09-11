@@ -58,12 +58,21 @@ func _org_table(orgs: Array) -> Control:
 	var columns := [
 		{"key": "name", "label": "Structure", "width": 168},
 		{"key": "country", "label": "Pays", "width": 46},
-		{"key": "sections", "label": "Sections", "width": 128},
+		{"key": "sections", "label": "Sections", "width": 200},
 		{"key": "reputation", "label": "Réputation", "width": 88, "align": "right"},
 		{"key": "fans", "label": "Fans", "width": 78, "align": "right"},
 		{"key": "cash", "label": "Trésorerie", "width": 104, "align": "right"},
 		{"key": "difficulty", "label": "Difficulté", "width": 110},
 	]
+	# La difficulté se lit PAR RAPPORT À LA LIGUE : en VCT tout le monde a des
+	# millions en banque, et une échelle absolue afficherait « confortable »
+	# douze fois de suite. Ce qui compte est de savoir où l'on part dans le
+	# classement, et combien de mois on tient.
+	var reputations: Array = []
+	for entry_v in orgs:
+		reputations.append(int((entry_v as Dictionary)["reputation"]))
+	reputations.sort()
+
 	var rows: Array = []
 	for entry_v in orgs:
 		var e: Dictionary = entry_v
@@ -79,7 +88,8 @@ func _org_table(orgs: Array) -> Control:
 				"sort": int(e["reputation"])},
 			"fans": {"text": _short(int(e["fanbase"])), "sort": int(e["fanbase"])},
 			"cash": UiKit.money_cell(int(e["cash"])),
-			"difficulty": _difficulty(int(e["reputation"]), int(e["cash"])),
+			"difficulty": _difficulty(o,
+				_rank_of(reputations, int(e["reputation"]))),
 		})
 	return sorted_table("newgame.orgs", columns, rows, {
 		"row_clicked": func(org_id):
@@ -245,14 +255,25 @@ func _bullet(text: String) -> Control:
 
 # ============================================================================
 
-func _difficulty(reputation: int, cash: int) -> Dictionary:
-	var score := float(reputation) / 3000.0 \
-		+ float(cash) / float(Money.from_units(400_000.0))
-	if score > 2.4:
+## Position d'une valeur dans une liste triée, ramenée à 0..1.
+func _rank_of(sorted_values: Array, value: int) -> float:
+	if sorted_values.size() < 2:
+		return 0.5
+	return float(sorted_values.find(value)) / float(sorted_values.size() - 1)
+
+
+## Deux ingrédients : le rang dans la ligue, et le nombre de mois que la
+## trésorerie couvre. Une écurie bien classée mais à sec reste un piège, et un
+## petit club solvable reste jouable.
+func _difficulty(o: Organization, rank: float) -> Dictionary:
+	var monthly := FinanceSystem.fixed_monthly_cost(world(), o)
+	var runway := float(o.cash()) / float(maxi(monthly, 1))
+	var score := rank * 0.62 + clampf(runway / 9.0, 0.0, 1.0) * 0.38
+	if score > 0.72:
 		return {"text": "Confortable", "color": UiKit.GOOD, "sort": score}
-	if score > 1.2:
+	if score > 0.48:
 		return {"text": "Équilibrée", "color": UiKit.TEXT, "sort": score}
-	if score > 0.6:
+	if score > 0.26:
 		return {"text": "Exigeante", "color": UiKit.WARN, "sort": score}
 	return {"text": "Survie", "color": UiKit.BAD, "sort": score}
 

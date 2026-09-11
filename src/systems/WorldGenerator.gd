@@ -35,14 +35,41 @@ static func generate(seed_value: int, start_day: int,
 
 	for league_key in leagues:
 		var region := _region_of(league_key)
-		for entry_v in leagues[league_key]:
-			_make_org(world, module, str(league_key), region, entry_v)
+		var entries: Array = leagues[league_key]
+		var spread := _uniform_strength(entries)
+		for entry_v in entries:
+			_make_org(world, module, str(league_key), region, entry_v, spread)
 
 	SeasonBuilder.build_season(world, world.season_year)
 	_make_free_agents(world, module)
 	Log.i("worldgen", "Monde généré : %d structures, %d joueurs, %d compétitions"
 		% [world.orgs.size(), world.players.size(), world.competitions.size()])
 	return world
+
+
+## Un pack qui donne la MÊME force à toutes les équipes d'une ligue ne déclare
+## aucune hiérarchie — c'est le cas du pack VCT, parce que « Fnatic est plus
+## fort que BBL » n'est pas une donnée publique et que l'inventer dans les
+## données reviendrait à l'affirmer.
+##
+## Le jeu en fabrique donc une, dérivée de la graine, exactement comme il
+## fabrique les attributs : elle change d'une partie à l'autre, ce qui dit bien
+## qu'elle est inventée. Sans ça les douze équipes d'une ligue seraient
+## rigoureusement interchangeables — même réputation, même trésorerie, même
+## niveau — et le championnat n'aurait plus aucun relief.
+static func _uniform_strength(entries: Array) -> bool:
+	if entries.size() < 3:
+		return false
+	var first := float((entries[0] as Dictionary).get("strength", 50))
+	for e in entries:
+		if absf(float((e as Dictionary).get("strength", 50)) - first) > 0.01:
+			return false
+	return true
+
+
+static func _spread_strength(rng: Rng, name: String, base: float) -> float:
+	return clampf(base + rng.derive("strength:%s" % name).gauss(0.0, 6.0, -13.0, 13.0),
+		20.0, 96.0)
 
 
 static func _region_of(league_key: String) -> String:
@@ -65,10 +92,12 @@ const OWNER_MAP := {
 
 
 static func _make_org(world: World, module: GameModule, league_key: String,
-		region: String, entry_v) -> Organization:
+		region: String, entry_v, spread: bool = false) -> Organization:
 	var entry: Dictionary = entry_v
 	var rng := world.rng
 	var strength := float(entry.get("strength", 50))
+	if spread:
+		strength = _spread_strength(rng, str(entry["name"]), strength)
 	var tier1 := league_key.begins_with("vct")
 
 	var o := Organization.new()

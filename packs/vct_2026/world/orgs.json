@@ -398,22 +398,26 @@
 				"color": "#4cc7a8",
 				"country": "US",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"r6"
 				],
 				"name": "100 Thieves",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "1T"
 			},
 			{
 				"color": "#c74cc7",
 				"country": "US",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"r6"
 				],
 				"name": "Cloud9",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "CLO"
 			},
 			{
@@ -424,18 +428,22 @@
 				],
 				"name": "Evil Geniuses",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "EG"
 			},
 			{
 				"color": "#a8c74c",
 				"country": "BR",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"rl",
+					"r6"
 				],
 				"name": "FURIA",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "FUR"
 			},
 			{
@@ -446,73 +454,86 @@
 				],
 				"name": "KRÜ Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "KE"
 			},
 			{
 				"color": "#64c74c",
 				"country": "AR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"r6"
 				],
 				"name": "Leviatán",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "LEV"
 			},
 			{
 				"color": "#714cc7",
 				"country": "BR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol"
 				],
 				"name": "LOUD",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "LOU"
 			},
 			{
 				"color": "#c74cb6",
 				"country": "BR",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"rl"
 				],
 				"name": "MIBR",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "MIB"
 			},
 			{
 				"color": "#4cc7b4",
 				"country": "US",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"rl"
 				],
 				"name": "NRG",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "NRG"
 			},
 			{
 				"color": "#4c4ec7",
 				"country": "US",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"apex"
 				],
 				"name": "Sentinels",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "SEN"
 			},
 			{
 				"color": "#4c7fc7",
 				"country": "DE",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"r6"
 				],
 				"name": "G2 Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "GE"
 			},
 			{
@@ -523,7 +544,7 @@
 				],
 				"name": "ENVY",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "ENV"
 			}
 		],
@@ -532,33 +553,38 @@
 				"color": "#4cc760",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"r6",
+					"ow2"
 				],
 				"name": "All Gamers",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "AG"
 			},
 			{
 				"color": "#8fc74c",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol"
 				],
 				"name": "Bilibili Gaming",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "BG"
 			},
 			{
 				"color": "#4c96c7",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"r6"
 				],
 				"name": "EDward Gaming",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "EG"
 			},
 			{
@@ -569,40 +595,45 @@
 				],
 				"name": "FunPlus Phoenix",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "FP"
 			},
 			{
 				"color": "#62c74c",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"apex",
+					"ow2"
 				],
 				"name": "JD Gaming",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "JG"
 			},
 			{
 				"color": "#c7ae4c",
 				"country": "HK",
 				"games": [
-					"valorant"
+					"valorant",
+					"rl"
 				],
 				"name": "Nova Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "NE"
 			},
 			{
 				"color": "#c74ca2",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"r6"
 				],
 				"name": "Titan Esports Club",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TEC"
 			},
 			{
@@ -613,29 +644,33 @@
 				],
 				"name": "Trace Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TE"
 			},
 			{
 				"color": "#4c8fc7",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"r6"
 				],
 				"name": "TYLOO",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TYL"
 			},
 			{
 				"color": "#c7544c",
 				"country": "CN",
 				"games": [
-					"valorant"
+					"valorant",
+					"apex",
+					"r6"
 				],
 				"name": "Wolves Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "WE"
 			},
 			{
@@ -646,7 +681,7 @@
 				],
 				"name": "XLG Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "XE"
 			},
 			{
@@ -657,7 +692,7 @@
 				],
 				"name": "Dragon Ranger Gaming",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "DRG"
 			}
 		],
@@ -670,106 +705,130 @@
 				],
 				"name": "BBL Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "BE"
 			},
 			{
 				"color": "#c7984c",
 				"country": "GB",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"apex",
+					"r6"
 				],
 				"name": "Fnatic",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "FNA"
 			},
 			{
 				"color": "#8f4cc7",
 				"country": "TR",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"rl"
 				],
 				"name": "FUT Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "FE"
 			},
 			{
 				"color": "#4c56c7",
 				"country": "FR",
 				"games": [
-					"valorant"
+					"valorant",
+					"rl"
 				],
 				"name": "Gentle Mates",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "GM"
 			},
 			{
 				"color": "#77c74c",
 				"country": "GB",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol"
 				],
 				"name": "GIANTX",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "GIA"
 			},
 			{
 				"color": "#834cc7",
 				"country": "FR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"rl"
 				],
 				"name": "Karmine Corp",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "KC"
 			},
 			{
 				"color": "#4cc78b",
 				"country": "UA",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"dota2"
 				],
 				"name": "Natus Vincere",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "NV"
 			},
 			{
 				"color": "#6c4cc7",
 				"country": "ES",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"r6"
 				],
 				"name": "Team Heretics",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TH"
 			},
 			{
 				"color": "#4c4ec7",
 				"country": "NL",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"apex",
+					"r6",
+					"dota2",
+					"ow2"
 				],
 				"name": "Team Liquid",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TL"
 			},
 			{
 				"color": "#4cc798",
 				"country": "FR",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2",
+					"lol",
+					"rl"
 				],
 				"name": "Team Vitality",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TV"
 			},
 			{
@@ -780,18 +839,19 @@
 				],
 				"name": "PCIFIC Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "PE"
 			},
 			{
 				"color": "#c14cc7",
 				"country": "HU",
 				"games": [
-					"valorant"
+					"valorant",
+					"cs2"
 				],
 				"name": "Eternal Fire",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "EF"
 			}
 		],
@@ -800,22 +860,24 @@
 				"color": "#a8c74c",
 				"country": "JP",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol"
 				],
 				"name": "DetonatioN FocusMe",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "DF"
 			},
 			{
 				"color": "#c34cc7",
 				"country": "KR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol"
 				],
 				"name": "DRX",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "DRX"
 			},
 			{
@@ -826,18 +888,20 @@
 				],
 				"name": "FULL SENSE",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "FS"
 			},
 			{
 				"color": "#c7664c",
 				"country": "KR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"apex"
 				],
 				"name": "Gen.G Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "GE"
 			},
 			{
@@ -848,7 +912,7 @@
 				],
 				"name": "Global Esports",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "GE"
 			},
 			{
@@ -859,73 +923,82 @@
 				],
 				"name": "Paper Rex",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "PR"
 			},
 			{
 				"color": "#4cc750",
 				"country": "ID",
 				"games": [
-					"valorant"
+					"valorant",
+					"apex"
 				],
 				"name": "Rex Regum Qeon",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "RRQ"
 			},
 			{
 				"color": "#4cc766",
 				"country": "KR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol",
+					"ow2"
 				],
 				"name": "T1",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "T1"
 			},
 			{
 				"color": "#4c66c7",
 				"country": "PH",
 				"games": [
-					"valorant"
+					"valorant",
+					"r6",
+					"ow2"
 				],
 				"name": "Team Secret",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "TS"
 			},
 			{
 				"color": "#b94cc7",
 				"country": "JP",
 				"games": [
-					"valorant"
+					"valorant",
+					"apex",
+					"ow2"
 				],
 				"name": "ZETA DIVISION",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "ZD"
 			},
 			{
 				"color": "#c74c89",
 				"country": "JP",
 				"games": [
-					"valorant"
+					"valorant",
+					"ow2"
 				],
 				"name": "VARREL",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "VAR"
 			},
 			{
 				"color": "#6a4cc7",
 				"country": "KR",
 				"games": [
-					"valorant"
+					"valorant",
+					"lol"
 				],
 				"name": "Nongshim RedForce",
 				"owner": "investor",
-				"strength": 80,
+				"strength": 80.0,
 				"tag": "NR"
 			}
 		]

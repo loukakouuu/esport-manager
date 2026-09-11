@@ -50,7 +50,11 @@ static func run(app: Control, game: Node) -> void:
 	print("[shots] préparation du monde…")
 	game.new_world(20260105)
 	if want_all or names.has("picker"):
-		await _shoot_front(app, dir, "picker")
+		# Deux ligues : les Challengers sont fictifs, le VCT vient du pack de
+		# données. Une seule capture ne montrerait pas les vraies sections.
+		for league in ["chal_emea", "vct_emea"]:
+			app.call("ui_state", "newgame")["tab"] = league
+			await _shoot_front(app, dir, "picker-%s" % league)
 	var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
 	game.choose_org(str(candidates[candidates.size() / 2]["org_id"]))
 	for _i in SETUP_DAYS:

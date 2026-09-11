@@ -163,6 +163,8 @@ deuxième jeu.
 | L'IA ne règle ni son entraînement ni ses promesses | `AiDirector` | Faible — les valeurs par défaut sont saines |
 | Pas de gestion des visas / quotas régionaux | `TransferSystem` | Moyenne — contrainte réelle du VCT non modélisée |
 | Les postes des joueurs importés sont générés | `tools/import_liquipedia.gd` | Faible — voir 1.4 |
+| Les sections se reconnaissent par le nom, qui diffère d'un wiki à l'autre | `tools/import_liquipedia.gd` | Faible — une section manquée vaut mieux qu'une inventée, mais une table d'alias serait plus juste |
+| La hiérarchie sportive des équipes réelles est tirée au sort | `WorldGenerator._spread_strength` | Moyenne — jouable et honnête, mais les gains cumulés publiés par Liquipedia donneraient un classement réel |
 | Le mode « fonder sa structure » est annoncé mais verrouillé | `StartScreen` | Moyenne — c'est une promesse que voit le joueur, voir 0.1 |
 | Une section non simulée ne coûte ni ne rapporte rien | `FinanceSystem` | Faible — les autres disciplines restent décoratives tant qu'elles ne sont pas jouables |
 | Pas d'académie créée à la génération | `WorldGenerator`, `YouthSystem` | Faible — la bascule de section la gérerait déjà, il manque le roster |

@@ -115,17 +115,19 @@ récupération. Il n'y a pas de bon réglage universel.
 ## Vraies équipes
 
 Le pack **VCT 2026** est livré avec le jeu et actif par défaut : 48 structures
-réelles des quatre ligues partenaires et environ 190 joueurs réels — pseudo,
-nom, nationalité, date de naissance.
+réelles des quatre ligues partenaires, environ 190 joueurs réels — pseudo, nom,
+nationalité, date de naissance — et leurs **sections sur les autres
+disciplines**, lues sur les portails d'équipes actives de chaque wiki
+Liquipedia. Team Vitality arrive donc avec CS2, LoL et Rocket League à côté de
+son équipe Valorant ; Karmine Corp avec LoL et Rocket League.
 
 Les niveaux et les attributs, eux, restent générés : ils n'existent pas comme
 donnée publique. Un vrai joueur importé est un vrai nom, avec le bon âge, sur
 un profil simulé.
 
-Les structures réelles ne déclarent pour l'instant que **Valorant**. Le pack
-livré préfère taire une section plutôt qu'en inventer une : leurs vraies
-sections arrivent avec la passe `--sections` de l'importateur, qui lit les
-portails d'équipes actives de chaque wiki Liquipedia.
+Une structure dont le nom s'écrit différemment d'un wiki à l'autre peut se
+retrouver avec moins de sections qu'elle n'en a réellement. C'est assumé :
+mieux vaut en manquer une que d'en inventer une.
 
 L'univers **fictif** reste disponible d'un clic sur l'écran de démarrage, et
 un importateur reconstruit le pack à partir des pages publiques de Liquipedia :

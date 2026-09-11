@@ -3,13 +3,14 @@ extends SceneTree
 ## Construit un pack de données à partir de Liquipedia.
 ##
 ##   godot --headless --path . --script res://tools/import_liquipedia.gd -- \
-##       --contact=vous@example.com [--season=2026] [--stage="Stage 1"] \
-##       [--pack=liquipedia] [--no-players] [--dry]
+##       --contact=<identifiant> [--season=2026] [--stage="Stage 1"] \
+##       [--pack=liquipedia] [--no-players] [--sections-only] [--dry]
 ##
 ## CE QUE FAIT CE SCRIPT
 ## Il lit les pages de ligue du VCT sur Liquipedia et écrit un pack de données
 ## dans user://packs/<pack>/ (voir src/core/DataPack.gd) :
-##   world/orgs.json     les douze structures de chaque ligue partenaire
+##   world/orgs.json     les douze structures de chaque ligue partenaire,
+##                       avec les disciplines qu'elles alignent vraiment
 ##   world/rosters.json  leurs joueurs — pseudo, nom, pays, date de naissance
 ##
 ## CE QU'IL N'IMPORTE PAS, ET POURQUOI
@@ -22,8 +23,10 @@ extends SceneTree
 ##  - Le contenu de Liquipedia est sous licence CC-BY-SA 3.0. Un pack qui en
 ##    dérive doit créditer la source et se partager sous la même licence ; le
 ##    manifeste écrit par ce script s'en charge.
-##  - L'API exige un User-Agent identifiant avec un contact : d'où --contact,
-##    qui est obligatoire. Sans lui, Liquipedia répond 406.
+##  - L'API exige un User-Agent identifiant : d'où --contact, obligatoire.
+##    Sans lui, Liquipedia répond 406. Une adresse joignable est la bonne
+##    pratique ; pour un import local et non redistribué, un identifiant de
+##    projet suffit à respecter l'esprit de la règle.
 ##  - L'API exige aussi un débit maximal d'une requête toutes les 30 secondes.
 ##    Le script s'y tient et groupe les requêtes au maximum : comptez cinq à
 ##    dix minutes pour un import complet. Ne le contournez pas — c'est ce qui
@@ -31,7 +34,9 @@ extends SceneTree
 ##  - Les noms d'équipes et de joueurs restent la propriété de leurs
 ##    détenteurs. Un pack construit ici est destiné à votre usage personnel.
 ##
-## Le pack vit dans user://, hors du dépôt : rien de tout cela n'est versionné.
+## Un import écrit TOUJOURS dans user://packs/, jamais dans le dépôt. Le pack
+## livré (res://packs/) sert de base de lecture et reste intact ; c'est la
+## version utilisateur qui prend le dessus ensuite.
 
 const API_BASE := "https://liquipedia.net/%s/api.php"
 ## Débit imposé par Liquipedia pour tout ce qui n'est pas action=parse.
@@ -57,6 +62,7 @@ var _season := "2026"
 var _stage := "Stage 1"
 var _with_players := true
 var _with_sections := true
+var _sections_only := false
 var _dry := false
 var _http: HTTPRequest = null
 var _last_call_msec := 0
@@ -94,6 +100,8 @@ func _parse_args() -> void:
 			_season = arg.substr(9).strip_edges()
 		elif arg.begins_with("--stage="):
 			_stage = arg.substr(8).strip_edges()
+		elif arg == "--sections-only":
+			_sections_only = true
 		elif arg == "--no-sections":
 			_with_sections = false
 		elif arg == "--no-players":
@@ -116,6 +124,7 @@ func _usage(message: String) -> void:
 	print("  --pack         dossier créé sous user://packs/ (défaut liquipedia)")
 	print("  --no-players   n'importe que les structures, pas les joueurs")
 	print("  --no-sections  n'interroge pas les autres wikis (une requête par jeu)")
+	print("  --sections-only  ne rafraîchit que les disciplines d'un pack existant")
 	print("  --dry          n'écrit rien, montre ce qui serait importé")
 	print("")
 	quit(1)
@@ -126,6 +135,9 @@ func _run() -> void:
 	# second import se construirait sur le résultat du premier.
 	DataPack.set_active("")
 	print("")
+	if _sections_only:
+		await _run_sections_only()
+		return
 	print("Import Liquipedia — VCT %s, %s" % [_season, _stage])
 	print("Contact déclaré : %s" % _contact)
 	print("Débit limité à une requête toutes les %d s, comme l'exige l'API."
@@ -192,8 +204,8 @@ func _run() -> void:
 	# Les autres disciplines de la maison. Une structure esport est rarement
 	# mono-jeu, et le jeu affiche ces sections même s'il ne les simule pas.
 	if _with_sections and not team_names.is_empty():
-		print("\nSections par discipline : %d portails à lire…"
-			% SECTION_WIKIS.size())
+		print("\nSections par discipline : %d portails à lire (une à deux "
+			% SECTION_WIKIS.size() + "requêtes chacun)…")
 		var sections := await _fetch_sections(team_names)
 		_merge_sections(leagues, sections)
 
@@ -642,15 +654,103 @@ const SECTION_WIKIS := [
 ]
 
 
+## Rafraîchit UNIQUEMENT les disciplines déclarées d'un pack déjà importé.
+##
+## Sept requêtes au lieu d'une quinzaine, et surtout : les effectifs déjà
+## récupérés ne sont pas retouchés. C'est le mode à utiliser quand on veut
+## corriger les sections sans risquer de perdre un import qui marche.
+##
+## Seules les structures qui déclarent DÉJÀ un champ `games` sont mises à jour.
+## C'est ce qui distingue les structures réelles (dont la liste doit venir de
+## Liquipedia) des structures fictives (dont le jeu tire lui-même une liste
+## plausible) : y toucher réduirait toutes les équipes inventées à Valorant.
+func _run_sections_only() -> void:
+	var source := "%s/world/orgs.json" % DataPack.root_of(_pack)
+	var data := _read_json(source)
+	if data.is_empty():
+		print("Pack « %s » introuvable ou illisible : %s" % [_pack, source])
+		quit(1)
+		return
+	var leagues: Dictionary = data.get("leagues", {})
+
+	var names: Array[String] = []
+	for key in leagues:
+		for e_v in leagues[key]:
+			var e: Dictionary = e_v
+			if e.has("games"):
+				names.append(str(e["name"]))
+	if names.is_empty():
+		print("Aucune structure ne déclare de disciplines dans ce pack :")
+		print("rien à rafraîchir. Lancez un import complet.")
+		quit(1)
+		return
+
+	print("Sections par discipline — pack « %s »" % _pack)
+	print("Contact déclaré : %s" % _contact)
+	print("%d structures concernées, %d disciplines à interroger (une à deux "
+		% [names.size(), SECTION_WIKIS.size()]
+		+ "requêtes chacune), une requête toutes les %d s."
+		% int(RATE_LIMIT_SEC))
+	print("")
+
+	var sections := await _fetch_sections(names)
+	var changed := 0
+	for key in leagues:
+		for e_v in leagues[key]:
+			var e: Dictionary = e_v
+			if not e.has("games"):
+				continue
+			var found: Array = sections.get(str(e["name"]), ["valorant"])
+			if found != e["games"]:
+				changed += 1
+			e["games"] = found
+
+	if _dry:
+		print("\n--dry : rien écrit. %d structures auraient changé." % changed)
+		quit(0)
+		return
+
+	var target := "%s/world/orgs.json" % DataPack.user_root_of(_pack)
+	DirAccess.make_dir_recursive_absolute(DataPack.user_root_of(_pack) + "/world")
+	# Le manifeste doit accompagner le fichier, sinon le pack n'est pas
+	# découvert dans user:// et la version livrée continue de gagner.
+	var manifest_src := "%s/%s" % [DataPack.root_of(_pack), DataPack.MANIFEST]
+	var manifest := _read_json(manifest_src)
+	if not manifest.is_empty():
+		manifest.erase("id")
+		manifest.erase("files")
+		manifest.erase("bundled")
+		DataFile.save_json("%s/%s"
+			% [DataPack.user_root_of(_pack), DataPack.MANIFEST], manifest)
+	DataFile.save_json(target, data)
+	print("")
+	print("%d structures mises à jour, %d requêtes API." % [changed, _requests])
+	print("Écrit dans %s" % ProjectSettings.globalize_path(target))
+	quit(0)
+
+
+## Lecture brute d'un JSON, hors du cache et de la chaîne de résolution des
+## packs : ici on veut CE fichier-là, pas celui que le pack actif choisirait.
+func _read_json(path: String) -> Dictionary:
+	if not FileAccess.file_exists(path):
+		return {}
+	var f := FileAccess.open(path, FileAccess.READ)
+	if f == null:
+		return {}
+	var json := JSON.new()
+	var ok := json.parse(f.get_as_text()) == OK
+	f.close()
+	return json.data if ok and json.data is Dictionary else {}
+
+
 ## Complète chaque structure avec la liste de ses disciplines.
 ##
 ## POURQUOI CE DÉTOUR PLUTÔT QU'UNE VÉRIFICATION D'EXISTENCE DE PAGE
 ## « La page Cloud9 existe sur le wiki Counter-Strike » ne veut rien dire : les
 ## pages des sections dissoutes restent en ligne, et la catégorie
 ## « Disbanded Teams » ne concerne que les structures entièrement fermées. En
-## revanche chaque wiki maintient un Portal:Teams qui sépare explicitement les
-## équipes ACTIVES des équipes dissoutes. Une page par discipline, donc sept
-## requêtes en tout, et une réponse à jour tenue par les contributeurs.
+## revanche chaque wiki maintient un Portal:Teams qui isole les équipes
+## actives dans des sections à part — voir _active_sections.
 func _fetch_sections(team_names: Array) -> Dictionary:
 	var out := {}
 	for name in team_names:
@@ -664,67 +764,164 @@ func _fetch_sections(team_names: Array) -> Dictionary:
 			continue
 		var hits := 0
 		for name in team_names:
-			if active.has(str(name).to_lower()):
+			if _is_listed(active, str(name)):
 				(out[str(name)] as Array).append(str(entry["game"]))
 				hits += 1
 		print("  %-18s %3d équipes actives, %2d de nos structures"
-			% [str(entry["label"]), active.size(), hits])
+			% [str(entry["label"]), _listed_count(active), hits])
 	return out
+
+
+func _is_listed(active: Dictionary, name: String) -> bool:
+	for key in _match_keys(name):
+		if active.has(key):
+			return true
+	return false
+
+
+## Le dictionnaire contient jusqu'à deux clés par équipe (nom du wiki et alias
+## sans suffixe) : seules les clés principales comptent comme des équipes.
+func _listed_count(active: Dictionary) -> int:
+	var n := 0
+	for key in active:
+		if bool(active[key]):
+			n += 1
+	return n
+
+
+## Page-portail lue sur chaque wiki. Elle existe partout sous ce nom.
+const PORTAL := "Portal:Teams"
+
+## Suffixes d'entreprise qu'un wiki met et qu'un autre omet : « Gen.G Esports »
+## sur le wiki Valorant, « Gen.G » sur celui de League of Legends. On compare
+## donc aussi les noms débarrassés de leur suffixe, des deux côtés.
+const CORPORATE_SUFFIXES := [" esports club", " esports", " e-sports", " gaming"]
+
+
+## Mots qui désignent une section d'équipes DISSOUTES. Tout ce qui suit la
+## première d'entre elles est hors sujet.
+const DEAD_SECTIONS := ["disbanded", "inactive", "former"]
+
+## Sections à ignorer même quand elles précèdent les dissoutes : un classement
+## par gains ou par statistiques mêle les équipes de toutes les époques.
+const SKIP_SECTIONS := ["earnings", "statistic", "record"]
 
 
 ## Noms (en minuscules) des équipes déclarées ACTIVES sur un wiki.
+##
+## On lit la page RENDUE et pas son wikitexte : la plupart de ces portails
+## assemblent leurs listes avec un modèle, et le wikitexte ne contient alors
+## aucun nom d'équipe. Et on lit des SECTIONS et pas la page entière, parce
+## qu'elle liste aussi les équipes dissoutes — sur le wiki Overwatch, 1189
+## équipes au lieu de 428, et Fnatic hériterait d'une section qu'elle n'a plus.
 func _active_teams_of(wiki: String) -> Dictionary:
-	var text := await _wiki_page_text(wiki, "Portal:Teams")
-	if text == "":
-		return {}
-	# Le portail liste d'abord les équipes actives, puis les dissoutes, sous un
-	# titre contenant « Disbanded ». On s'arrête au premier de ces titres.
-	var cut := _disbanded_offset(text)
-	if cut > 0:
-		text = text.substr(0, cut)
 	var out := {}
-	for chunk in text.split("{{Team|", false):
-		var end := chunk.find("}}")
-		if end <= 0:
-			continue
-		var name := chunk.substr(0, end).strip_edges()
-		# {{Team|fnatic|…}} : seul le premier paramètre est le nom.
-		var pipe := name.find("|")
-		if pipe >= 0:
-			name = name.substr(0, pipe).strip_edges()
-		if name != "":
-			out[name.to_lower()] = true
+	for index in await _active_sections(wiki):
+		var part := await _linked_teams(wiki, index)
+		for key in part:
+			# La clé principale l'emporte : une équipe vue comme alias dans une
+			# section et sous son vrai nom dans une autre ne compte qu'une fois.
+			if bool(part[key]) or not out.has(key):
+				out[key] = bool(part[key]) or bool(out.get(key, false))
 	return out
 
 
-func _disbanded_offset(text: String) -> int:
-	var lower := text.to_lower()
-	var from := 0
-	while true:
-		var i := lower.find("disbanded", from)
-		if i < 0:
-			return -1
-		# Uniquement dans un titre de section (==…Disbanded…==).
-		var line_start := lower.rfind("\n", i)
-		var line := lower.substr(line_start + 1, i - line_start + 40)
-		if line.begins_with("=="):
-			return line_start
-		from = i + 9
-	return -1
-
-
-## Lecture d'une page sur un AUTRE wiki que celui de Valorant.
-func _wiki_page_text(wiki: String, title: String) -> String:
+## Sections du portail contenant les équipes actives.
+##
+## Deux formes existent, et il faut les gérer toutes les deux :
+##  - une section « Notable Active … Teams » unique (Counter-Strike, Rocket
+##    League, Rainbow Six, Dota 2, Overwatch) : on ne lit que celle-là ;
+##  - pas de section « active » du tout, l'actif étant réparti sur plusieurs
+##    sections de premier niveau avant « Notable Disbanded … » (League of
+##    Legends, Apex) : on lit tout ce qui précède.
+func _active_sections(wiki: String) -> Array[int]:
 	var data := await _api_get_on(wiki, {
-		"action": "query", "prop": "revisions", "rvprop": "content",
-		"rvslots": "main", "titles": title, "format": "json",
+		"action": "parse", "page": PORTAL, "prop": "sections", "format": "json",
 	})
-	var pages = (data.get("query", {}) as Dictionary).get("pages", {})
-	for pid in pages:
-		if int(str(pid)) < 0:
+	var sections = (data.get("parse", {}) as Dictionary).get("sections", [])
+	var out: Array[int] = []
+	if not (sections is Array):
+		return out
+
+	for s_v in sections:
+		var s: Dictionary = s_v
+		var line := str(s.get("line", "")).to_lower()
+		# « inactive » contient « active » : le test naïf prendrait exactement
+		# la section qu'on cherche à éviter.
+		if line.contains("active") and not _mentions(line, DEAD_SECTIONS):
+			var idx := _section_index(s)
+			if idx > 0:
+				return [idx] as Array[int]
+
+	for s_v in sections:
+		var s: Dictionary = s_v
+		if int(s.get("toclevel", 1)) != 1:
 			continue
-		return _content_of(pages[pid])
-	return ""
+		var line := str(s.get("line", "")).to_lower()
+		if _mentions(line, DEAD_SECTIONS):
+			break
+		if _mentions(line, SKIP_SECTIONS):
+			continue
+		var idx := _section_index(s)
+		if idx > 0:
+			out.append(idx)
+	return out
+
+
+func _mentions(line: String, words: Array) -> bool:
+	for w in words:
+		if line.contains(str(w)):
+			return true
+	return false
+
+
+## Les sections transcluses ont un index de la forme « T-1 » : impossible de
+## les redemander séparément, on les ignore.
+func _section_index(s: Dictionary) -> int:
+	var raw := str(s.get("index", ""))
+	return int(raw) if raw.is_valid_int() else -1
+
+
+## Liens d'une section de la page rendue. Espace principal et pages existantes
+## seulement : le reste, ce sont des liens de navigation.
+func _linked_teams(wiki: String, section: int) -> Dictionary:
+	var data := await _api_get_on(wiki, {
+		"action": "parse", "page": PORTAL, "section": section,
+		"prop": "links", "format": "json",
+	})
+	var out := {}
+	var links = (data.get("parse", {}) as Dictionary).get("links", [])
+	if not (links is Array):
+		return out
+	for l_v in links:
+		var l: Dictionary = l_v
+		if int(l.get("ns", -1)) != 0 or not l.has("exists"):
+			continue
+		_index_team(out, str(l.get("*", "")))
+	return out
+
+
+## Indexe un nom sous sa forme brute ET sans suffixe d'entreprise. La première
+## clé est la principale (elle compte pour une équipe), les suivantes sont des
+## alias de comparaison.
+func _index_team(out: Dictionary, name: String) -> void:
+	var keys := _match_keys(name)
+	for i in keys.size():
+		if not out.has(keys[i]):
+			out[keys[i]] = i == 0
+
+
+func _match_keys(name: String) -> Array[String]:
+	var base := name.to_lower().strip_edges()
+	var out: Array[String] = []
+	if base == "":
+		return out
+	out.append(base)
+	for suffix in CORPORATE_SUFFIXES:
+		if base.ends_with(suffix) and base.length() > suffix.length() + 2:
+			out.append(base.substr(0, base.length() - suffix.length()).strip_edges())
+			break
+	return out
 
 
 ## Injecte les disciplines trouvées dans les entrées de structures.

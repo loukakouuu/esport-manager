@@ -48,6 +48,22 @@ Modéliser cette distinction dès la v1 coûte presque rien et débloque tout :
 Avec une seule classe `Team`, l'ajout d'un second jeu aurait demandé de refondre
 la moitié du moteur.
 
+### Déclarer une discipline n'est pas la simuler
+
+Une structure réelle aligne des sections que le jeu ne sait pas jouer. Plutôt
+que de les taire, `Organization.games` les déclare et `GameCatalog` sait les
+nommer ; seul `GameRegistry` — l'annuaire des `GameModule` implémentés — crée
+des rosters, des matchs et des compétitions.
+
+La séparation vaut le fichier supplémentaire : sans elle, il faudrait soit
+mentir sur ce qu'est une structure, soit fabriquer des rosters fantômes qui
+entreraient dans le calendrier et dans les finances. Le jour où un module CS2
+existe, la section correspondante devient jouable sans qu'aucune donnée ne
+change — et sans casser les carrières en cours.
+
+L'équipe que l'utilisateur dirige est `World.player_roster_id`, distincte du
+roster principal : c'est ce qui permet de basculer d'une section à l'autre.
+
 ---
 
 ## 3. Le module de jeu (`GameModule`)
@@ -231,7 +247,8 @@ on ajoute un jeu ; une scène figée doit être redessinée.
 | Sujet | Réalité | Implémentation | Pourquoi |
 |---|---|---|---|
 | Promotion VCT | Le vainqueur de l'Ascension obtient un slot de 2 ans, sans relégation directe | Le vainqueur remplace le dernier du VCT | Boucle de campagne lisible dès la v1. Règle isolée dans `SeasonBuilder._apply_promotions`, remplaçable seule. |
-| Noms | Structures et joueurs réels sont protégés | Univers entièrement fictif, généré depuis `data/` | Aucun risque juridique, et un pack de noms alternatif se substitue par simple remplacement de fichiers JSON. |
+| Noms | Structures et joueurs réels sont protégés | `data/` reste entièrement fictif ; les vrais noms vivent dans un pack (`packs/vct_2026/`, livré parce que le dépôt est privé et le jeu non distribué) | Le code n'a jamais connaissance d'une marque : supprimer `packs/` suffit à rendre le projet publiable. |
+| Attributs des joueurs réels | Inconnus, et non publiés | Toujours générés ; le pack n'apporte que l'identité | « Visée 17/20 » est un jugement de jeu, pas une donnée. Prétendre l'importer serait inventer une source. |
 | Ligues de Challengers | Des dizaines de ligues nationales | Une ligue par région, 12 équipes | Monde de 96 structures : assez pour un marché vivant, simulable en 5 secondes par saison. |
 | Double élimination | Tous formats | Format à 8 équipes ; toute autre taille retombe sur une élimination directe seedée | Couvre les playoffs VCT réels. Généraliser est une extension isolée de `BracketBuilder`. |
 | Agents | Négociation à trois (joueur, agent, club) | L'agent est réduit à une commission | Profondeur reportée : la structure de données du contrat porte déjà `agent_fee_pct`. |

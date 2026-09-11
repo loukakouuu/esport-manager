@@ -65,7 +65,14 @@ godot --headless --path . --script res://tools/import_liquipedia.gd -- \
 | `--pack=liquipedia` | Nom du dossier créé sous `user://packs/`. |
 | `--no-players` | N'importe que les structures. |
 | `--no-sections` | N'interroge pas les autres wikis (une requête par discipline). |
+| `--sections-only` | Ne rafraîchit que les disciplines d'un pack déjà importé. |
 | `--dry` | N'écrit rien, montre ce qui serait importé. |
+
+`--contact` n'a pas besoin d'être une adresse personnelle : Liquipedia veut
+surtout un `User-Agent` qui identifie l'outil et son usage. Pour un import
+local et non redistribué, quelque chose comme
+`--contact="esport-manager (outil personnel, usage local)"` fait l'affaire.
+Un contact joignable reste la bonne pratique si le volume augmente.
 
 Comptez **dix à quinze minutes** : Liquipedia impose une requête toutes les
 30 secondes et le script s'y tient.
@@ -95,16 +102,38 @@ sections même s'il n'en simule qu'une. L'importateur les récupère en lisant l
 `Portal:Teams` de chaque wiki Liquipedia — Counter-Strike, League of Legends,
 Rocket League, Apex, Rainbow Six, Dota 2, Overwatch.
 
-Ce portail est la bonne source parce qu'il **sépare explicitement les équipes
-actives des équipes dissoutes**. Les deux raccourcis évidents, eux, sont faux :
+Ce portail est la bonne source parce qu'il **isole les équipes actives** dans
+une section à part. Les deux raccourcis évidents, eux, sont faux :
 
 - *« la page existe sur le wiki »* : les pages des sections dissoutes restent
   en ligne, on obtiendrait des sections fantômes ;
 - *« la catégorie Disbanded Teams »* : elle ne concerne que les structures
   entièrement fermées, pas une section abandonnée.
 
-Une page par discipline, donc sept requêtes, et une liste tenue à jour par les
-contributeurs.
+Concrètement, l'importateur demande d'abord le **plan** du portail, puis les
+liens des seules sections utiles. Deux formes de portail existent et il gère
+les deux :
+
+- une section **« Notable Active … Teams »** unique — Counter-Strike, Rocket
+  League, Rainbow Six, Dota 2, Overwatch ;
+- **pas de section « active » du tout**, l'actif étant réparti sur plusieurs
+  sections de premier niveau placées avant « Notable Disbanded … » — League of
+  Legends, Apex. On lit alors tout ce qui précède, en sautant les classements
+  par gains ou par statistiques : ceux-là mêlent les équipes de toutes les
+  époques.
+
+C'est la page rendue et pas son wikitexte, parce que la plupart de ces portails
+assemblent leurs listes avec un modèle — le wikitexte ne contient alors aucun
+nom d'équipe. Et ce sont des sections et pas la page entière, parce que le
+portail liste aussi les équipes dissoutes : sur le wiki Overwatch, 1189 équipes
+au lieu de 428, et Fnatic hériterait d'une section qu'elle n'a plus depuis des
+années.
+
+Les noms sont comparés en minuscules, et aussi débarrassés de leur suffixe
+d'entreprise : « Gen.G Esports » sur le wiki Valorant, « Gen.G » sur celui de
+League of Legends. Une structure dont le nom diffère plus que ça sur un autre
+wiki n'est simplement pas reconnue — mieux vaut manquer une section que d'en
+inventer une.
 
 ### Ce que l'import n'apporte pas, et pourquoi
 
@@ -179,6 +208,13 @@ Les clés de ligue attendues sont `vct_emea`, `vct_americas`, `vct_pacific`,
 `strength` (0-100) pilote le niveau du roster généré, la réputation, la base de
 fans et les moyens financiers. `owner` vaut `self_funded`, `investor`,
 `endemic`, `celebrity` ou `corporate`.
+
+> **Si toutes les équipes d'une ligue ont la même `strength`**, le jeu comprend
+> que le pack ne déclare aucune hiérarchie et en fabrique une, dérivée de la
+> graine. C'est le cas du pack VCT : « Fnatic est plus fort que BBL » n'est pas
+> une donnée publique, et l'écrire dans le fichier reviendrait à l'affirmer.
+> La hiérarchie change donc d'une partie à l'autre — comme les attributs.
+> Donnez des valeurs différentes et c'est la vôtre qui s'applique.
 
 `games` liste les **disciplines de la structure**. Identifiants reconnus :
 `valorant`, `cs2`, `lol`, `rl`, `apex`, `r6`, `dota2`, `ow2` — un identifiant
