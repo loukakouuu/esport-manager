@@ -28,6 +28,11 @@ Ces entrées étaient en priorité 1 et 2 ; elles sont faites.
   `World.player_roster_id`, `ClubScreen`, barre de sections dans `App`. Une
   structure aligne ses disciplines réelles ; seules celles que `GameRegistry`
   simule donnent une équipe.
+- **Négociation de contrat interactive** → `Negotiation`, `NegotiationSystem`,
+  `NegotiationScreen`, sonde `tools/negotiation_probe.gd`. Six clauses qui se
+  compensent, des goûts qui dépendent du caractère, une patience qui s'use et
+  un prix de réserve. Mesuré : 80 % de signatures en jouant brutalement,
+  100 % en lâchant ce qui ne coûte rien tout de suite.
 - **Mode « fonder sa structure »** → `FoundScreen`, `WorldGenerator.found_org`,
   et un troisième étage de pyramide dans `season_valorant.json` : quatre
   Circuits ouverts et quatre barrages vers les Challengers. On démarre sans
@@ -37,15 +42,6 @@ Ces entrées étaient en priorité 1 et 2 ; elles sont faites.
 ---
 
 ## Priorité 1 — Rendre la boucle de jeu plus riche sans nouveau système
-
-### 1.1 Négociation de contrat interactive
-Aujourd'hui une offre est acceptée ou refusée en un clic. Une vraie négociation
-(salaire, durée, statut promis, clause de rachat, prime de signature) est la
-brique qui rend le marché intéressant. Le statut promis existe désormais côté
-modèle (`PlayingTime`) : il ne demande qu'à devenir un point de négociation.
-*Fichiers : `ContractSystem`, nouvel écran `NegotiationScreen`.*
-`acceptance_chance()` calcule déjà le score : il manque l'aller-retour et les
-contre-propositions.
 
 ### 1.2 Consignes de match et temps morts pilotés
 Le simulateur gère déjà les temps morts et le momentum côté IA. Laisser le

@@ -23,6 +23,7 @@ const SCREENS := {
 	"calendar": preload("res://src/ui/screens/CalendarScreen.gd"),
 	"competition": preload("res://src/ui/screens/CompetitionScreen.gd"),
 	"transfers": preload("res://src/ui/screens/TransfersScreen.gd"),
+	"negotiation": preload("res://src/ui/screens/NegotiationScreen.gd"),
 	"finance": preload("res://src/ui/screens/FinanceScreen.gd"),
 	"facilities": preload("res://src/ui/screens/FacilitiesScreen.gd"),
 	"inbox": preload("res://src/ui/screens/InboxScreen.gd"),
@@ -58,7 +59,8 @@ const TITLES := {
 	"squad": "Effectif", "player": "Fiche joueur",
 	"tactics": "Tactique", "training": "Entraînement", "dynamics": "Vestiaire",
 	"calendar": "Calendrier", "competition": "Classements",
-	"transfers": "Marché", "finance": "Finances",
+	"transfers": "Marché", "negotiation": "Négociation",
+	"finance": "Finances",
 	"facilities": "Infrastructures", "inbox": "Messages",
 	"match": "Compte rendu de match",
 }
@@ -590,6 +592,13 @@ func _crumb_detail() -> String:
 		var cid := str(current_args.get("competition_id", ""))
 		var c: Competition = game.world.competition(cid)
 		return c.name if c != null else ""
+	if current_name == "negotiation":
+		var n: Negotiation = game.negotiation(
+			str(current_args.get("negotiation_id", "")))
+		if n == null:
+			return ""
+		var target: Player = game.world.player(n.player_id)
+		return target.display_name() if target != null else ""
 	return ""
 
 

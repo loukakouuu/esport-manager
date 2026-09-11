@@ -523,12 +523,14 @@ func _tab_contract(host: VBoxContainer, w: World, p: Player) -> void:
 
 	if not mine:
 		if org != null:
-			var salary := ContractSystem.salary_demand(w, p, org)
-			host.add_child(UiKit.primary("Proposer %s / an sur 2 ans"
-				% Money.fmt_short(salary), func():
-				if game().offer_contract(p.id, salary, 24,
-						Contract.SquadRole.STARTER):
-					navigate("squad")))
+			host.add_child(UiKit.primary("Ouvrir une négociation  ▶", func():
+				var n: Negotiation = game().open_negotiation(p.id)
+				if n != null:
+					navigate("negotiation", {"negotiation_id": n.id})))
+			host.add_child(UiKit.label(
+				"Salaire, prime, durée, statut, clause de rachat et part des "
+				+ "gains se discutent séparément — et son agent n'a pas une "
+				+ "patience infinie.", UiKit.FS_SMALL, UiKit.TEXT_FAINT))
 		return
 	var actions := UiKit.hbox(8)
 	actions.add_child(UiKit.danger("Libérer le joueur", func():

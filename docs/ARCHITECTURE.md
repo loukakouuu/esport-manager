@@ -48,6 +48,19 @@ Modéliser cette distinction dès la v1 coûte presque rien et débloque tout :
 Avec une seule classe `Team`, l'ajout d'un second jeu aurait demandé de refondre
 la moitié du moteur.
 
+### Une négociation est une entité du monde, pas un état d'écran
+
+`Negotiation` vit dans `World.negotiations` et se sauvegarde comme le reste.
+La tentation était de la garder dans l'écran : elle n'existe que pendant qu'on
+la regarde, après tout. Mais une discussion se poursuit d'un jour à l'autre —
+la patience de l'agent s'use, sa demande baisse, la table peut s'éteindre
+faute d'échanges — et tout cela doit survivre à une sauvegarde comme à un
+changement d'écran. Une négociation perdue au rechargement serait un bug
+invisible : on ne saurait même pas qu'on avait entamé quelque chose.
+
+Corollaire utile : l'IA pourra un jour négocier par le même chemin, puisque
+rien du système ne suppose un humain en face.
+
 ### Déclarer une discipline n'est pas la simuler
 
 Une structure réelle aligne des sections que le jeu ne sait pas jouer. Plutôt

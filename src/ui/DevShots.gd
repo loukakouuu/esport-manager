@@ -100,6 +100,14 @@ static func run(app: Control, game: Node) -> void:
 			var r = game.my_roster()
 			if not r.player_ids.is_empty():
 				args = {"player_id": r.player_ids[0]}
+		elif name == "negotiation":
+			# La table de négociation n'existe qu'attachée à une discussion :
+			# on en ouvre une avec le meilleur agent libre du moment.
+			var target := _best_free_agent(game.world)
+			if target != null:
+				var n = game.open_negotiation(target.id)
+				if n != null:
+					args = {"negotiation_id": n.id}
 		app.navigate(name, args)
 
 		# Un écran à onglets n'est pas photographié par sa seule page d'accueil :
@@ -155,3 +163,13 @@ static func _tabs_of(app: Control, screen_name: String) -> Array:
 		if not out.is_empty():
 			return out
 	return [""]
+
+
+## Meilleur agent libre de la discipline jouée : une capture d'écran vaut mieux
+## avec un joueur qu'on aurait vraiment envie de signer.
+static func _best_free_agent(world: World) -> Player:
+	var best: Player = null
+	for p in world.free_agents(world.player_game_id):
+		if best == null or p.current_ability > best.current_ability:
+			best = p
+	return best

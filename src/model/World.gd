@@ -46,6 +46,13 @@ var data_pack: String = ""
 ## Boîte de réception : tout ce que le jeu a à dire au joueur.
 var inbox: Array = []
 
+
+## Négociations de contrat en cours ou récemment closes (id -> Negotiation).
+## Sauvegardées parce qu'une discussion se poursuit d'un jour à l'autre : la
+## patience de l'agent et le fil des échanges appartiennent à la partie, pas
+## à l'écran qui les affiche.
+var negotiations: Dictionary = {}
+
 ## Sponsors disponibles sur le marché (non signés).
 var sponsor_market: Array = []
 
@@ -213,6 +220,7 @@ func to_dict() -> Dictionary:
 		"data_pack": data_pack,
 		"inbox": inbox.duplicate(true),
 		"sponsor_market": sponsor_market.duplicate(true),
+		"negotiations": _map_to_dict(negotiations),
 		"history": history.duplicate(true),
 		"settings": settings.duplicate(true),
 	}
@@ -239,6 +247,8 @@ static func from_dict(d: Dictionary) -> World:
 	w.data_pack = str(d.get("data_pack", ""))
 	w.inbox = (d.get("inbox", []) as Array).duplicate(true)
 	w.sponsor_market = (d.get("sponsor_market", []) as Array).duplicate(true)
+	for k in d.get("negotiations", {}):
+		w.negotiations[k] = Negotiation.from_dict(d["negotiations"][k])
 	w.history = (d.get("history", []) as Array).duplicate(true)
 	w.settings = (d.get("settings", {}) as Dictionary).duplicate(true)
 

@@ -29,6 +29,8 @@ func build() -> void:
 				refresh()),
 		]))
 
+	add_child(_open_talks())
+
 	var roles: Array = [["", "Tous les postes"]]
 	for role in module.roles():
 		roles.append([role, module.role_label(role)])
@@ -113,3 +115,39 @@ func build() -> void:
 		+ "compétent et un budget de scouting réduisent la marge d'erreur — "
 		+ "c'est là que se gagne un recrutement.", UiKit.FS_SMALL,
 		UiKit.TEXT_FAINT))
+
+
+## Discussions en cours. Une négociation vit plusieurs jours : sans rappel
+## ici, on l'oublierait et l'agent s'en irait tout seul au bout de trois
+## semaines.
+func _open_talks() -> Control:
+	var w := world()
+	var live: Array[Negotiation] = []
+	for n in game().my_negotiations():
+		if n.is_live():
+			live.append(n)
+	if live.is_empty():
+		return UiKit.gap(0)
+
+	var card := UiKit.card("Négociations en cours", 5, 12)
+	for n in live:
+		var p := w.player(n.player_id)
+		if p == null:
+			continue
+		var row := UiKit.hbox(8)
+		row.add_child(UiKit.label(p.display_name(), UiKit.FS_BODY_L,
+			UiKit.TEXT, true))
+		row.add_child(UiKit.pill("%d tour%s" % [n.rounds,
+			"s" if n.rounds > 1 else ""], UiKit.TEXT_DIM))
+		if n.status == Negotiation.Status.COUNTERED:
+			row.add_child(UiKit.pill("contre-proposition", UiKit.WARN, true))
+		row.add_child(UiKit.label("Patience", UiKit.FS_SMALL, UiKit.TEXT_DIM))
+		row.add_child(UiKit.meter(n.mood, 100.0, 90,
+			UiKit.GOOD if n.mood > 55.0
+				else (UiKit.WARN if n.mood > 25.0 else UiKit.BAD)))
+		row.add_child(UiKit.spacer())
+		var nid := n.id
+		row.add_child(UiKit.button("Reprendre la discussion ▸", func():
+			navigate("negotiation", {"negotiation_id": nid})))
+		card.body.add_child(row)
+	return card.panel

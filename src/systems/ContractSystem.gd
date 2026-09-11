@@ -25,30 +25,42 @@ static func salary_demand(world: World, p: Player, offering_org: Organization) -
 	return Money.pct(base, clampf(mult, 0.55, 2.2) * 100.0)
 
 
+## Ce qui pousse un joueur vers une structure INDÉPENDAMMENT des clauses : le
+## prestige, l'attachement à sa maison actuelle, la santé financière.
+##
+## Isolé parce que la négociation interactive (NegotiationSystem) a besoin de
+## séparer ce qui se discute de ce qui ne se discute pas. Deux formules
+## concurrentes finiraient par diverger.
+static func context_score(world: World, p: Player, org: Organization) -> float:
+	var ambition := float(p.attr(Attributes.AMBITION)) / 20.0
+	var prestige := clampf(float(org.reputation) / 8000.0, 0.0, 1.2)
+	var score := (prestige - 0.45) * ambition * 1.4
+	if p.org_id == org.id:
+		score += float(p.attr(Attributes.LOYALTY)) / 30.0
+		score += (p.happiness - 50.0) / 60.0
+	if org.bankrupt or org.ledger.cash < 0:
+		score -= 0.8
+	return score
+
+
 ## Probabilité qu'un joueur accepte une offre. Le salaire compte, mais le
 ## projet sportif et le temps de jeu comptent autant.
+##
+## Utilisée par l'IA, qui décide en un coup. Le joueur humain, lui, passe par
+## NegotiationSystem et discute clause par clause.
 static func acceptance_chance(world: World, p: Player, org: Organization,
 		salary: int, squad_role: Contract.SquadRole) -> float:
 	var demand := salary_demand(world, p, org)
 	var money := clampf(float(salary) / maxf(float(demand), 1.0), 0.4, 2.0)
-	var score := (money - 1.0) * 1.6
+	var score := (money - 1.0) * 1.6 + context_score(world, p, org)
 
 	var ambition := float(p.attr(Attributes.AMBITION)) / 20.0
-	var prestige := clampf(float(org.reputation) / 8000.0, 0.0, 1.2)
-	score += (prestige - 0.45) * ambition * 1.4
-
 	if squad_role == Contract.SquadRole.STARTER:
 		score += 0.35
 	elif squad_role == Contract.SquadRole.SUBSTITUTE:
 		score -= 0.30 * ambition
 	else:
 		score -= 0.65 * ambition
-
-	if p.org_id == org.id:
-		score += float(p.attr(Attributes.LOYALTY)) / 30.0
-		score += (p.happiness - 50.0) / 60.0
-	if org.bankrupt or org.ledger.cash < 0:
-		score -= 0.8
 	return clampf(Rng.logistic(score, 1.6), 0.02, 0.97)
 
 

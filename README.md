@@ -130,6 +130,10 @@ récupération. Il n'y a pas de bon réglage universel.
   clans, conflits ouverts, griefs nommés (temps de jeu, salaire, projet
   sportif, poste, surcharge) et conversations où le ton compte autant que le
   sujet.
+- **Négociation** : six clauses qui se discutent séparément — salaire, prime à
+  la signature, durée, statut promis, clause de rachat, part des gains. Chaque
+  joueur a ses priorités selon son caractère, son agent ne dit jamais les
+  chiffres qu'il attend, et sa patience s'use à chaque proposition.
 - **Gestion** : contrats et clauses de rachat, promesses de temps de jeu,
   marché avec IA de recrutement, scouting à information imparfaite, relève
   annuelle par les académies, objectifs et confiance de la direction.
@@ -165,8 +169,8 @@ comment écrire un pack à la main et les conditions de licence.
 ## Outils de vérification (sans interface)
 
 ```bash
-"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 231 vérifications
-bash tools/check_ui.sh                                           # 60 vues d'écran
+"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 290 vérifications
+bash tools/check_ui.sh                                           # 62 vues d'écran
 "$GODOT" --headless --path . --script res://tools/season.gd      # saison complète
 bash tools/check_all.sh                                          # les trois d'affilée
 

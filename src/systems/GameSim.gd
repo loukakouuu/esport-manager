@@ -36,6 +36,7 @@ static func advance_day(world: World) -> Dictionary:
 		TrainingSystem.weekly_tick(world)
 		ProgressionSystem.weekly_tick(world)
 		InteractionSystem.weekly_decay(world)
+		NegotiationSystem.weekly_tick(world)
 		TransferSystem.weekly_tick(world)
 
 	var results := CompetitionEngine.play_day(world)

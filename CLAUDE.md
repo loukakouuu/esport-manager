@@ -161,7 +161,8 @@ Fait :
 - [x] Fondation : entrée par le Circuit ouvert, effectif entièrement à
       composer, capital échangé contre la patience de la direction
 - [x] Structure multi-sections : bascule d'équipe, écran Structure
-- [x] Interface complète (17 écrans, 30 vues)
+- [x] Négociation de contrat clause par clause, avec patience de l'agent
+- [x] Interface complète (18 écrans, 31 vues, balayées sur deux états du monde)
 
 Pas encore fait, volontairement :
 - [ ] Toute discipline autre que Valorant (annoncées, non simulées)
@@ -173,7 +174,7 @@ Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 ```bash
 bash tools/check_all.sh    # tests + écrans + saison complète
 ```
-Les trois doivent passer : 231 vérifications unitaires, 60 vues d'écran
+Les trois doivent passer : 290 vérifications unitaires, 62 vues d'écran
 construites sans violation d'invariant, et une saison qui se termine avec des
 classements et des finances cohérents.
 
@@ -240,3 +241,10 @@ doit être intentionnelle.
 | Population du monde | stable autour de 850 joueurs |
 | Note moyenne d'un match | 1.00 |
 | Victoire à niveau égal | 50 % |
+| Négociation, jeu brutal (salaire seul, +9 %/tour) | 80 % de signatures, 4,3 tours, 95 % du prix demandé |
+| Négociation, jeu avisé (clause de rachat basse, part des gains) | 100 %, 3,7 tours, 91 % du prix demandé |
+
+L'écart entre ces deux dernières lignes EST le système de négociation : s'il
+se referme, c'est que les clauses non monétaires ont cessé de compter et qu'il
+ne reste qu'un portefeuille. Le mesurer :
+`godot --headless --path . --script res://tools/negotiation_probe.gd`

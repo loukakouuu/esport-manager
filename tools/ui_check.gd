@@ -42,6 +42,7 @@ const SCREENS := {
 	"CalendarScreen": "res://src/ui/screens/CalendarScreen.gd",
 	"CompetitionScreen": "res://src/ui/screens/CompetitionScreen.gd",
 	"TransfersScreen": "res://src/ui/screens/TransfersScreen.gd",
+	"NegotiationScreen": "res://src/ui/screens/NegotiationScreen.gd",
 	"FinanceScreen": "res://src/ui/screens/FinanceScreen.gd",
 	"FacilitiesScreen": "res://src/ui/screens/FacilitiesScreen.gd",
 	"InboxScreen": "res://src/ui/screens/InboxScreen.gd",
@@ -116,6 +117,14 @@ func _pass(kind: String) -> Array:
 			# absent sans planter — c'est l'état d'une structure fondée.
 			var r = game.my_roster()
 			scr.set("player_id", r.player_ids[0] if not r.player_ids.is_empty() else "")
+
+		if name == "NegotiationScreen":
+			# La table de négociation a besoin d'une discussion ouverte : on en
+			# entame une avec le premier agent libre venu.
+			var target := _some_free_agent(game.world)
+			if target != null:
+				var n = game.open_negotiation(target.id)
+				scr.set("negotiation_id", n.id if n != null else "")
 
 		var tabs := _tabs_of(script)
 		var screen_failed := false
@@ -239,3 +248,10 @@ func _count(node: Node) -> int:
 	for c in node.get_children():
 		n += _count(c)
 	return n
+
+
+## Premier agent libre de la discipline jouée, ou null.
+func _some_free_agent(world: World) -> Player:
+	for p in world.free_agents(world.player_game_id):
+		return p
+	return null

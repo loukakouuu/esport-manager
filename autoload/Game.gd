@@ -360,6 +360,59 @@ func offer_contract(player_id: String, salary: int, months: int,
 	return true
 
 
+# ============================================================================
+# Négociation de contrat
+# ============================================================================
+
+## Ouvre (ou retrouve) une discussion avec un joueur. Voir NegotiationSystem.
+func open_negotiation(player_id: String) -> Negotiation:
+	var o := my_org()
+	var p := world.player(player_id) if world != null else null
+	if o == null or p == null or p.retired or p.org_id == o.id:
+		return null
+	var n := NegotiationSystem.open(world, o, p)
+	state_changed.emit()
+	return n
+
+
+func negotiation(negotiation_id: String) -> Negotiation:
+	return world.negotiations.get(negotiation_id, null) if world != null else null
+
+
+## Discussions de la structure dirigée, la plus récente d'abord.
+func my_negotiations() -> Array[Negotiation]:
+	var o := my_org()
+	if world == null or o == null:
+		return [] as Array[Negotiation]
+	return NegotiationSystem.for_org(world, o.id)
+
+
+func submit_offer(negotiation_id: String, terms: Dictionary) -> Dictionary:
+	var n := negotiation(negotiation_id)
+	if n == null or n.org_id != world.player_org_id:
+		return {"status": Negotiation.Status.EXPIRED, "text": ""}
+	var out := NegotiationSystem.submit(world, n, terms)
+	state_changed.emit()
+	return out
+
+
+func accept_counter(negotiation_id: String) -> Dictionary:
+	var n := negotiation(negotiation_id)
+	if n == null or n.org_id != world.player_org_id:
+		return {"status": Negotiation.Status.EXPIRED, "text": ""}
+	var out := NegotiationSystem.accept_demand(world, n)
+	state_changed.emit()
+	return out
+
+
+func abandon_negotiation(negotiation_id: String) -> void:
+	var n := negotiation(negotiation_id)
+	if n == null or n.org_id != world.player_org_id:
+		return
+	NegotiationSystem.abandon(world, n)
+	state_changed.emit()
+
+
 func release_player(player_id: String) -> void:
 	var o := my_org()
 	var p := world.player(player_id)
