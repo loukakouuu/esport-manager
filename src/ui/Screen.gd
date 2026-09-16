@@ -67,22 +67,26 @@ func sorted_table(key: String, columns: Array, rows: Array,
 	return UiKit.data_table(columns, rows, o)
 
 
-## En-tête d'écran : titre, sous-titre, et actions alignées à droite.
+## En-tête d'écran : bandeau aux couleurs de la structure, titre, sous-titre et
+## actions alignées à droite. Voir `UiKit.screen_header`.
 func page_header(title_text: String, subtitle_text: String = "",
 		actions: Array = []) -> Control:
-	var h := UiKit.hbox(12)
-	var left := UiKit.vbox(1)
-	left.add_child(UiKit.title(title_text))
-	if subtitle_text != "":
-		left.add_child(UiKit.subtitle(subtitle_text))
-	h.add_child(left)
-	h.add_child(UiKit.spacer())
-	var right := UiKit.hbox(6)
-	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
-	for a in actions:
-		right.add_child(a)
-	h.add_child(right)
-	return h
+	return UiKit.screen_header(title_text, subtitle_text, actions, tint())
+
+
+## Couleur de la structure dirigée, qui teinte les bandeaux de l'écran.
+##
+## Avant la partie il n'y a pas encore de structure : on retombe sur l'accent
+## du jeu plutôt que sur du noir — un bandeau invisible se lirait comme un
+## défaut d'affichage.
+func tint() -> Color:
+	var g := game()
+	if g == null or not g.has_world():
+		return UiKit.ACCENT
+	var o: Organization = g.my_org()
+	if o == null:
+		return UiKit.ACCENT
+	return UiKit.org_color(o)
 
 
 ## Deux colonnes : contenu principal extensible + panneau latéral fixe.

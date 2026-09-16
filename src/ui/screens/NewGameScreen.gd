@@ -23,7 +23,7 @@ const LEAGUES := [
 
 func build() -> void:
 	add_child(page_header("Choisir une structure",
-		"Cliquez une ligne pour l'inspecter, puis confirmez la reprise.", [
+		"Cliquez une carte pour l'inspecter, puis confirmez la reprise.", [
 			UiKit.ghost("◀ Changer d'univers", func():
 				game().abandon_world()),
 		]))
@@ -40,7 +40,7 @@ func build() -> void:
 			"L'univers actif ne la renseigne peut-être pas."))
 		return
 
-	main.add_child(_org_table(orgs))
+	main.add_child(_org_grid(orgs))
 	main.add_child(UiKit.wrap(
 		"Commencez par les Challengers : la campagne consiste à monter en VCT "
 		+ "via l'Ascension. Une structure de ligue partenaire donne des moyens "
@@ -51,19 +51,19 @@ func build() -> void:
 
 
 # ============================================================================
-# Liste
+# Grille de structures
 # ============================================================================
 
-func _org_table(orgs: Array) -> Control:
-	var columns := [
-		{"key": "name", "label": "Structure", "width": 168},
-		{"key": "country", "label": "Pays", "width": 46},
-		{"key": "sections", "label": "Sections", "width": 200},
-		{"key": "reputation", "label": "Réputation", "width": 88, "align": "right"},
-		{"key": "fans", "label": "Fans", "width": 78, "align": "right"},
-		{"key": "cash", "label": "Trésorerie", "width": 104, "align": "right"},
-		{"key": "difficulty", "label": "Difficulté", "width": 110},
-	]
+## Les structures en CARTES plutôt qu'en lignes de tableau.
+##
+## Choisir sa maison se fait une fois par carrière, et c'est le moment le plus
+## chargé du jeu : on ne compare pas des nombres, on choisit une identité. Un
+## tableau de sept colonnes répond parfaitement à « laquelle a le plus de
+## trésorerie » et très mal à « laquelle ai-je envie de diriger » — il n'y
+## montrait ni couleurs, ni écusson, et douze structures s'y ressemblaient
+## toutes. La carte porte l'écusson et la couleur de la marque ; les chiffres
+## qui départagent restent dessous, et la fiche complète est à droite.
+func _org_grid(orgs: Array) -> Control:
 	# La difficulté se lit PAR RAPPORT À LA LIGUE : en VCT tout le monde a des
 	# millions en banque, et une échelle absolue afficherait « confortable »
 	# douze fois de suite. Ce qui compte est de savoir où l'on part dans le
@@ -73,36 +73,78 @@ func _org_table(orgs: Array) -> Control:
 		reputations.append(int((entry_v as Dictionary)["reputation"]))
 	reputations.sort()
 
-	var rows: Array = []
+	var selected := _selected_id(orgs)
+	var grid := GridContainer.new()
+	grid.columns = 3
+	grid.add_theme_constant_override("h_separation", 10)
+	grid.add_theme_constant_override("v_separation", 10)
+	grid.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
 	for entry_v in orgs:
 		var e: Dictionary = entry_v
-		var o := world().org(str(e["org_id"]))
-		var games: Array = e.get("games", ["valorant"])
-		rows.append({
-			"_id": str(e["org_id"]),
-			"name": {"text": str(e["name"]), "bold": true},
-			"country": {"text": o.country},
-			"sections": {"text": _sections_text(games), "sort": games.size(),
-				"color": UiKit.TEXT_DIM},
-			"reputation": {"text": str(int(e["reputation"])),
-				"sort": int(e["reputation"])},
-			"fans": {"text": _short(int(e["fanbase"])), "sort": int(e["fanbase"])},
-			"cash": UiKit.money_cell(int(e["cash"])),
-			"difficulty": _difficulty(o,
+		var org_id := str(e["org_id"])
+		grid.add_child(_org_card(org_id,
+			_difficulty(world().org(org_id),
 				_rank_of(reputations, int(e["reputation"]))),
-		})
-	return sorted_table("newgame.orgs", columns, rows, {
-		"row_clicked": func(org_id):
-			ui("newgame")["org_id"] = str(org_id)
-			refresh(),
-	})
+			org_id == selected))
+	return UiKit.scroll(grid)
 
 
-func _sections_text(games: Array) -> String:
-	var parts: Array[String] = []
-	for g in games:
-		parts.append(GameCatalog.short(str(g)))
-	return " ".join(parts)
+func _org_card(org_id: String, difficulty: Dictionary,
+		selected: bool) -> Control:
+	var w := world()
+	var o := w.org(org_id)
+	var tint := UiKit.org_color(o)
+
+	var card := UiKit.clickable(func():
+		ui("newgame")["org_id"] = org_id
+		refresh(), UiKit.BG_PANEL, tint, 0, 8, selected)
+	card.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var b := Banner.new(tint)
+	b.spread = 0.9
+	b.intensity = 0.10
+	b.edge = 3.0
+	b.underline = false
+	b.pad(18, 10, 12, 10)
+	card.add_child(b)
+
+	var v := UiKit.vbox(7)
+	b.add_child(v)
+
+	var head := UiKit.hbox(9)
+	head.add_child(UiKit.crest(o.tag, tint, 34))
+	var idn := UiKit.vbox(1)
+	idn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	idn.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	idn.add_child(UiKit.display(o.name.to_upper(), UiKit.FS_BODY_L,
+		UiKit.TEXT, 700, 0.3))
+	idn.add_child(UiKit.label("%s · %s" % [o.country, o.owner_label()],
+		UiKit.FS_SMALL, UiKit.TEXT_DIM))
+	head.add_child(idn)
+	v.add_child(head)
+
+	var stars := UiKit.hbox(6)
+	stars.add_child(UiKit.label(UiKit.stars(o.stars()), UiKit.FS_BODY,
+		UiKit.WARN))
+	stars.add_child(UiKit.spacer())
+	stars.add_child(UiKit.pill(str(difficulty["text"]), difficulty["color"],
+		true))
+	v.add_child(stars)
+
+	var figures := UiKit.hbox(10)
+	figures.add_child(UiKit.label("%s fans" % _short(o.fanbase),
+		UiKit.FS_SMALL, UiKit.TEXT_DIM))
+	figures.add_child(UiKit.vrule(12))
+	figures.add_child(UiKit.label(Money.fmt_short(o.cash()), UiKit.FS_SMALL,
+		UiKit.GOOD if o.cash() >= 0 else UiKit.BAD))
+	figures.add_child(UiKit.spacer())
+	for g in o.games:
+		figures.add_child(UiKit.pill(GameCatalog.short(str(g)),
+			GameCatalog.color(str(g))))
+	v.add_child(figures)
+	return card
+
 
 
 ## Structure inspectée : celle qu'on a cliquée, sinon la première de la liste.
@@ -128,7 +170,7 @@ func _detail_card(org_id: String) -> Control:
 	card.panel.size_flags_vertical = Control.SIZE_EXPAND_FILL
 
 	var head := UiKit.hbox(10)
-	head.add_child(UiKit.crest(o.tag, UiKit.color_from_id(o.id), 44))
+	head.add_child(UiKit.crest(o.tag, UiKit.org_color(o), 44))
 	var idn := UiKit.vbox(1)
 	idn.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	idn.add_child(UiKit.label(o.name, UiKit.FS_H3, UiKit.TEXT, true))

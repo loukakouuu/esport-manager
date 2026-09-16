@@ -19,7 +19,7 @@ func build() -> void:
 	var o: Organization = game().my_org()
 	if o == null:
 		return
-	add_child(UiKit.title("Infrastructures"))
+	add_child(page_header("Infrastructures"))
 	add_child(UiKit.subtitle(
 		"Charges d'entretien actuelles : %s / mois. Un investissement se "
 		% Money.fmt(Facilities.total_monthly_upkeep(o.facilities))

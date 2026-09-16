@@ -5,14 +5,12 @@ extends Screen
 
 func build() -> void:
 	var w := world()
-	var head := UiKit.hbox(10)
-	head.add_child(UiKit.title("Messages"))
-	head.add_child(UiKit.spacer())
-	head.add_child(UiKit.button("Tout marquer comme lu", func():
-		for n in w.inbox:
-			(n as Dictionary)["read"] = true
-		refresh()))
-	add_child(head)
+	add_child(page_header("Messages", _unread_line(w), [
+		UiKit.button("Tout marquer comme lu", func():
+			for n in w.inbox:
+				(n as Dictionary)["read"] = true
+			refresh()),
+	]))
 
 	var list := UiKit.vbox(6)
 	for i in range(w.inbox.size() - 1, -1, -1):
@@ -52,3 +50,16 @@ func _kind_badge(kind: String) -> Control:
 	}
 	return UiKit.label(str(labels.get(kind, "INFO")), 11,
 		colors.get(kind, UiKit.TEXT_DIM))
+
+
+## Sous-titre du bandeau : combien de messages, dont combien non lus.
+func _unread_line(w: World) -> String:
+	var unread := 0
+	for n in w.inbox:
+		if not bool((n as Dictionary).get("read", false)):
+			unread += 1
+	if w.inbox.is_empty():
+		return "aucun message"
+	if unread == 0:
+		return "%d message(s) · tout est lu" % w.inbox.size()
+	return "%d message(s) · %d non lu(s)" % [w.inbox.size(), unread]

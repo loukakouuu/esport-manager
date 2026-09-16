@@ -43,6 +43,12 @@ static func run(app: Control, game: Node) -> void:
 	var dir := "user://shots"
 	DirAccess.make_dir_recursive_absolute(dir)
 
+	# Pas de fondu d'entrée pendant une capture : l'image serait prise au milieu
+	# de la transition, à une opacité qui dépend de la cadence de la machine.
+	# Deux exécutions ne donneraient pas le même PNG, et comparer deux captures
+	# est précisément ce à quoi elles servent.
+	app.set("transitions", false)
+
 	# Écrans d'AVANT-PARTIE : ils ne figurent pas dans SCREENS (ils n'ont ni
 	# navigation ni barre haute) et doivent être photographiés au bon moment —
 	# l'accueil avant que le monde existe, le sélecteur juste après.

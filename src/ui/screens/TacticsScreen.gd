@@ -26,7 +26,7 @@ func build() -> void:
 	if r == null:
 		return
 	var module := w.module_for(r.game_id)
-	add_child(UiKit.title("Tactique"))
+	add_child(page_header("Tactique"))
 
 	var body := UiKit.hbox(20)
 	add_child(body)

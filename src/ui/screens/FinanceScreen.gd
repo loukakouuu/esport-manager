@@ -12,7 +12,7 @@ func build() -> void:
 	var o: Organization = game().my_org()
 	if o == null:
 		return
-	add_child(UiKit.title("Finances — %s" % o.name))
+	add_child(page_header("Finances", o.name))
 
 	var from_day := w.start_day if _period == 0 else GameDate.add_years(w.today, -1)
 	var monthly := FinanceSystem.projected_monthly_result(w, o)

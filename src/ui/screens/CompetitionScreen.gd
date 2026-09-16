@@ -12,9 +12,7 @@ func build() -> void:
 	if comp_id == "" and r != null and not r.competition_ids.is_empty():
 		comp_id = r.competition_ids[0]
 
-	var head := UiKit.hbox(6)
-	head.add_child(UiKit.title("Compétitions"))
-	add_child(head)
+	add_child(page_header("Compétitions"))
 
 	var picker := UiKit.hbox(6)
 	var comps: Array[Competition] = []

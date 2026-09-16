@@ -53,16 +53,26 @@ func build() -> void:
 
 func _identity_card(w: World, p: Player, module: GameModule) -> Control:
 	var org := w.org(p.org_id)
-	var panel := UiKit.panel(14)
+	# Le cartouche prend les couleurs du CLUB du joueur, pas une teinte tirée de
+	# son identifiant : c'est ainsi qu'on lit une incrustation de diffusion — on
+	# reconnaît la maison avant de lire le nom. Un agent libre n'en a pas, d'où
+	# le repli sur l'accent du jeu.
+	var tint := UiKit.org_color(org) if org != null else UiKit.ACCENT
+	var panel := Banner.new(tint)
+	panel.base = UiKit.BG_PANEL
+	panel.spread = 0.38
+	panel.pad(30, 13, 14, 13)
 	var row := UiKit.hbox(16)
 	panel.add_child(row)
 
-	row.add_child(UiKit.crest(p.display_name(),
-		UiKit.color_from_id(p.id), 54))
+	row.add_child(UiKit.crest(org.tag if org != null else p.display_name(),
+		tint, 54))
 
 	var ident := UiKit.vbox(2)
+	ident.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	var name_line := UiKit.hbox(8)
-	name_line.add_child(UiKit.label(p.display_name(), UiKit.FS_H1, UiKit.TEXT, true))
+	name_line.add_child(UiKit.display(p.display_name().to_upper(), UiKit.FS_H1,
+		UiKit.TEXT, 700, UiKit.TRACK_TITLE))
 	if p.is_igl:
 		name_line.add_child(UiKit.pill("IGL", UiKit.ACCENT, true))
 	if p.wants_out:
@@ -80,12 +90,16 @@ func _identity_card(w: World, p: Player, module: GameModule) -> Control:
 	row.add_child(UiKit.spacer())
 
 	# Trois chiffres et rien d'autre : c'est ce qu'on veut voir en arrivant.
+	# Les filets les séparent comme les cadrans de la barre haute — même
+	# grammaire d'un bout à l'autre du jeu.
 	row.add_child(UiKit.stat_block("Niveau estimé",
 		ScoutingSystem.ability_text(w, p), UiKit.TEXT,
 		ScoutingSystem.confidence_text(w, p)))
+	row.add_child(UiKit.vrule(42))
 	var pot := ScoutingSystem.potential_value(w, p)
 	row.add_child(UiKit.stat_block("Potentiel", UiKit.stars(pot), UiKit.WARN,
 		_trend_text(p)))
+	row.add_child(UiKit.vrule(42))
 	row.add_child(UiKit.stat_block("Valeur", Money.fmt_short(p.market_value),
 		UiKit.TEXT, "Salaire %s / an" % Money.fmt_short(
 			p.contract.salary_yearly if p.contract != null else 0)))
@@ -172,7 +186,7 @@ func _bullets(title_text: String, items, color: Color) -> Control:
 			UiKit.TEXT_FAINT))
 		return v
 	for it in items:
-		v.add_child(UiKit.label("• " + str(it).capitalize(), UiKit.FS_BODY_L,
+		v.add_child(UiKit.label("• " + UiKit.sentence(str(it)), UiKit.FS_BODY_L,
 			color))
 	return v
 

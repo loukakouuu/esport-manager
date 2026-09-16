@@ -204,7 +204,7 @@ func _tab_identity(o: Organization) -> void:
 
 	var card := UiKit.card("Identité", 7, 14)
 	var head := UiKit.hbox(12)
-	head.add_child(UiKit.crest(o.tag, UiKit.color_from_id(o.id), 56))
+	head.add_child(UiKit.crest(o.tag, UiKit.org_color(o), 56))
 	var v := UiKit.vbox(2)
 	v.add_child(UiKit.label(o.name, UiKit.FS_H2, UiKit.TEXT, true))
 	var chips := UiKit.hbox(6)

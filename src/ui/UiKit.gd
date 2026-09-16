@@ -9,35 +9,57 @@ extends RefCounted
 ## celles de League of Legends). Une table générée à partir d'une description
 ## de colonnes reste juste quand on ajoute un jeu ; une scène figée non.
 ##
-## Repère visuel : Football Manager. Fond très sombre, panneaux à peine plus
-## clairs bordés d'un trait, densité d'information élevée, couleur réservée à
-## la DONNÉE (un attribut, une note, un solde) et jamais à la décoration.
+## Repère visuel : habillage de DIFFUSION esport. Fond très sombre, panneaux
+## étagés sur plusieurs altitudes, titres en capitales condensées, couleur de la
+## structure portée par des bandeaux inclinés.
+##
+## Une règle gouverne tout le reste, et c'est elle qui rend l'habillage tenable
+## sur un jeu de gestion : LE SPECTACLE VIT SUR LES SURFACES D'APPARAT, JAMAIS
+## DANS LES DONNÉES. Écran-titre, barre haute, en-têtes d'écran, cartes de
+## joueur : on y met les bandeaux, les lueurs et les grandes capitales. Un
+## tableau de dix-huit colonnes, lui, reste sobre — fond calme, couleur réservée
+## à la donnée. Un classement qui brille est un classement qu'on ne lit plus, et
+## un jeu de gestion se lit trois heures d'affilée.
 
 # ============================================================================
 # Palette
 # ============================================================================
-const BG := Color("#0d0f14")            # fond application
-const BG_SOFT := Color("#12151c")       # colonnes latérales
-const BG_PANEL := Color("#171b24")      # cartes
-const BG_PANEL_HI := Color("#1e2330")   # en-têtes de tableau, survol
-const BG_ROW := Color("#151922")
-const BG_ROW_ALT := Color("#191e28")
-const BG_ROW_HOVER := Color("#252d3d")
-const BG_ROW_SEL := Color("#2c2320")
-const BORDER := Color("#262d3b")
-const BORDER_SOFT := Color("#1d2431")
 
-const ACCENT := Color("#ff5a3c")        # identité esport
+# Altitudes. Chaque cran est un plan de profondeur, du fond de l'écran vers le
+# joueur : c'est l'étagement — et non les bordures — qui doit dire ce qui est
+# posé sur quoi.
+const BG := Color("#090b10")            # fond application (plan le plus bas)
+const BG_SOFT := Color("#0e121a")       # rails : barre haute, colonne de menu
+const BG_PANEL := Color("#151a25")      # cartes
+const BG_PANEL_HI := Color("#1d2430")   # en-têtes de tableau, survol
+const BG_ELEV := Color("#232c3d")       # éléments détachés, menus, survol haut
+
+const BG_ROW := Color("#121620")
+const BG_ROW_ALT := Color("#161b26")
+const BG_ROW_HOVER := Color("#242d3e")
+const BG_ROW_SEL := Color("#2e2320")
+
+const BORDER := Color("#28313f")
+const BORDER_SOFT := Color("#1b2230")
+## Filet clair posé sur l'arête haute d'un panneau : une lumière rasante venue
+## du haut. C'est ce qui donne l'épaisseur sans dessiner une seule ombre de plus.
+const EDGE_LIGHT := Color(1, 1, 1, 0.055)
+
+const ACCENT := Color("#ff5a3c")        # identité esport — action, sélection
 const ACCENT_DIM := Color("#8d3527")
+const ACCENT_GLOW := Color("#ff7a52")
+## Second accent, froid : sert à la DONNÉE qui va bien (pic de forme, record,
+## meilleure note) là où l'orange dirait « clique ici ».
+const ACCENT_COOL := Color("#2de2c5")
 const INFO := Color("#4aa8ff")
 
-const TEXT := Color("#e8ebf2")
-const TEXT_DIM := Color("#8a93a6")
-const TEXT_FAINT := Color("#5d6577")
+const TEXT := Color("#eef1f7")
+const TEXT_DIM := Color("#8b95a9")
+const TEXT_FAINT := Color("#5c6577")
 
-const GOOD := Color("#46c46a")
-const BAD := Color("#e64c4c")
-const WARN := Color("#e8a33d")
+const GOOD := Color("#3fca6b")
+const BAD := Color("#e8494b")
+const WARN := Color("#eda63c")
 
 # Échelle typographique : s'y tenir évite le patchwork de tailles.
 const FS_MICRO := 10
@@ -46,8 +68,15 @@ const FS_BODY := 12
 const FS_BODY_L := 13
 const FS_LEAD := 15
 const FS_H3 := 17
-const FS_H2 := 21
-const FS_H1 := 27
+const FS_H2 := 22
+const FS_H1 := 30
+const FS_HERO := 44                     # écran-titre, score de match
+
+# Interlettrage des capitales. Une capitale non espacée se lit mal en petit :
+# les lettres se touchent et le mot devient un bloc. C'est le détail qui
+# sépare un intitulé de tableau de bord d'un label de formulaire.
+const TRACK_CAPS := 1.2
+const TRACK_TITLE := 0.6
 
 
 # ============================================================================
@@ -58,35 +87,58 @@ static func label(text: String, size: int = FS_BODY_L, color: Color = TEXT,
 		bold: bool = false) -> Label:
 	var l := Label.new()
 	l.text = text
+	l.add_theme_font_override("font",
+		Typography.body_bold() if bold else Typography.body())
 	l.add_theme_font_size_override("font_size", size)
 	l.add_theme_color_override("font_color", color)
-	if bold:
-		# Godot n'a pas de graisse variable sur la police par défaut : on
-		# simule le gras par un léger contour de la même couleur.
-		l.add_theme_constant_override("outline_size", 3)
-		l.add_theme_color_override("font_outline_color", color)
 	return l
 
 
+## Texte en grotesque CONDENSÉE : titres, capitales, grands chiffres.
+## C'est la police qui porte l'identité « diffusion » — voir Typography.
+static func display(text: String, size: int = FS_H2, color: Color = TEXT,
+		weight: int = 700, tracking: float = 0.0) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_override("font", Typography.display(weight))
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", color)
+	if tracking != 0.0:
+		l.add_theme_constant_override("font_spacing_glyph", int(round(tracking)))
+	return l
+
+
+## Chiffre à chasse fixe. À utiliser dès qu'un nombre est EMPILÉ sous un autre
+## (colonne de tableau, bilan) : sinon la virgule se déplace d'une ligne à
+## l'autre et la colonne cesse d'être comparable d'un coup d'œil.
+static func numeral(text: String, size: int = FS_BODY_L, color: Color = TEXT,
+		bold: bool = false) -> Label:
+	var l := Label.new()
+	l.text = text
+	l.add_theme_font_override("font", Typography.mono(700 if bold else 400))
+	l.add_theme_font_size_override("font_size", size)
+	l.add_theme_color_override("font_color", color)
+	return l
+
+
+## Titre d'écran : grandes capitales condensées.
 static func title(text: String) -> Label:
-	var l := label(text, FS_H2, TEXT, true)
-	l.add_theme_constant_override("line_spacing", 4)
-	return l
+	return display(text.to_upper(), FS_H1, TEXT, 700, TRACK_TITLE)
 
 
 static func heading(text: String) -> Label:
-	return label(text, FS_H3, TEXT, true)
+	return display(text, FS_H3, TEXT, 700)
 
 
 static func subtitle(text: String) -> Label:
 	return label(text, FS_BODY, TEXT_DIM)
 
 
-## Intitulé de section : petites majuscules espacées, façon tableau de bord.
+## Intitulé de section : petites capitales espacées, façon tableau de bord.
+## L'interlettrage n'est pas un ornement — sans lui, dix pixels de capitales
+## forment un pâté que l'œil saute au lieu de lire.
 static func caption(text: String, color: Color = TEXT_FAINT) -> Label:
-	var l := label(text.to_upper(), FS_MICRO, color)
-	l.add_theme_constant_override("font_size", FS_MICRO)
-	return l
+	return display(text.to_upper(), FS_MICRO, color, 600, TRACK_CAPS)
 
 
 static func wrap(text: String, size: int = FS_BODY_L,
@@ -134,6 +186,31 @@ static func gap(height: int) -> Control:
 	return c
 
 
+## Filet VERTICAL séparant deux groupes sur une même ligne.
+## Sert à découper la barre haute en cadrans lisibles : sans lui, les
+## indicateurs forment une bouillie de texte alignée à la même hauteur.
+static func vrule(height: int = 26, color: Color = BORDER) -> Control:
+	var r := PanelContainer.new()
+	r.custom_minimum_size = Vector2(1, height)
+	r.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	r.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	r.add_theme_stylebox_override("panel", box(color, 0))
+	return r
+
+
+## Indicateur de barre haute : intitulé en petites capitales, valeur en
+## condensée. Le couple intitulé/valeur est ce qui rend un chiffre lisible sans
+## le lire — on repère « TRÉSORERIE » du coin de l'œil et on ne lit que si le
+## montant a changé de couleur.
+static func kpi(caption_text: String, value: String,
+		color: Color = TEXT, size: int = FS_LEAD) -> Control:
+	var v := vbox(1)
+	v.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	v.add_child(caption(caption_text))
+	v.add_child(display(value, size, color, 700, 0.2))
+	return v
+
+
 static func separator() -> HSeparator:
 	var s := HSeparator.new()
 	var sb := StyleBoxFlat.new()
@@ -164,11 +241,86 @@ static func box(bg: Color, radius: int = 8, margin: int = 0,
 	return sb
 
 
+## Variante ÉTAGÉE de `box` : ombre portée plus filet clair sur l'arête haute.
+##
+## Les deux vont ensemble et c'est le couple qui fait l'épaisseur. L'ombre
+## décolle le panneau du fond ; le filet clair simule une lumière rasante venue
+## du haut de l'écran, donc une arête. Avec l'ombre seule, un panneau sombre sur
+## fond sombre paraît sale plutôt que surélevé.
+static func raised(bg: Color, radius: int = 9, margin: int = 0,
+		depth: int = 10, border: Color = BORDER) -> StyleBoxFlat:
+	var sb := box(bg, radius, margin, border, 1)
+	sb.shadow_size = depth
+	sb.shadow_color = Color(0, 0, 0, 0.42)
+	sb.shadow_offset = Vector2(0, depth * 0.35)
+	sb.border_width_top = 1
+	sb.border_color = border
+	return sb
+
+
+## Style de carte par défaut : coins généreux, bordure DISCRÈTE, ombre douce.
+##
+## Le trait d'un pixel bien contrasté autour de chaque rectangle est la
+## signature visuelle du formulaire — c'est ce qui datait l'interface plus que
+## tout le reste. On garde une bordure, parce qu'elle sépare deux cartes
+## voisines, mais on la rend presque invisible et on confie la séparation à
+## l'OMBRE : c'est ce que fait un objet posé sur un autre, et l'œil le lit sans
+## qu'on ait à tracer un trait.
+static func soft(bg: Color, radius: int = 11, margin: int = 12) -> StyleBoxFlat:
+	var sb := box(bg, radius, margin, BORDER_SOFT, 1)
+	sb.shadow_size = 12
+	sb.shadow_color = Color(0, 0, 0, 0.30)
+	sb.shadow_offset = Vector2(0, 3)
+	return sb
+
+
 ## ATTENTION : un PanelContainer empile TOUS ses enfants dans le même
 ## rectangle. Ne lui donner qu'UN enfant (une box), jamais plusieurs.
 static func panel(margin: int = 12, bg: Color = BG_PANEL) -> PanelContainer:
 	var p := PanelContainer.new()
-	p.add_theme_stylebox_override("panel", box(bg, 8, margin, BORDER, 1))
+	p.add_theme_stylebox_override("panel", soft(bg, 11, margin))
+	return p
+
+
+## Panneau détaché du fond : à réserver aux blocs qui doivent attirer l'œil en
+## premier (bandeau de tête, carte de match, encadré de décision). Tout étager
+## revient à ne rien étager.
+static func panel_raised(margin: int = 12, bg: Color = BG_PANEL,
+		depth: int = 10) -> PanelContainer:
+	var p := PanelContainer.new()
+	p.add_theme_stylebox_override("panel", raised(bg, 9, margin, depth))
+	return p
+
+
+## Panneau CLIQUABLE, qui s'éclaire au survol.
+##
+## Godot n'offre rien de tel : un `Button` ne met pas ses enfants en page, un
+## `PanelContainer` ne réagit pas à la souris. On combine donc les deux — un
+## panneau qui écoute `gui_input` — en ne lui donnant qu'UN enfant, comme
+## l'exige l'invariant de mise en page vérifié par `tools/ui_check.gd`.
+##
+## Rendre la CARTE ENTIÈRE cliquable, et pas seulement son bouton, est ce qui
+## fait la différence entre un formulaire et un jeu : on vise une grande forme,
+## pas une petite cible.
+static func clickable(on_click: Callable, bg: Color = BG_PANEL,
+		accent: Color = ACCENT, margin: int = 12, radius: int = 9,
+		selected: bool = false) -> PanelContainer:
+	var p := PanelContainer.new()
+	var idle := box(bg, radius, margin, accent if selected else BORDER,
+		2 if selected else 1)
+	var over := box(BG_PANEL_HI, radius, margin, accent, 2)
+	if selected:
+		idle.shadow_size = 10
+		idle.shadow_color = Color(accent.r, accent.g, accent.b, 0.28)
+	p.add_theme_stylebox_override("panel", idle)
+	p.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	p.mouse_entered.connect(func():
+		p.add_theme_stylebox_override("panel", over))
+	p.mouse_exited.connect(func():
+		p.add_theme_stylebox_override("panel", idle))
+	p.gui_input.connect(func(ev: InputEvent):
+		if _is_left_click(ev) and on_click.is_valid():
+			on_click.call())
 	return p
 
 
@@ -228,7 +380,20 @@ static func button(text: String, on_pressed: Callable = Callable(),
 			bg_hover = Color("#4f2727")
 			fg = BAD
 
-	b.add_theme_stylebox_override("normal", box(bg, 6, 9))
+	var normal := box(bg, 6, 9)
+	if style == BtnStyle.PRIMARY:
+		# L'action principale est la seule chose de l'écran qui a le droit de
+		# projeter une lueur : c'est ainsi qu'on la trouve sans la chercher.
+		# Étendue à tous les boutons, la lueur ne signalerait plus rien.
+		normal.shadow_size = 9
+		normal.shadow_color = Color(ACCENT.r, ACCENT.g, ACCENT.b, 0.33)
+		normal.shadow_offset = Vector2(0, 2)
+		b.add_theme_font_override("font", Typography.display(700))
+		b.add_theme_constant_override("font_spacing_glyph", 1)
+	elif style == BtnStyle.NORMAL:
+		normal.border_color = BORDER
+		normal.set_border_width_all(1)
+	b.add_theme_stylebox_override("normal", normal)
 	b.add_theme_stylebox_override("hover", box(bg_hover, 6, 9))
 	b.add_theme_stylebox_override("pressed", box(bg_hover.darkened(0.15), 6, 9))
 	b.add_theme_stylebox_override("disabled", box(BG_SOFT, 6, 9))
@@ -251,6 +416,53 @@ static func ghost(text: String, on_pressed: Callable = Callable()) -> Button:
 
 static func danger(text: String, on_pressed: Callable = Callable()) -> Button:
 	return button(text, on_pressed, BtnStyle.DANGER)
+
+
+## En-tête d'écran : bandeau incliné, écusson, grand titre en capitales
+## condensées, actions à droite.
+##
+## C'est la pièce qui fait le plus pour l'impression d'ensemble, parce qu'elle
+## se répète sur les dix-neuf écrans : le joueur la voit à chaque navigation.
+## Un titre posé nu sur le fond donne une page d'administration ; le même titre
+## sur un bandeau aux couleurs de la maison donne un écran de jeu.
+##
+## `tint` est la couleur de la STRUCTURE dirigée, pas une couleur de marque du
+## jeu : d'un écran à l'autre, c'est la maison du joueur qu'on doit reconnaître.
+static func screen_header(title_text: String, subtitle_text: String = "",
+		actions: Array = [], tint: Color = ACCENT,
+		badge: Control = null) -> Control:
+	var b := Banner.new(tint)
+	# La marge gauche doit DÉPASSER l'inclinaison, sinon le titre vient se poser
+	# sur le liseré vif et les deux se disputent le même pixel. Le bandeau fait
+	# une soixantaine de pixels de haut, donc une vingtaine d'avancée : trente
+	# laissent respirer.
+	b.pad(30, 11, 16, 11)
+	b.spread = 0.42
+	b.base = BG_PANEL
+	b.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+
+	var row := hbox(13)
+	b.add_child(row)
+
+	if badge != null:
+		badge.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+		row.add_child(badge)
+
+	var left := vbox(0)
+	left.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	var t := display(title_text.to_upper(), FS_H1, TEXT, 700, TRACK_TITLE)
+	left.add_child(t)
+	if subtitle_text != "":
+		left.add_child(label(subtitle_text, FS_BODY, TEXT_DIM))
+	row.add_child(left)
+
+	row.add_child(spacer())
+	var right := hbox(6)
+	right.size_flags_vertical = Control.SIZE_SHRINK_CENTER
+	for a in actions:
+		right.add_child(a)
+	row.add_child(right)
+	return b
 
 
 ## Étiquette colorée compacte (statut, ligue, rôle…).
@@ -459,7 +671,19 @@ static func data_table(columns: Array, rows: Array,
 	inner.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	inner.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	hscroll.add_child(inner)
-	return hscroll
+
+	# Le tableau occupe toute la hauteur restante, mais six joueurs ne
+	# remplissent pas neuf cents pixels. Sans fond propre, le vide sous la
+	# dernière ligne laisse voir le fond de l'application : ça ne se lit pas
+	# comme « le tableau est fini », ça se lit comme un trou dans l'écran.
+	# Le cadre referme la zone et dit où le tableau s'arrête.
+	var frame := PanelContainer.new()
+	frame.add_theme_stylebox_override("panel", box(BG_ROW, 7, 0, BORDER, 1))
+	frame.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	frame.size_flags_vertical = Control.SIZE_EXPAND_FILL
+	frame.clip_contents = true
+	frame.add_child(hscroll)
+	return frame
 
 
 static func _is_left_click(ev: InputEvent) -> bool:
@@ -709,8 +933,9 @@ static func kv(key: String, value, key_width: int = 150,
 static func stat_block(caption_text: String, value: String,
 		color: Color = TEXT, hint: String = "") -> Control:
 	var v := vbox(1)
+	v.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	v.add_child(caption(caption_text))
-	v.add_child(label(value, FS_H3, color, true))
+	v.add_child(display(value, FS_H2, color, 700, 0.2))
 	if hint != "":
 		v.add_child(label(hint, FS_SMALL, TEXT_FAINT))
 	return v
@@ -838,20 +1063,45 @@ static func empty_state(text: String, hint: String = "") -> Control:
 	return v
 
 
-## Pastille de couleur unie servant d'écusson par défaut à une structure.
+## Écusson d'une structure : sigle sur pastille aux couleurs de la marque.
+##
+## Les deux coins coupés en diagonale ne sont pas une coquetterie : c'est la
+## forme des cartouches d'équipe d'une diffusion, et c'est ce qui fait lire la
+## pastille comme un blason plutôt que comme une icône d'application. Un carré
+## arrondi de façon égale ressemble à un bouton.
 static func crest(text: String, color: Color, size: int = 34) -> Control:
 	var p := PanelContainer.new()
-	p.add_theme_stylebox_override("panel",
-		box(Color(color.r, color.g, color.b, 0.22), 6, 0, color, 1))
+	var sb := box(Color(color.r, color.g, color.b, 0.20), 0, 0, color, 1)
+	var cut := maxi(5, size / 4)
+	sb.corner_radius_top_left = cut
+	sb.corner_radius_bottom_right = cut
+	sb.corner_radius_top_right = 2
+	sb.corner_radius_bottom_left = 2
+	sb.shadow_size = 5
+	sb.shadow_color = Color(color.r, color.g, color.b, 0.22)
+	p.add_theme_stylebox_override("panel", sb)
 	p.custom_minimum_size = Vector2(size, size)
 	p.size_flags_vertical = Control.SIZE_SHRINK_CENTER
 	p.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	var l := label(text.substr(0, 3).to_upper(), maxi(10, size / 3), color, true)
+	var l := display(text.substr(0, 3).to_upper(), maxi(11, int(size * 0.38)),
+		color, 700, 0.5)
 	l.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	l.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
 	l.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	p.add_child(l)
 	return p
+
+
+## Met une MAJUSCULE INITIALE, et rien d'autre.
+##
+## À ne pas confondre avec `String.capitalize()` de Godot, qui met une majuscule
+## à CHAQUE mot : une phrase française rédigée par le moteur (« très bon niveau
+## en visée ») en ressortait en « Très Bon Niveau En Visée », c'est-à-dire dans
+## une convention anglaise, et sur un écran entier de puces ça se voyait.
+static func sentence(text: String) -> String:
+	if text.is_empty():
+		return text
+	return text.substr(0, 1).to_upper() + text.substr(1)
 
 
 ## Couleur stable dérivée d'une chaîne : deux structures n'ont jamais la même
@@ -861,3 +1111,34 @@ static func color_from_id(s: String) -> Color:
 	for i in s.length():
 		h = (h * 31 + s.unicode_at(i)) % 100000
 	return Color.from_hsv(float(h % 360) / 360.0, 0.55, 0.85)
+
+
+## Couleur d'une STRUCTURE : sa vraie couleur de marque.
+##
+## Chaque structure de `data/world/orgs.json` et du pack VCT porte un champ
+## `color`, que `WorldGenerator` range dans `color_primary` — et que l'interface
+## ignorait jusqu'ici au profit d'une teinte tirée au hasard de l'identifiant.
+## C'est dommage deux fois : la couleur choisie par le joueur qui FONDE sa
+## structure n'apparaissait nulle part, et les couleurs réelles des équipes du
+## pack non plus. On repasse donc par la marque, et le hachage ne sert plus que
+## de filet.
+static func org_color(o) -> Color:
+	if o == null:
+		return ACCENT
+	var raw := str(o.color_primary)
+	if raw == "" or not raw.begins_with("#"):
+		return color_from_id(str(o.id))
+	return readable(Color(raw))
+
+
+## Remonte une couleur de marque jusqu'à ce qu'elle tienne sur fond très sombre.
+##
+## Une vraie identité d'équipe est souvent noire, bleu nuit ou bordeaux foncé :
+## posée telle quelle sur un fond à 5 % de luminosité, elle ne se voit tout
+## simplement pas, et le bandeau paraît cassé. On préserve la TEINTE — c'est
+## elle qu'on reconnaît — en garantissant un minimum de saturation et de clarté.
+static func readable(c: Color) -> Color:
+	var h := c.h
+	var s := maxf(c.s, 0.45)
+	var v := maxf(c.v, 0.72)
+	return Color.from_hsv(h, s, v)

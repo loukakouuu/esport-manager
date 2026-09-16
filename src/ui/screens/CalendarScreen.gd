@@ -8,7 +8,7 @@ func build() -> void:
 	var r: Roster = game().my_roster()
 	if r == null:
 		return
-	add_child(UiKit.title("Calendrier"))
+	add_child(page_header("Calendrier"))
 
 	var all: Array[Fixture] = []
 	for fid in w.fixtures:

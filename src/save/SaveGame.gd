@@ -139,10 +139,19 @@ static func delete_slot(slot_name: String) -> bool:
 	return DirAccess.remove_absolute(path) == OK
 
 
+## Fiche affichée dans la liste des sauvegardes, sans ouvrir la partie.
+##
+## Elle porte le SIGLE et la COULEUR de la structure en plus de son nom : la
+## liste peut ainsi dessiner un écusson, et on reconnaît sa partie à la forme et
+## à la teinte avant même d'avoir lu la ligne. Une sauvegarde d'avant cette
+## version n'a pas ces champs — les lecteurs doivent donc les lire avec un
+## défaut (voir StartScreen), jamais les supposer présents.
 static func _meta(world: World) -> Dictionary:
 	var o := world.my_org()
 	return {
 		"org_name": o.name if o != null else "",
+		"org_tag": o.tag if o != null else "",
+		"org_color": o.color_primary if o != null else "",
 		"date": GameDate.format_long(world.today),
 		"season": world.season_year,
 		"cash": o.cash() if o != null else 0,

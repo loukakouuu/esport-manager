@@ -53,7 +53,7 @@ res://
 │   │                          (interface) + implémentation valorant/
 │   ├── systems/               Toute la logique de simulation (sans état propre)
 │   ├── save/                  Sauvegarde et migrations
-│   ├── ui/                    UiKit, App, Screen, widgets/, screens/
+│   ├── ui/                    UiKit, Typography, App, Screen, widgets/, screens/
 │   └── tests/                 Suites de tests
 ├── autoload/Game.gd           Façade unique entre l'UI et le moteur
 ├── scenes/Main.tscn           Scène de lancement
@@ -99,6 +99,97 @@ res://
     `GameCatalog` liste ce que le jeu sait nommer, `GameRegistry` ce qu'il sait
     simuler. Seul `GameRegistry` crée des rosters, des matchs et des
     compétitions.
+
+## Direction artistique
+Habillage de **diffusion esport** : fond très sombre, panneaux étagés, titres en
+capitales condensées, couleur de la structure portée par des bandeaux inclinés.
+
+Une règle gouverne tout le reste :
+**le spectacle vit sur les surfaces d'apparat, jamais dans les données.**
+Écran-titre, barre haute, en-têtes d'écran, cartouche de joueur : bandeaux,
+lueurs, grandes capitales. Un tableau de dix-huit colonnes reste sobre — fond
+calme, couleur réservée à la donnée. Un classement qui brille est un classement
+qu'on ne lit plus, et un jeu de gestion se lit trois heures d'affilée.
+
+- **Polices** : `src/ui/Typography.gd`, seul endroit qui les nomme. Trois rôles
+  jamais mélangés — DISPLAY (Bahnschrift, condensée) pour les titres et les
+  capitales, BODY (Segoe UI, avec un vrai gras) pour la lecture, MONO (Consolas)
+  pour tout nombre EMPILÉ sous un autre. Elles viennent du système ; passer à des
+  .ttf embarqués ne touche que ce fichier. Le thème est posé une fois à la racine
+  dans `App._build_shell()` : il descend dans les contrôles qu'on ne construit
+  pas soi-même (info-bulles, listes déroulantes).
+  **Ne jamais simuler un gras par un contour** — c'était le cas avant, et c'est
+  ce qui rendait chaque titre légèrement flou.
+- **Bandeaux** : `src/ui/widgets/Banner.gd`. C'est un `MarginContainer` qui peint
+  derrière son unique enfant — il met donc en page ET décore, sans empiler quoi
+  que ce soit (voir l'invariant du `PanelContainer` plus bas). Son inclinaison
+  est PLAFONNÉE (`SLANT_MAX`) : proportionnelle à la hauteur sans plafond, elle
+  traversait une grande carte en diagonale et barrait le texte.
+- **Fond** : `src/ui/widgets/Backdrop.gd` — dégradé, deux halos (un chaud, un
+  froid) et vignettage, en trois quads et sans aucune texture importée. Un aplat
+  de couleur unie est ce qui date le plus une interface.
+- **Pas de trait d'un pixel partout.** C'est la signature du formulaire des
+  années 90. `UiKit.soft()` (utilisé par `panel()`) rend la bordure presque
+  invisible et confie la séparation à l'OMBRE — ce que fait un objet posé sur un
+  autre.
+- **Panneau cliquable** : `UiKit.clickable()`. Godot n'offre rien de tel (un
+  Button ne met pas ses enfants en page, un PanelContainer n'écoute pas la
+  souris). Rendre la CARTE ENTIÈRE cliquable, et pas seulement son bouton, est
+  ce qui sépare un formulaire d'un jeu : on vise une grande forme.
+- **En-tête d'écran** : toujours `Screen.page_header()`, jamais un
+  `UiKit.title()` posé nu. Il teinte le bandeau avec la couleur de la structure
+  dirigée, ce qui relie les dix-neuf écrans entre eux.
+- **Couleur d'une structure** : `UiKit.org_color(o)`, qui lit le `color_primary`
+  de la marque. Ne pas revenir à `color_from_id()` — c'est un hachage, il ignore
+  la couleur choisie par le joueur qui fonde sa structure comme celles du pack.
+- **Profondeur** : `UiKit.raised()` (ombre + filet clair) pour ce qui doit
+  attirer l'œil en premier. Tout étager revient à ne rien étager.
+- **Majuscule initiale** : `UiKit.sentence()`, jamais `String.capitalize()` de
+  Godot, qui met une majuscule à CHAQUE mot et transforme une phrase française
+  rédigée par le moteur en titre à l'anglaise.
+- **Transitions** : fondu de 120 ms à l'entrée d'un écran (`App._play_enter`).
+  `App.transitions` est mis à `false` par DevShots — une capture prise au milieu
+  d'un fondu n'est pas reproductible, et c'est toute la valeur des captures.
+
+## Le parcours d'entrée
+Trois écrans, une question chacun — c'est la règle qui les tient :
+
+1. **StartScreen** : reprendre, ou commencer ? Les parties en cours d'abord, en
+   cartes à écusson (façon Football Manager) ; puis deux grands rectangles
+   cliquables ENTIÈREMENT (`UiKit.clickable`) pour le mode ; l'univers en
+   pastilles tout en bas.
+   **Plus aucune graine à l'écran** : elle existe toujours (c'est elle qui rend
+   une partie rejouable et l'équilibrage comparable) mais elle est tirée au sort
+   à la création du monde. La demander au joueur revenait à exposer un rouage de
+   développement dans la vitrine. Les outils headless continuent de la fixer.
+   **Ne pas remettre d'`OptionButton` ici** : il porte le dessin du système
+   d'exploitation — flèche grise, cadre carré — et c'est ce qui trahit un jeu.
+2. **NewGameScreen** : quelle STRUCTURE ? Une grille de cartes portant écusson
+   et couleur de marque, pas un tableau. On choisit une identité, pas la plus
+   grosse trésorerie.
+3. **FoundScreen** : sa propre marque, si on a choisi de fonder.
+
+L'attribution Liquipedia (CC-BY-SA) doit rester affichée sur StartScreen quel
+que soit l'univers actif : c'est une obligation de licence, pas une décoration.
+
+## Le tableau de bord (écran d'accueil)
+Deux règles, et elles valent pour tout écran de synthèse qu'on ajouterait :
+
+1. **Rien de ce qui est déjà dans la barre haute.** Date, trésorerie et résultat
+   mensuel y sont en permanence. L'accueil les répétait en gros : un sixième de
+   l'écran pour zéro information. La place va à ce qu'on ne voit nulle part
+   ailleurs — classement réel, cohésion, vestiaire, autonomie.
+2. **Tout ce qui est affiché est une PORTE.** Une ligne « Emberko — douleur à
+   l'épaule » qu'on ne peut pas cliquer oblige à traverser le menu pour
+   retrouver Emberko. Chaque tâche, chaque rencontre, chaque message mène d'un
+   clic là où on agit. C'est tout ce que veut dire « fluide ».
+
+La liste de tâches (`HomeScreen._collect_tasks`) est le cœur de l'écran : elle
+recense blessures, départs demandés, épuisement, griefs, fins de contrat, cinq
+incomplet, entraîneur manquant, trésorerie courte, offres de sponsor et messages
+non lus — chacun avec SA destination. Le tri est stable (rang composé urgence ×
+1000 + ordre de découverte) : une liste qui se réordonne sous le curseur entre
+deux rafraîchissements est pénible à cliquer.
 
 ## Conventions de code
 - Fichiers et classes en **PascalCase** (`Player.gd`), variables et fonctions en
