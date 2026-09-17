@@ -70,9 +70,22 @@ des rosters, des matchs et des compétitions.
 
 La séparation vaut le fichier supplémentaire : sans elle, il faudrait soit
 mentir sur ce qu'est une structure, soit fabriquer des rosters fantômes qui
-entreraient dans le calendrier et dans les finances. Le jour où un module CS2
-existe, la section correspondante devient jouable sans qu'aucune donnée ne
-change — et sans casser les carrières en cours.
+entreraient dans le calendrier et dans les finances.
+
+**Le pari a été tenu.** Le module Counter-Strike 2 a été ajouté sans qu'aucune
+donnée existante ne change : les structures qui déclaraient `cs2` — y compris
+celles du pack VCT, lues sur Liquipedia des mois plus tôt — ont simplement reçu
+une équipe. L'invariant qui le garantit, et qui est testé :
+**`Organization.games` ne ment jamais.** Une discipline déclarée et simulée a
+une équipe ; une équipe a sa discipline déclarée.
+
+Le pari a tenu une seconde fois, et de façon plus intéressante : le circuit
+Counter-Strike RÉEL — 76 écuries et 373 joueurs tirés du classement mondial
+HLTV — est arrivé dans le pack sans qu'une ligne de moteur soit touchée. Il a
+suffi d'un fichier de plus (`orgs_cs2.json`), que le module désigne lui-même
+par `GameModule.orgs_path()`. Les onze structures qui tenaient déjà une section
+CS l'ont vue se peupler de ses vrais joueurs, sur la même trésorerie ; les
+soixante-cinq autres sont devenues des maisons 100 % Counter-Strike.
 
 L'équipe que l'utilisateur dirige est `World.player_roster_id`, distincte du
 roster principal : c'est ce qui permet de basculer d'une section à l'autre.
@@ -92,15 +105,31 @@ données ne peut pas représenter à la fois un FPS à rounds et économie et un
 à objectifs continus sans devenir un langage de programmation déguisé. On écrit
 donc un simulateur par genre, et on factorise tout le reste.
 
-Coût réel d'un nouveau jeu :
+Coût réel d'un nouveau jeu — ce n'est plus une estimation, c'est ce qu'a coûté
+Counter-Strike 2 :
 
 1. `src/gamemodules/cs2/Cs2Module.gd` (déclarations)
-2. `src/gamemodules/cs2/Cs2Sim.gd` (simulation)
-3. `data/games/cs2/*.json` et un bloc dans `data/world/season_*.json`
+2. `src/gamemodules/cs2/Cs2Sim.gd` + `Cs2Side.gd` (simulation)
+3. `data/games/cs2/*.json`, `data/world/season_cs2.json`, `orgs_cs2.json`
 4. une ligne dans `GameRegistry`
 
-Rien d'autre. Contrats, finance, calendrier, progression, scouting, sauvegarde
-et interface fonctionnent tels quels.
+Contrats, finance, calendrier, progression, scouting, sauvegarde et interface
+ont fonctionné tels quels. Ce qui a bougé ailleurs, et pourquoi :
+
+- **l'interface `GameModule` s'est élargie.** Chaque fois qu'une discipline
+  avait besoin de dire une chose de plus — ses curseurs tactiques, le nom de
+  ses camps, les attributs qui déclinent avec l'âge, où sont ses données — la
+  réponse a été une méthode de l'interface, jamais un `if` sur l'identifiant du
+  jeu. C'est la seule discipline à s'imposer ici, et elle est vérifiable : le
+  moteur ne contient aucune occurrence de `Cs2Module` hors de `GameRegistry` ;
+- **les systèmes qui codaient « valorant » en dur** (transferts, IA, direction)
+  bouclent désormais sur les sections de la structure ;
+- **l'encadrement est devenu per-équipe** pour les postes de banc : une maison
+  à deux rosters paie deux entraîneurs, ce qu'elle fait dans la réalité ;
+- **deux bugs du moteur de compétition** sont sortis de l'ombre — voir CLAUDE.md,
+  section « Deux bugs de compétition corrigés en ajoutant Counter-Strike ». Ils
+  étaient là avant ; c'est la deuxième discipline, avec ses ligues de tailles
+  différentes, qui les a rendus visibles.
 
 ---
 
@@ -116,12 +145,14 @@ c'est ce qui produit gratuitement tout ce dont un jeu de gestion a besoin :
 - des leviers de gestion à l'effet **lisible** : un IGL qui gère bien l'économie
   change réellement les décisions d'achat de son équipe.
 
-L'économie officielle est reproduite : 800 au départ, +3000 sur victoire, bonus
-de défaite 1900/2400/2900, 200 par frag, 300 à la pose, conservation de
-l'équipement des survivants, plafond 9000.
+L'économie officielle de CHAQUE discipline est reproduite. En Valorant : 800 au
+départ, +3000 sur victoire, bonus de défaite 1900/2400/2900, 200 par frag, 300
+à la pose, plafond 9000. En Counter-Strike : 800 au départ, +3250 sur victoire,
+bonus de défaite jusqu'à 2900, 300 par frag, **800 par joueur pour une bombe
+posée dans un round perdu**, plafond 16000.
 
-La probabilité de gagner un round est une logistique à cinq termes, tous
-regroupés en constantes en tête de `ValorantSim.gd` :
+La probabilité de gagner un round est une logistique dont les termes sont
+regroupés en constantes en tête de chaque simulateur :
 
 ```
 x = (force_atk - force_def) * W_SKILL       écart de niveau
@@ -132,10 +163,29 @@ x = (force_atk - force_def) * W_SKILL       écart de niveau
 p = 1 / (1 + e^-x)
 ```
 
-Le calibrage est verrouillé par un test (`SimTests._strength_curve`) qui impose
-une courbe monotone et des ordres de grandeur réalistes : 50 % à niveau égal,
-~65 % pour un petit écart, ~85 % pour un écart net, >90 % pour un gouffre.
+`Cs2Sim` ajoute un sixième terme, `W_AWP` : le différentiel d'AWP **réellement
+en jeu ce round**. C'est le seul endroit où une arme entre dans la formule, et
+c'est justifié — l'AWP est la seule pièce d'équipement de ces deux jeux qui
+décide d'un round à elle seule, et qu'une équipe à sec ne peut pas racheter.
+
+Le calibrage est verrouillé, discipline par discipline, par un test
+(`SimTests._strength_curve`, `Cs2Tests._strength_curve`) qui impose une courbe
+monotone et des ordres de grandeur réalistes : 50 % à niveau égal, ~65 % pour un
+petit écart, ~85 % pour un écart net, >90 % pour un gouffre.
 **Aucune formule d'équilibrage ne doit être modifiée sans relancer ce test.**
+
+### La note : une position, pas un barème
+
+Chaque simulateur définit ses références (`REF_KPR`, `REF_ADR`…) et pondère ses
+termes pour qu'ils **somment exactement à 1,0**. Un joueur pile dans la moyenne
+de sa discipline sort donc à 1.00 par construction, et pas par étalonnage.
+
+Conséquence directe : ces références sont MESURÉES, jamais devinées. Les valeurs
+publiées du haut niveau réel ne conviennent pas — ce sont celles du jeu qu'il
+faut, et elles sortent de `tools/discipline_probe.gd`, qui imprime K/round,
+D/round, KAST et dégâts par discipline sur une saison complète. La première
+version du module CS2 a été livrée avec les références réelles de CS et sortait
+à 0,96 : trois écarts de 5 % suffisent à décaler toute une discipline.
 
 ---
 
@@ -307,8 +357,11 @@ on ajoute un jeu ; une scène figée doit être redessinée.
 | Sujet | Réalité | Implémentation | Pourquoi |
 |---|---|---|---|
 | Promotion VCT | Le vainqueur de l'Ascension obtient un slot de 2 ans, sans relégation directe | Le vainqueur remplace le dernier du VCT | Boucle de campagne lisible dès la v1. Règle isolée dans `SeasonBuilder._apply_promotions`, remplaçable seule. |
-| Noms | Structures et joueurs réels sont protégés | `data/` reste entièrement fictif ; les vrais noms vivent dans un pack (`packs/vct_2026/`, livré parce que le dépôt est privé et le jeu non distribué) | Le code n'a jamais connaissance d'une marque : supprimer `packs/` suffit à rendre le projet publiable. |
+| Noms | Structures et joueurs réels sont protégés | `data/` reste entièrement fictif ; les vrais noms vivent dans un pack (`packs/vct_2026/`, livré parce que le dépôt est privé et le jeu non distribué) | Le code n'a jamais connaissance d'une marque : supprimer `packs/` et `tools/hltv/` suffit à rendre le projet publiable. |
 | Attributs des joueurs réels | Inconnus, et non publiés | Toujours générés ; le pack n'apporte que l'identité | « Visée 17/20 » est un jugement de jeu, pas une donnée. Prétendre l'importer serait inventer une source. |
+| Hiérarchie des équipes réelles | Publiée en Counter-Strike (classement HLTV), pas en Valorant | Le circuit CS tire sa `strength` du rang mondial ; le circuit VCT la fait tirer au sort par le moteur | La règle est la même des deux côtés — on importe ce qui est publié et on n'invente pas le reste. Elle donne juste deux résultats différents, parce que les deux circuits ne publient pas les mêmes choses. |
+| Récolte du classement HLTV | HLTV refuse tout client non-navigateur (403) | Instantané relevé à la main, daté, versionné dans `tools/hltv/` ; seule la CONVERSION est un script | Un importateur qui « télécharge le classement » serait un importateur qui ne marche pas. Séparer récolte et conversion garde la partie reproductible reproductible. |
+| Réputation d'une structure | La taille d'une marque esport n'est publiée nulle part | Elle vient du PRESTIGE DE LA LIGUE où la structure a son slot, pas de son niveau sportif (`WorldGenerator._brand_for`) | Un slot en ligue partenaire EST la marque. La faire découler de la force revenait à la tirer au dé pour tout circuit dont la hiérarchie n'est pas publique : Nova Esports passait devant Spirit, NAVI et FaZe. Le palmarès la fait ensuite bouger, lentement. |
 | Ligues de Challengers | Des dizaines de ligues nationales | Une ligue par région, 12 équipes | Monde de 96 structures : assez pour un marché vivant, simulable en 5 secondes par saison. |
 | Double élimination | Tous formats | Format à 8 équipes ; toute autre taille retombe sur une élimination directe seedée | Couvre les playoffs VCT réels. Généraliser est une extension isolée de `BracketBuilder`. |
 | Agents | Négociation à trois (joueur, agent, club) | L'agent est réduit à une commission | Profondeur reportée : la structure de données du contrat porte déjà `agent_fee_pct`. |
@@ -317,21 +370,31 @@ on ajoute un jeu ; une scène figée doit être redessinée.
 
 ## 11. Performance mesurée
 
-En headless, sur la machine de développement :
+En headless, sur la machine de développement, avec les deux disciplines :
 
-- génération du monde (96 structures, ~715 joueurs) : **~220 ms**
-- saison complète (577 séries, tous systèmes actifs) : **~4,7 s**
+- génération du monde (188 structures, 226 équipes, ~1 560 joueurs) : **~850 ms**
+- saison complète (3 171 séries, tous systèmes actifs) : **~54 s**
 
-Une journée simulée est donc instantanée pour le joueur. Le poste dominant est
-la simulation de match : c'est là, et nulle part ailleurs, qu'il faudra
-optimiser si le besoin apparaît.
+Une journée simulée reste instantanée pour le joueur : ces 54 secondes couvrent
+309 jours et deux circuits complets. Le poste dominant est la simulation de
+match — c'est là, et nulle part ailleurs, qu'il faudra optimiser.
+
+Le facteur ×11 par rapport à la mesure précédente (577 séries) vient pour un
+tiers de la deuxième discipline, et pour deux tiers du correctif de
+`_seed_next` : les championnats jouent désormais leur saison entière au lieu de
+s'éteindre après les premiers playoffs.
 
 ---
 
 ## 12. Ce qu'il faut savoir avant de modifier
 
-- **Toucher à une constante `W_*` de `ValorantSim`** invalide l'équilibrage :
-  relancer `bash tools/test.sh` et `tools/season.gd` et comparer.
+- **Toucher à une constante `W_*` d'un simulateur** invalide l'équilibrage :
+  relancer `bash tools/test.sh`, `tools/season.gd` et
+  `tools/discipline_probe.gd`, et comparer.
+- **Ajouter une discipline** : implémenter `GameModule`, l'enregistrer dans
+  `GameRegistry`, fournir `data/games/<jeu>/`, `data/world/season_<jeu>.json` et
+  `data/world/orgs_<jeu>.json`. Si le moteur vous oblige à écrire un `if` sur
+  l'identifiant du jeu ailleurs, c'est l'interface qu'il faut élargir.
 - **Ajouter un champ à une entité** implique de le traiter dans `to_dict()` ET
   `from_dict()`, sinon il disparaît silencieusement à la sauvegarde.
 - **Ajouter une catégorie de transaction** demande aussi son libellé dans

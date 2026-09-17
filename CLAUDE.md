@@ -9,12 +9,17 @@ simulation textuelle round par round — **aucun rendu 3D du match**.
 Trois partis pris fondateurs :
 
 1. **On dirige une STRUCTURE, pas une équipe.** L'organisation porte la
-   trésorerie et la marque ; elle possède un ou plusieurs rosters. C'est ce qui
-   rend le multi-jeu naturel plus tard (un roster Valorant + un roster CS2 dans
-   la même entreprise) et ce qui rend la finance crédible aujourd'hui.
+   trésorerie et la marque ; elle possède un ou plusieurs rosters. Ce n'est
+   plus une promesse : une maison peut tenir un roster Valorant ET un roster
+   Counter-Strike sur un seul grand livre, avec deux effectifs, deux bancs,
+   deux championnats et une seule direction.
    `Organization.games` déclare les disciplines de la maison, y compris celles
    que le moteur ne simule pas encore : elles s'affichent comme sections non
    simulées plutôt que d'être passées sous silence.
+   **Invariant vérifié** (`tools/discipline_probe.gd`, `Cs2Tests`) : une
+   discipline déclarée ET simulée a toujours une équipe, une équipe a toujours
+   sa discipline déclarée, et un joueur appartient toujours à la discipline de
+   son équipe et à la structure de son contrat.
 2. **La finance est un vrai système, pas un compteur.** Toute somme d'argent
    passe par une écriture comptable dans un grand livre. Le compte de résultat
    affiché au joueur est littéralement la somme de ce que le moteur a dépensé.
@@ -23,8 +28,22 @@ Trois partis pris fondateurs :
    vestiaire, les promesses de temps de jeu et l'entraînement sont des systèmes
    à part entière, pas de la décoration.
 
-Discipline livrée : **VALORANT**. L'architecture est multi-jeu dès maintenant
-(voir `src/gamemodules/`), mais un seul module est implémenté.
+Disciplines simulées : **VALORANT** et **COUNTER-STRIKE 2**. L'architecture
+multi-jeu (`src/gamemodules/`) n'est plus une intention : deux modules
+cohabitent, chacun avec ses postes, ses attributs, son économie de round, son
+calendrier et ses statistiques.
+
+**Counter-Strike n'est pas un habillage de Valorant.** Ce qui le distingue, et
+qui doit le rester :
+- **l'AWP** vit dans l'ÉCONOMIE du match (`Cs2Side.has_awp`), pas dans un
+  attribut : 4 750 $, une seule paire de mains, perdue si son porteur tombe ;
+- **toutes les cartes sont CT-sided** (`data/games/cs2/maps.json`) ;
+- **bonus de défaite jusqu'à 2 900 $ et bombe posée payée même en perdant** :
+  une équipe menée peut refaire son économie sans gagner un round ;
+- **subventions de ligue trois fois plus faibles, dotations de tournoi bien
+  plus grosses** : une écurie CS vit de ses résultats, une écurie Valorant de
+  son slot. C'est le seul vrai arbitrage économique entre les deux sections ;
+- **ADR et KAST** au lieu de l'ACS, avec ses propres références de note.
 
 ## Stack
 - **Moteur** : Godot 4.7 · **Langage** : GDScript
@@ -38,9 +57,15 @@ Discipline livrée : **VALORANT**. L'architecture est multi-jeu dès maintenant
 res://
 ├── data/                      Contenu éditable sans toucher au code (FICTIF)
 │   ├── games/valorant/        maps.json, agents.json
-│   └── world/                 orgs.json, sponsors.json, names.json,
-│                              season_valorant.json (structure des compétitions)
-├── packs/vct_2026/            Pack livré : vraies structures et vrais joueurs
+│   ├── games/cs2/             maps.json, weapons.json
+│   └── world/                 sponsors.json, names.json, et par discipline :
+│                              orgs.json + season_valorant.json (Valorant, noms
+│                              historiques), orgs_cs2.json + season_cs2.json
+├── packs/vct_2026/            Pack livré : vraies structures et vrais joueurs,
+│                              dans les DEUX disciplines — orgs.json +
+│                              rosters.json (Valorant, Liquipedia) et
+│                              orgs_cs2.json + rosters_cs2.json (Counter-Strike,
+│                              classement mondial HLTV)
 │                              (voir docs/DATA_PACKS.md — dépôt privé)
 ├── src/
 │   ├── core/                  Money, Rng, GameDate, Ids, Log, DataFile, DataPack
@@ -50,14 +75,17 @@ res://
 │   │   │                      PersonalityCalc, PlayingTime, Attributes
 │   │   └── finance/           Ledger, Transaction, SponsorDeal, Loan
 │   ├── gamemodules/           GameCatalog (disciplines connues), GameModule
-│   │                          (interface) + implémentation valorant/
+│   │                          (interface) + implémentations valorant/ et cs2/
 │   ├── systems/               Toute la logique de simulation (sans état propre)
 │   ├── save/                  Sauvegarde et migrations
 │   ├── ui/                    UiKit, Typography, App, Screen, widgets/, screens/
 │   └── tests/                 Suites de tests
 ├── autoload/Game.gd           Façade unique entre l'UI et le moteur
 ├── scenes/Main.tscn           Scène de lancement
-└── tools/                     Scripts headless (tests, saison, écrans, import)
+├── tools/                     Scripts headless (tests, saison, écrans, import)
+└── tools/hltv/                Instantané daté du classement mondial HLTV, la
+                               SOURCE du circuit Counter-Strike du pack, plus
+                               la marche à suivre pour le rafraîchir
 ```
 
 ## Règles d'architecture (non négociables)
@@ -80,8 +108,19 @@ res://
 5. **L'argent est un entier de cents.** Jamais de float. Voir `src/core/Money.gd`.
 6. **Le temps est un index de jour entier** (`src/core/GameDate.gd`), jamais un
    objet date.
-7. **Rien de spécifique à Valorant hors de `src/gamemodules/valorant/`.**
-   Le reste du moteur ne connaît que l'interface `GameModule`.
+7. **Rien de spécifique à une discipline hors de son dossier
+   `src/gamemodules/<jeu>/`.** Le reste du moteur ne connaît que l'interface
+   `GameModule` — et l'interface est le seul endroit où l'on ajoute quelque
+   chose quand une discipline a besoin de dire une chose de plus.
+   Y sont passés, à l'arrivée de CS2 : les curseurs tactiques
+   (`tactic_sliders`), le pool de cartes (`map_pool`), les attributs qui
+   déclinent ou vieillissent bien (`declining_attributes` /
+   `ageing_attributes`), la composition générée (`generated_lineup`), le nom
+   des camps (`side_label`) et les chemins de données
+   (`season_path`, `orgs_path`, `rosters_path`).
+   *Contre-exemple à ne pas refaire* : `ProgressionSystem` listait en dur des
+   constantes `ValorantModule.*` pour le déclin lié à l'âge. Un AWPeur y
+   perdait sa lecture de jeu et gardait son AWP.
 8. **Aucun contenu en dur.** Maps, agents, structures, sponsors, prénoms et
    format des compétitions sont dans `data/`, et remplaçables par un pack
    (voir `src/core/DataPack.gd` et `docs/DATA_PACKS.md`).
@@ -99,6 +138,13 @@ res://
     `GameCatalog` liste ce que le jeu sait nommer, `GameRegistry` ce qu'il sait
     simuler. Seul `GameRegistry` crée des rosters, des matchs et des
     compétitions.
+12. **Un poste de BANC appartient à une ÉQUIPE, pas à la maison.**
+    `StaffSystem.TEAM_ROLES` (entraîneur, analyste, adjoint) se recrute autant
+    de fois que la structure aligne de sections, et `holder()` veut un
+    `roster_id` pour ces postes-là. Sans ça, la section Counter-Strike d'une
+    maison paraîtrait avoir l'entraîneur de sa section Valorant tout en jouant
+    à 8/20 de tactique. Les autres postes servent toute la maison et n'ont pas
+    de discipline (`Staff.game_id` vide).
 
 ## Direction artistique
 Habillage de **diffusion esport** : fond très sombre, panneaux étagés, titres en
@@ -167,6 +213,17 @@ Trois écrans, une question chacun — c'est la règle qui les tient :
 2. **NewGameScreen** : quelle STRUCTURE ? Une grille de cartes portant écusson
    et couleur de marque, pas un tableau. On choisit une identité, pas la plus
    grosse trésorerie.
+   La navigation est un **filtre, pas une arborescence** : un étage
+   (deuxième division / élite), une région, et une recherche par nom ou sigle.
+   *Ne pas revenir au ruban d'onglets de ligue* qu'il y avait avant — huit
+   chips de codes (« CHAL CN », « PRO PAC »), une seule ligue visible à la
+   fois, et aucun moyen de trouver une structure sans deviner sa région. La
+   recherche traverse les quatre régions d'un coup, et c'est elle qui fait la
+   différence quand le monde compte 96 maisons reprenables.
+   Le barème de difficulté se calcule sur TOUT l'étage, jamais sur les seules
+   cartes affichées : sinon filtrer sur une région ferait de sa lanterne rouge
+   une reprise « confortable », et taper dans la recherche ferait changer une
+   structure de difficulté sous le curseur.
 3. **FoundScreen** : sa propre marque, si on a choisi de fonder.
 
 L'attribution Liquipedia (CC-BY-SA) doit rester affichée sur StartScreen quel
@@ -210,6 +267,15 @@ bash tools/check_ui.sh
 # Simulation d'une saison complète + rapport d'équilibrage
 godot --headless --path . --script res://tools/season.gd
 
+# Cohérence multi-disciplines : invariants, notes, santé des structures
+# Sans --pack : l'univers fictif. Avec : celui que le joueur obtient par défaut.
+godot --headless --path . --script res://tools/discipline_probe.gd
+godot --headless --path . --script res://tools/discipline_probe.gd -- --pack=vct_2026
+
+# Reconstruire le circuit Counter-Strike du pack depuis le classement HLTV
+# (ne télécharge rien : voir tools/hltv/README.md)
+godot --headless --path . --script res://tools/import_hltv.gd
+
 # Captures d'écran réelles (ouvre brièvement une fenêtre)
 godot --path . -- --shots=all
 godot --path . -- --shots=squad,player
@@ -226,13 +292,18 @@ Fait :
 - [x] Noyau : argent en cents, RNG déterministe, calendrier, chargement de données
 - [x] Modèle de données complet et sérialisable
 - [x] Module Valorant : rôles, attributs, agents, maps, tactiques
+- [x] Module Counter-Strike 2 : postes (AWPeur, entry, soutien, lurker,
+      rifleur), attributs propres (sniping, lurk), maîtrise d'armes, maps
+      CT-sided, économie CS2, MR12 et prolongations MR3, ADR/KAST
 - [x] Simulation de match round par round avec économie officielle, veto de maps,
       momentum, temps morts, clutchs, statistiques individuelles et notes
-- [x] Génération du monde : 136 structures, ~930 joueurs, 4 régions
-- [x] Pyramide compétitive à trois étages : VCT (4 ligues) + Challengers
-      + Circuit ouvert, plus Masters, Champions
-      + Ascension et barrages de montée ; formats round robin / poules /
-      double élimination / suisse
+- [x] Génération du monde : 188 structures, ~1 560 joueurs, 4 régions,
+      226 équipes — dont 38 maisons qui tiennent deux sections
+- [x] Pyramide compétitive à trois étages PAR DISCIPLINE : côté Valorant
+      VCT + Challengers + Circuit ouvert, Masters, Champions, Ascension et
+      barrages ; côté Counter-Strike Pro League + Challenger League + Circuit
+      ouvert, deux Majors à phase suisse, un Intercontinental et les barrages
+      de montée. Formats round robin / poules / double élimination / suisse
 - [x] Finances : grand livre, sponsors, subventions, merch, contenu, salaires,
       charges sociales, infrastructures, emprunts, impôt, faillite
 - [x] Contrats, clauses de rachat, marché des joueurs, IA de recrutement
@@ -244,9 +315,12 @@ Fait :
 - [x] Vestiaire : influence, affinités, clans, conflits, griefs, conversations
 - [x] Direction : objectifs de saison et confiance
 - [x] Sauvegarde/chargement avec migration de schéma
-- [x] Packs de données remplaçables + importateur Liquipedia
-- [x] Pack VCT 2026 livré et actif par défaut : 48 structures et ~190 joueurs
-      réels, plus leurs sections sur les autres disciplines
+- [x] Packs de données remplaçables + importateurs Liquipedia et HLTV
+- [x] Pack « Saison 2026 » livré et actif par défaut, sur les DEUX
+      disciplines : 48 structures et ~190 joueurs réels côté Valorant
+      (Liquipedia), 76 écuries et 373 joueurs réels côté Counter-Strike
+      (classement mondial HLTV), plus les sections des autres disciplines.
+      Le circuit CS apporte en plus une VRAIE HIÉRARCHIE — voir plus bas
 - [x] Écran de démarrage à deux modes, tous deux jouables : *reprendre une
       structure* et *fonder la sienne*
 - [x] Fondation : entrée par le Circuit ouvert, effectif entièrement à
@@ -256,21 +330,60 @@ Fait :
 - [x] Marché de l'encadrement : neuf postes, un organigramme qui dit ce que
       chacun change dans le moteur, embauche, prolongation, licenciement ;
       l'IA gère le sien sur enveloppe par poste
-- [x] Interface complète (19 écrans, 33 vues, balayées sur deux états du monde)
+- [x] Interface complète (19 écrans, 33 vues, balayées sur TROIS états du monde
+      — reprise, fondation, et maison à deux sections dirigée côté CS2)
+- [x] Fondation d'une structure sur la discipline de son choix
 
 Pas encore fait, volontairement :
-- [ ] Toute discipline autre que Valorant (annoncées, non simulées)
+- [ ] Les disciplines autres que Valorant et Counter-Strike 2 (annoncées, non
+      simulées)
 - [ ] Fenêtres de mercato : les mouvements sont possibles toute l'année
+- [ ] Attributs tirés de données publiques. La note HLTV d'un joueur EST
+      publique, mais la convertir serait un modèle de plus : un pack apporte
+      l'identité, le moteur fait la simulation.
 
 Prochaines étapes suggérées : voir `docs/ROADMAP.md`.
 
 ## Vérifications avant de committer
 ```bash
-bash tools/check_all.sh    # tests + écrans + saison complète
+bash tools/check_all.sh    # tests + écrans + saison + cohérence multi-jeux
 ```
-Les trois doivent passer : 386 vérifications unitaires, 66 vues d'écran
-construites sans violation d'invariant, et une saison qui se termine avec des
-classements et des finances cohérents.
+Tout doit passer : 566 vérifications unitaires, 99 vues d'écran construites sans
+violation d'invariant, une saison qui se termine avec des classements et des
+finances cohérents dans les DEUX disciplines, et la sonde
+`tools/discipline_probe.gd` sans aucun « KO » sur les DEUX univers — le fictif
+et celui du pack.
+
+Compter environ quatre minutes : depuis que les championnats jouent vraiment
+toute leur saison, qu'il y en a deux et que les deux univers sont mesurés, une
+saison complète représente ~3 200 séries (~50 s) au lieu de 825, et il y en a
+trois à jouer.
+
+## Deux bugs de compétition corrigés en ajoutant Counter-Strike
+
+Ils étaient là avant, et ils ne se voyaient pas : la saison se terminait, les
+classements s'affichaient, aucun test ne criait. C'est la deuxième discipline
+qui les a rendus visibles — les ligues de Counter-Strike n'ont pas la même
+taille que celles du VCT, et c'est ce qui a fait sortir les deux.
+
+1. **Un championnat ne repartait pas de toutes ses équipes.** Le `qualifiers`
+   d'une phase de playoffs dit combien d'équipes partent en tournoi
+   international ; `CompetitionEngine._seed_next` le lisait comme « combien
+   d'équipes continuent la saison ». Résultat mesuré : après les playoffs du
+   Kickoff, le VCT EMEA ne comptait plus que DEUX équipes pour ses Stage 1 et
+   Stage 2, et les deux tiers de chaque championnat n'étaient jamais joués.
+   Une phase régulière de championnat repart désormais de `comp.participants`.
+   Seules les phases à élimination héritent d'un classement.
+   *C'est ce correctif qui fait passer une saison de 825 à ~3 200 séries.*
+
+2. **Un arbre à taille non-puissance-de-deux gelait la compétition.** Les
+   rencontres « équipe A contre personne » n'étaient jamais prêtes
+   (`Fixture.is_ready`), donc jamais jouées, donc la phase ne se terminait
+   jamais et la compétition restait figée jusqu'à la fin de la saison. Invisible
+   en Valorant, dont les arbres reçoivent toujours huit qualifiés pile ; fatal
+   pour une ligue CS à six équipes. `CompetitionEngine._resolve_byes` traite les
+   exemptions du premier tour — qui ne créditent ni victoire au classement ni
+   ligne au bilan de saison : elles font avancer, c'est tout.
 
 ## Pièges connus de Godot rencontrés sur ce projet
 - **`PanelContainer`, `MarginContainer`, `ScrollContainer` et `CenterContainer`
@@ -332,9 +445,18 @@ doit être intentionnelle.
 | Usure mentale, programme équilibré | ~15 en fin de saison |
 | Usure mentale, scrims à fond sans repos | ~75 |
 | Moral d'un joueur correctement traité | gravite autour de 60 |
-| Population du monde | stable autour de 850 joueurs |
-| Note moyenne d'un match | 1.00 |
+| Population du monde | fictif ~1 560 joueurs (941 VAL, 620 CS2) · pack ~1 474 (921, 553) |
+| Équipes | fictif 226 (136 VAL, 90 CS2) dans 188 structures · pack 224 (136, 88) dans 207 |
+| Note moyenne d'un match | 1.00 dans CHAQUE discipline (mesuré 1.02 / 1.01) |
 | Victoire à niveau égal | 50 % |
+| Rounds par carte | ~21 en Valorant, ~21 en CS2 |
+| Prolongations | 13 % en Valorant, 10 % en CS2 |
+| Cartes à dix rounds d'écart | 9 % en Valorant, 16 % en CS2 (voulu) |
+| Maisons à deux sections | fictif 38 dont 87 % solvables · pack 17 dont 88 % |
+| Dépôts de bilan sur une saison | fictif 12 % · pack 17 %, toujours concentrés sur les circuits ouverts |
+| Podiums internationaux CS2 (8 premiers × 3 tournois) | EMEA 9 · Amériques 6 · Pacifique 5 · Chine 4 |
+| Écart de réputation dans une ligue d'élite | rapport 1,1 à 1,45 (maisons à une seule section) |
+| Réputation médiane, étage 1 / 2 / 3 | ~6 500 / ~2 300 / ~640 |
 | Négociation, jeu brutal (salaire seul, +9 %/tour) | 80 % de signatures, 4,3 tours, 95 % du prix demandé |
 | Négociation, jeu avisé (clause de rachat basse, part des gains) | 100 %, 3,7 tours, 91 % du prix demandé |
 | Encadrement, coachs fantômes après 3 saisons | 0, toujours (`tools/staff_probe.gd`) |
@@ -353,3 +475,55 @@ rattaché que par `StaffSystem.attach()` et détaché que par
 roster gardera un entraîneur qu'il ne paie plus — c'était le cas de 136
 structures sur 136 avant cette version. Le mesurer :
 `godot --headless --path . --script res://tools/staff_probe.gd`
+
+La ligne des CARTES À DIX ROUNDS D'ÉCART est plus haute en Counter-Strike, et
+c'est voulu : des cartes toutes CT-sided plus une économie qui punit deux fois
+le même demi-buy produisent des mi-temps à sens unique. Si cet écart se
+refermait sur celui de Valorant, c'est que le biais de camp ou le poids de
+l'économie auraient cessé de compter, et les deux disciplines se joueraient
+pareil.
+
+La ligne des DÉPÔTS DE BILAN doit rester concentrée sur les circuits ouverts :
+c'est le bas de la pyramide, il est fait pour être fragile. Le jour où elle
+remonte dans les étages 1 et 2, c'est qu'une discipline n'est plus finançable —
+`tools/discipline_probe.gd` l'imprime ligue par ligue. Le critère est bien la
+CONCENTRATION et pas le pourcentage : 36 des 37 faillites du pack sont dans un
+circuit ouvert, zéro à l'étage 1.
+
+L'univers du PACK est plus dur que le fictif (17 % contre 12 %), et il l'était
+déjà avant que Counter-Strike y soit réel — 16 % mesurés sans le circuit HLTV.
+La raison est dans les données, pas dans un réglage : le monde fictif a été
+écrit avec 38 maisons à deux sections, dont la section CS vit sur la trésorerie
+de la section Valorant. Le monde réel n'en a que 17, parce que la plupart des
+écuries de Counter-Strike n'ont pas de slot VCT. Une écurie CS seule, en bas de
+pyramide, est un commerce fragile — dans le jeu comme dehors.
+
+La ligne de l'ÉCART DE RÉPUTATION est celle qui dit si la MARQUE est encore
+tirée au dé. La réputation de départ venait de `pow(strength/100, 2.8)`, et
+`strength` est un tirage pour tout pack qui ne déclare pas de hiérarchie — ce
+que le pack Valorant ne PEUT pas faire, faute de donnée publique. Le jeu
+désignait donc au hasard la plus grosse marque du monde : Nova Esports passait
+devant Spirit, NAVI, FaZe et MOUZ, et l'écart dans une même ligue atteignait
+2,4. Elle vient désormais du PRESTIGE DE LA LIGUE où la structure a son slot
+(`WorldGenerator._brand_for`) : un slot en ligue partenaire EST la marque, et
+c'est ensuite le palmarès qui la fait bouger. Si le rapport remonte au-delà de
+1,6, c'est que le dé a repris la main. La mesure exclut les maisons à
+plusieurs sections : leur prime de marque est légitime — tenir deux rosters
+fait bien une maison plus grosse — et la mêler au reste masquerait
+précisément ce qu'on cherche.
+
+**Ne pas toucher à `BRAND_CURVE` ni à `_fanbase_for` sans remesurer les
+faillites.** La réputation ouvre les paliers de sponsors et multiplie les
+recettes de merchandising : la première version de ce correctif relevait la
+réputation du circuit ouvert de 39 %, et ça suffisait à faire tomber les
+dépôts de bilan de 18 % à 2 % et la masse salariale d'une structure de 54 % à
+34 % de ses recettes. Un monde où plus personne ne coule n'a plus d'enjeu — la
+cambrure entre étages est ce qui tient les deux bouts.
+
+La ligne des PODIUMS INTERNATIONAUX est née avec le pack HLTV, et c'est elle
+qui garde son apport principal. Les étages de la pyramide CS sont RELATIFS à
+leur région — sans quoi la Pro League chinoise n'aurait que deux équipes
+réelles — mais la FORCE, elle, vient du rang mondial. Le dégradé
+EMEA > Amériques > Pacifique > Chine est donc ce qui prouve que l'écart mesuré
+par HLTV a survécu au découpage. S'il s'aplatissait, un Major se jouerait à
+pile ou face et le classement n'aurait servi à rien.

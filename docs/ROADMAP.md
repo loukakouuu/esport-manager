@@ -63,14 +63,19 @@ pas d'écran pour suivre une promotion, comparer une génération ou décider qu
 monte. Peu de code, beaucoup de plaisir.
 *Fichiers : nouvel écran, `YouthSystem` (exposer la dernière promotion).*
 
-### 1.4 Postes réels dans les packs importés
-L'importateur ne récupère pas le poste des joueurs : Liquipedia ne le publie
-pas de façon exploitable dans le wikitexte. Les quatorze équipes qui utilisent
-`{{ActiveSquadAuto}}` n'ont pas non plus d'effectif. Deux pistes : `action=parse`
+### 1.4 Postes réels des joueurs VALORANT
+Côté **Counter-Strike, c'est fait** : le wiki renseigne un champ `roles` sur
+84 % des fiches, et `import_liquipedia.gd --profiles` le ramène en même temps
+que les dates de naissance. C'était la faute la plus visible du pack — il n'y
+a qu'une AWP par équipe et tout le monde sait qui la tient.
+
+Côté **Valorant, non** : le wiki Valorant ne publie pas le poste de façon
+exploitable dans le wikitexte, et les quatorze équipes qui utilisent
+`{{ActiveSquadAuto}}` n'ont même pas d'effectif. Deux pistes : `action=parse`
 sur les pages d'équipe pour lire le tableau rendu, ou la clé d'API LPDB v3.
-Les *sections* par discipline, elles, sont désormais importées (portails
-`Portal:Teams` de chaque wiki).
-*Fichiers : `tools/import_liquipedia.gd`.*
+Ça se voit moins qu'en CS — un méta d'agents tournant rend le poste d'un
+joueur Valorant bien moins identitaire qu'un AWP.
+*Fichiers : `tools/import_liquipedia.gd`, `tools/import_hltv.gd`.*
 
 ---
 
@@ -113,23 +118,39 @@ planification d'une saison.
 
 ## Priorité 3 — Le multi-jeu
 
-C'est l'objectif structurant du projet, et l'architecture est prête. Ordre
-recommandé :
+C'est l'objectif structurant du projet.
 
-1. **CS2** — même genre que Valorant (FPS à rounds et économie). Le simulateur
-   se dérive de `ValorantSim` avec MR12, une économie différente et pas
-   d'agents. Coût estimé : faible.
+1. ~~**CS2**~~ — **fait.** `src/gamemodules/cs2/`, MR12 et prolongations MR3,
+   économie CS2, AWP dans l'économie du round, maps CT-sided, ADR/KAST, trois
+   étages de pyramide, deux Majors à phase suisse. Une maison peut tenir un
+   roster Valorant et un roster CS sur une seule trésorerie.
 2. **Rocket League** — équipes de 3, pas de rounds, format en buts. Valide que
    l'abstraction `GameModule` tient hors du modèle « rounds ». Coût moyen.
+   Attention : `MatchResult.STAT_KEYS` est encore taillé pour un FPS (frags,
+   poses, désamorçages). Un jeu à buts demandera d'y toucher — c'est la
+   prochaine couture à ouvrir, et elle n'a pas été forcée par CS2.
 3. **League of Legends** — genre radicalement différent (draft, objectifs,
    courbe de partie). C'est le vrai test de l'architecture. Coût élevé, mais
    aucune modification du moteur ne devrait être nécessaire hors du module.
 
-À faire avant : un écran de sélection de discipline au démarrage, et permettre
-à une structure d'ouvrir une seconde section (`Organization` gère déjà
-plusieurs rosters par jeu). `TrainingSystem.FOCUS_GROUPS` contient encore des
-clés d'attributs Valorant : à déplacer dans le `GameModule` au moment du
-deuxième jeu.
+Ce que l'arrivée de CS2 a laissé derrière elle :
+
+- **`TrainingSystem.FOCUS_GROUPS` contient toujours des clés d'attributs en
+  dur.** Ça a tenu parce que les deux FPS tactiques partagent leur vocabulaire
+  (`aim`, `utility`, `clutch`…) ; Rocket League ne le partagera pas. À déplacer
+  dans le `GameModule` au troisième jeu, pas avant — le faire aujourd'hui
+  serait de l'abstraction sans besoin.
+- **`PlayerFactory.TRAITS`** cite les mêmes clés et pose le même constat.
+- ~~**Les effectifs CS2 réels ne sont pas importés**~~ — **fait**, mais pas par
+  Liquipedia : le circuit Counter-Strike du pack vient du **classement mondial
+  HLTV** (`tools/import_hltv.gd`, `tools/hltv/`), qui donne d'un seul tenant les
+  écuries, leurs joueurs et — ce que Liquipedia ne donne pas — la hiérarchie.
+  Reste une couture : **la récolte n'est pas automatisable.** HLTV répond 403 à
+  tout client qui n'est pas un navigateur ; on convertit un instantané relevé à
+  la main. L'automatiser demanderait de contourner une protection, ce qui n'est
+  ni souhaitable ni stable.
+- **Fonder une seconde section en cours de partie** n'existe pas : on fonde sur
+  une discipline, et une maison reprise garde les sections qu'elle avait.
 
 ---
 
@@ -161,11 +182,16 @@ deuxième jeu.
 | L'IA ne règle ni son entraînement ni ses promesses | `AiDirector` | Faible — les valeurs par défaut sont saines |
 | Pas de gestion des visas / quotas régionaux | `TransferSystem` | Moyenne — contrainte réelle du VCT non modélisée |
 | Les postes des joueurs importés sont générés | `tools/import_liquipedia.gd` | Faible — voir 1.4 |
-| Les sections se reconnaissent par le nom, qui diffère d'un wiki à l'autre | `tools/import_liquipedia.gd` | Faible — une section manquée vaut mieux qu'une inventée, mais une table d'alias serait plus juste |
-| La hiérarchie sportive des équipes réelles est tirée au sort | `WorldGenerator._spread_strength` | Moyenne — jouable et honnête, mais les gains cumulés publiés par Liquipedia donneraient un classement réel |
+| Les sections se reconnaissent par le nom, qui diffère d'une source à l'autre | `tools/import_liquipedia.gd`, `tools/import_hltv.gd` | Faible — une section manquée vaut mieux qu'une inventée. L'import HLTV ramène les orthographes au nom déjà présent dans le pack (`Vitality` → `Team Vitality`), mais seulement à suffixe d'entreprise près |
+| La hiérarchie sportive des équipes VALORANT est tirée au sort | `WorldGenerator._spread_strength` | Moyenne — jouable et honnête, mais les gains cumulés publiés par Liquipedia donneraient un classement réel. **Côté Counter-Strike c'est réglé** : la force vient du rang mondial HLTV |
+| Le circuit Counter-Strike ne se récolte pas tout seul | `tools/hltv/` | Faible — HLTV répond 403 à tout client non-navigateur. La récolte est manuelle et datée, la conversion reproductible ; l'automatiser voudrait dire contourner une protection |
+| La Chine n'a que huit écuries réelles en Counter-Strike | `tools/import_hltv.gd` | Faible — dix places de ses ligues inférieures gardent l'équipe fictive livrée. C'est le classement mondial qui est ainsi, pas le convertisseur |
+| La réputation de départ ne connaît pas l’HISTOIRE d’une marque | `WorldGenerator._brand_for` | Moyenne — elle vient du prestige de la ligue où la structure joue AUJOURD’HUI. Une écurie historique reléguée d’un étage vaut donc autant qu’une inconnue du même étage : HEROIC démarre à 1 137 de réputation. Aucune source publique ne donne la taille de marque d’une écurie ; le palmarès la fait ensuite remonter |
 | `Organization.Owner` n'a aucun effet en jeu | `Organization`, `BoardSystem` | Moyenne — cinq types de propriétaire affichés, zéro conséquence ; l'écran de fondation a dû contourner le problème par le capital |
 | `Competition.entry_fee` est lu mais jamais débité | `SeasonBuilder`, `FinanceSystem` | Faible — donnée morte, un engagement gratuit |
-| Une section non simulée ne coûte ni ne rapporte rien | `FinanceSystem` | Faible — les autres disciplines restent décoratives tant qu'elles ne sont pas jouables |
+| Une section non simulée ne coûte ni ne rapporte rien | `FinanceSystem` | Faible — les disciplines non simulées restent décoratives ; une section SIMULÉE, elle, coûte et rapporte pour de bon |
+| Une structure ne peut pas ouvrir une nouvelle section en cours de partie | `Game`, `WorldGenerator` | Moyenne — on hérite de ses sections ou on fonde sur une seule discipline |
+| Les joueurs ne changent jamais de discipline | `TransferSystem` | Faible — cela arrive dans la réalité (les passages CS → Valorant de 2020), et les attributs communs le permettraient déjà |
 | Pas d'académie créée à la génération | `WorldGenerator`, `YouthSystem` | Faible — la bascule de section la gérerait déjà, il manque le roster |
 
 ---

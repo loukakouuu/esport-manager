@@ -1,12 +1,14 @@
 # Esport Manager
 
 Jeu de gestion de structure esport, façon Football Manager, développé sous
-Godot 4.7 en GDScript. Discipline livrée : **VALORANT**.
+Godot 4.7 en GDScript. Disciplines simulées : **VALORANT** et
+**COUNTER-STRIKE 2**.
 
 Vous ne dirigez pas une équipe mais une **entreprise** : une trésorerie, une
-marque, des sponsors, des salariés — et un roster qui joue le VCT ou les
-Challengers. Les matchs ne sont pas affichés en 3D : ils sont simulés round par
-round, avec l'économie officielle, et racontés en texte et en statistiques.
+marque, des sponsors, des salariés — et un ou plusieurs rosters, qui jouent le
+VCT, les Challengers, la Pro League ou un Major. Les matchs ne sont pas
+affichés en 3D : ils sont simulés round par round, avec l'économie officielle
+de leur jeu, et racontés en texte et en statistiques.
 
 ## Démarrer
 
@@ -59,10 +61,13 @@ console : `Godot_v4.7.2-stable_win64_console.exe`.
    C'est aussi sur cet écran qu'on choisit l'univers (vraies équipes ou univers
    fictif) et la graine du monde — à graine identique, le monde est toujours le
    même.
-2. **Choisir une structure** — les onglets filtrent par ligue, le panneau de
-   droite détaille celle qu'on inspecte : ses sections sur les autres jeux, son
-   effectif, ce que la direction attendra. Commencer par *Challengers EMEA* :
-   la campagne consiste à monter en VCT via l'Ascension.
+2. **Choisir une structure** — une première rangée d'onglets choisit la
+   discipline, une seconde la ligue ; le panneau de droite détaille la maison
+   qu'on inspecte : ses sections sur les autres jeux, son effectif, ce que la
+   direction attendra. Commencer par *Challengers EMEA* : la campagne consiste
+   à monter en VCT via l'Ascension. Une maison qui aligne les deux disciplines
+   apparaît dans les deux listes, et la carte cliquée décide de la section par
+   laquelle on entre — on dirige ensuite la maison entière.
 3. **Jouer** — la barre du haut ne bouge jamais : écusson, date, trésorerie,
    résultat mensuel, prochain match, et le bouton **Continuer**. La colonne de
    gauche regroupe les pages par thème.
@@ -70,13 +75,15 @@ console : `Godot_v4.7.2-stable_win64_console.exe`.
 ### Fonder sa structure
 
 L'autre mode, plus dur. Vous choisissez un nom, un sigle, des couleurs, une
-région et un capital — et c'est tout ce que vous avez.
+**discipline**, une région et un capital — et c'est tout ce que vous avez.
 
 Pas un joueur sous contrat, aucun sponsor, aucune infrastructure, un entraîneur
 débutant — remplaçable dès le premier jour, si vous avez de quoi le payer — et
 une réputation nulle qui fera dire non aux bons agents libres.
-Vous entrez au **troisième étage de la pyramide**, le *Circuit ouvert*, et la
-montée en Challengers passe par un barrage en fin de saison.
+Vous entrez au **troisième étage de la pyramide**, le *Circuit ouvert* de la
+discipline choisie, et la montée passe par un barrage en fin de saison.
+On fonde sur une seule discipline : ouvrir deux équipes le jour où l'on n'a
+encore signé personne est le plus court chemin vers le dépôt de bilan.
 
 Le capital est le vrai arbitrage, parce qu'il s'échange contre de la patience :
 
@@ -97,9 +104,37 @@ toutes, et une barre de sections apparaît sous le fil d'Ariane dès qu'il y en 
 plus d'une. Cliquer sur une section bascule tout le bloc *Équipe* du menu
 — effectif, tactique, entraînement, vestiaire — sur cette équipe-là.
 
-Seul **Valorant** est simulé aujourd'hui. Les autres sections sont affichées
-grisées, avec la mention *non simulée* : elles font partie de la maison et
-s'ouvriront quand la discipline sera jouable, sans recommencer de carrière.
+**Valorant et Counter-Strike 2** sont simulés, et une maison peut tenir les
+deux : un roster VCT et un roster Pro League sur une seule trésorerie, un seul
+grand livre, une seule direction. Chaque section a ses joueurs, son marché, son
+entraîneur, son championnat et ses dotations — et elle pèse sur les comptes de
+la maison entière, ce qui est exactement le problème de gestion qu'on cherche.
+
+Les sections des disciplines que le moteur ne simule pas encore (LoL, Rocket
+League…) restent affichées grisées, avec la mention *non simulée* : elles font
+partie de la maison et s'ouvriront le jour venu, sans recommencer de carrière.
+
+### Counter-Strike n'est pas Valorant
+
+La deuxième discipline n'est pas un habillage : elle a ses propres règles, et
+ce sont elles qui rendent sa gestion différente.
+
+- **L'AWP.** Une arme à 4 750 $ qui gagne un round à elle seule, mais qu'on ne
+  rachète pas quand on est à sec. Elle vit dans l'économie du match, pas dans
+  un attribut : perdre son AWPeur tôt, c'est perdre l'arme, et souvent le round
+  suivant. L'écran Tactique expose un curseur *Priorité à l'AWP*.
+- **Des cartes CT-sided.** Toutes, sans exception — un 12-0 en défense suivi
+  d'un effondrement en attaque est un scénario ordinaire de CS.
+- **Une économie plus punitive.** Plafond à 16 000 $, bonus de défaite qui
+  monte à 2 900 $, et une bombe posée qui paie **même quand on perd le round** :
+  une équipe menée peut refaire son économie sans gagner.
+- **Cinq postes à elle** : AWPeur, entry fragger, soutien, lurker, rifleur.
+- **Un autre modèle économique.** Counter-Strike n'est pas franchisé : les
+  subventions de ligue y sont trois fois plus faibles qu'en VCT, et l'argent se
+  gagne en tournoi — dotations de championnat plus grosses, Majors à 1,25 M$.
+  Une écurie CS vit de ses résultats là où une écurie Valorant vit de son slot.
+- **Ses statistiques** : ADR et KAST au lieu de l'ACS, notes calées sur les
+  ordres de grandeur réels du haut niveau CS2.
 
 Premier réflexe conseillé : ouvrir **Finances**. Une équipe de Challengers
 démarre légèrement déficitaire — signer des sponsors est la première urgence.
@@ -161,28 +196,56 @@ un refus ferme la porte trois semaines.
 
 ## Vraies équipes
 
-Le pack **VCT 2026** est livré avec le jeu et actif par défaut : 48 structures
-réelles des quatre ligues partenaires, environ 190 joueurs réels — pseudo, nom,
-nationalité, date de naissance — et leurs **sections sur les autres
-disciplines**, lues sur les portails d'équipes actives de chaque wiki
-Liquipedia. Team Vitality arrive donc avec CS2, LoL et Rocket League à côté de
-son équipe Valorant ; Karmine Corp avec LoL et Rocket League.
+Le pack **Saison 2026** est livré avec le jeu et actif par défaut, et il couvre
+les **deux disciplines** :
+
+- côté **Valorant**, 48 structures des quatre ligues partenaires et environ
+  190 joueurs réels, lus sur Liquipedia ;
+- côté **Counter-Strike**, 76 écuries et 373 joueurs réels, tirés du
+  **classement mondial HLTV** — des deux premières mondiales jusqu'au rang 228.
+
+S'y ajoutent les **sections sur les autres disciplines**, lues sur les portails
+d'équipes actives de chaque wiki Liquipedia : Team Vitality arrive avec CS2,
+LoL et Rocket League à côté de son équipe Valorant ; Karmine Corp avec LoL et
+Rocket League.
 
 Les niveaux et les attributs, eux, restent générés : ils n'existent pas comme
 donnée publique. Un vrai joueur importé est un vrai nom, avec le bon âge, sur
 un profil simulé.
 
-Une structure dont le nom s'écrit différemment d'un wiki à l'autre peut se
+**Sauf pour Counter-Strike, où la hiérarchie est publiée.** « Fnatic est plus
+fort que BBL » n'est pas une donnée publique en Valorant, et le jeu invente
+donc l'ordre des équipes du VCT. Le classement HLTV, lui, EST cet ordre : la
+force des écuries CS en vient directement, à l'intérieur d'une ligue comme
+entre les régions. La Pro League EMEA tourne autour de 74-88 quand la chinoise
+tient entre 66 et 68 — parce que le classement mondial ne place que deux
+écuries chinoises dans ses trente-cinq premières.
+
+Onze maisons tiennent les deux sections sur une seule trésorerie : Vitality,
+NAVI, G2, FURIA, MIBR, Liquid, TYLOO, 100 Thieves, Fnatic, FUT, NRG. Ce sont
+exactement les onze dont Liquipedia dit, de son côté et sans rapport, qu'elles
+ont une section Counter-Strike active.
+
+Une structure dont le nom s'écrit différemment d'une source à l'autre peut se
 retrouver avec moins de sections qu'elle n'en a réellement. C'est assumé :
 mieux vaut en manquer une que d'en inventer une.
 
 L'univers **fictif** reste disponible d'un clic sur l'écran de démarrage, et
-un importateur reconstruit le pack à partir des pages publiques de Liquipedia :
+deux importateurs reconstruisent le pack :
 
 ```bash
+# Valorant — lit les pages publiques de Liquipedia
 godot --headless --path . --script res://tools/import_liquipedia.gd -- \
     --contact=vous@example.com --pack=vct_2026
+
+# Counter-Strike — convertit un relevé du classement HLTV
+godot --headless --path . --script res://tools/import_hltv.gd
 ```
+
+Le second ne télécharge rien : HLTV refuse tout client qui n'est pas un
+navigateur, et prétendre le contraire donnerait un outil qui ne marche pas. La
+récolte se fait à la main, en vingt secondes dans la console du navigateur, et
+l'instantané daté vit dans [`tools/hltv/`](tools/hltv/).
 
 Tout est expliqué dans [`docs/DATA_PACKS.md`](docs/DATA_PACKS.md), y compris
 comment écrire un pack à la main et les conditions de licence.
@@ -190,10 +253,15 @@ comment écrire un pack à la main et les conditions de licence.
 ## Outils de vérification (sans interface)
 
 ```bash
-"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 386 vérifications
-bash tools/check_ui.sh                                           # 66 vues d'écran
+"$GODOT" --headless --path . --script res://tools/run_tests.gd   # 566 vérifications
+bash tools/check_ui.sh                                           # 99 vues d'écran
 "$GODOT" --headless --path . --script res://tools/season.gd      # saison complète
-bash tools/check_all.sh                                          # les trois d'affilée
+bash tools/check_all.sh                                          # tout d'affilée
+
+# Cohérence multi-disciplines. Sans --pack : l'univers fictif ; avec : celui
+# que le joueur obtient par défaut, où Counter-Strike est réel.
+"$GODOT" --headless --path . --script res://tools/discipline_probe.gd
+"$GODOT" --headless --path . --script res://tools/discipline_probe.gd -- --pack=vct_2026
 
 # Captures d'écran réelles de chaque onglet (ouvre brièvement une fenêtre)
 "$GODOT" --path . -- --shots=all

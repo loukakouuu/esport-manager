@@ -1,11 +1,29 @@
 # Packs de données — jouer avec de vraies équipes
 
 Le jeu sait tourner sur deux univers : un univers **entièrement fictif**
-(96 structures, environ 700 joueurs, tous inventés) et un pack **VCT 2026** qui
-apporte les vraies structures et les vrais joueurs. Un *pack de données*
-remplace tout ou partie du contenu sans toucher au code.
+(188 structures, environ 1 560 joueurs, tous inventés) et un pack
+**Saison 2026** qui apporte les vraies structures et les vrais joueurs, dans
+les DEUX disciplines. Un *pack de données* remplace tout ou partie du contenu
+sans toucher au code.
 
-Le pack VCT 2026 est **livré avec le jeu** et actif par défaut.
+Le pack Saison 2026 est **livré avec le jeu** et actif par défaut. Il vient de
+deux sources, parce que les deux circuits ne publient pas les mêmes choses :
+
+| | Source | Ce qu'elle donne |
+| --- | --- | --- |
+| Valorant | Liquipedia (CC-BY-SA 3.0) | 48 structures, 187 joueurs, et les autres disciplines de chaque maison |
+| Counter-Strike | Classement mondial HLTV | 76 écuries, 373 joueurs, **et la hiérarchie** |
+
+Cette dernière colonne est la vraie différence entre les deux. « Fnatic est
+plus fort que BBL » n'est pas une donnée publique en Valorant : le pack VCT
+donne donc la même force à tout le monde et laisse le jeu inventer l'ordre. En
+Counter-Strike, l'ordre EST publié — c'est le classement HLTV — et le champ
+`strength` du circuit CS est donc une vraie mesure.
+
+> Son identifiant reste `vct_2026`, alors qu'il ne couvre plus seulement le
+> VCT : c'est celui qu'ont enregistré les sauvegardes existantes. Même
+> arbitrage que `orgs.json`, qui reste le fichier Valorant parce qu'il est le
+> fichier historique.
 
 ## Pourquoi le système existe quand même
 
@@ -157,6 +175,100 @@ Les noms d'équipes et de joueurs restent la propriété de leurs détenteurs. U
 pack construit ainsi est destiné à un **usage personnel** : ne le redistribuez
 pas comme s'il faisait partie du jeu.
 
+## Construire ou rafraîchir le circuit Counter-Strike (HLTV)
+
+```bash
+godot --headless --path . --script res://tools/import_hltv.gd
+```
+
+Pas de `--contact`, pas de dix minutes d'attente : **cet importateur ne
+télécharge rien.** HLTV répond 403 à tout client qui n'est pas un navigateur —
+`curl` avec un User-Agent de Chrome comme le `HTTPRequest` de Godot. Il n'y a
+pas de clé d'API à demander. Écrire un importateur qui « télécharge le
+classement » serait donc écrire un importateur qui ne marche pas.
+
+Le partage des rôles est assumé : **la récolte est manuelle et datée, la
+conversion est reproductible.** Un instantané du classement vit dans
+[`tools/hltv/`](../tools/hltv/) avec la marche à suivre pour le rafraîchir
+(vingt secondes dans la console du navigateur), et le script le convertit en
+pack.
+
+| Option | Effet |
+| --- | --- |
+| `--pack=vct_2026` | Pack complété sous `user://packs/`. |
+| `--snapshot=` | Instantané à convertir. Par défaut : le plus récent de `tools/hltv/`. |
+| `--dry` | N'écrit rien, montre la pyramide qui serait produite. |
+
+### Ce que l'import donne vraiment
+
+Résultat d'une conversion réelle (classement du 14 septembre 2026) :
+
+- **76 écuries réelles** sur 86 places, des deux premières mondiales jusqu'au
+  rang 228 — le bas de pyramide EST le bas de pyramide ;
+- **373 joueurs** réels : pseudo, nom civil, nationalité ;
+- une **force tirée du rang mondial**, donc une hiérarchie qui existe à
+  l'intérieur d'une ligue ET entre les régions : la Pro League EMEA tourne
+  autour de 74-88 quand la chinoise tient entre 66 et 68, parce que le
+  classement mondial ne place que deux écuries chinoises dans ses trente-cinq
+  premières.
+
+Les dix places restantes sont en Chine, et gardent l'équipe **fictive** livrée :
+le classement mondial n'y compte que huit écuries, toutes absorbées par la Pro
+League et le haut de la Challenger. Une ligue à deux équipes n'aurait pas de
+sens sportif ; la combler de vraies équipes qui n'y sont pas en aurait encore
+moins.
+
+### Ce qui fait les maisons à deux sections
+
+Le moteur ne rapproche une ligne de `orgs_cs2.json` d'une structure existante
+que si le **nom est identique au caractère près**. Or HLTV écrit « Vitality »
+là où Liquipedia écrit « Team Vitality » : sans rien faire, on obtiendrait deux
+structures et deux trésoreries pour une seule maison.
+
+L'importateur aligne donc l'orthographe sur celle que le pack emploie déjà,
+quand les deux coïncident une fois l'habillage d'entreprise retiré
+(`G2` → `G2 Esports`, `fnatic` → `Fnatic`). Il ne rapproche que ça : mieux vaut
+deux structures séparées qu'une fusion abusive, qui donnerait à une maison une
+section qu'elle n'a pas.
+
+Le résultat se vérifie tout seul, et c'est rassurant : les **onze** structures
+que cet alignement rapproche sont exactement les onze dont Liquipedia dit, de
+son côté et sans rapport, qu'elles ont une section Counter-Strike active.
+
+### Ce que l'import n'apporte pas, et pourquoi
+
+Même règle que côté Valorant — un pack apporte l'**identité**, le moteur fait
+la **simulation** — avec deux précisions propres à HLTV :
+
+- **la note HLTV d'un joueur est publique**, mais la convertir en attributs
+  serait un modèle de plus. Le rang d'une ÉQUIPE se transpose en un seul
+  nombre ; la note d'un joueur, non ;
+- **la date de naissance et le poste** ne sont pas sur le classement — il
+  faudrait ~450 fiches individuelles. Ils viennent donc du wiki Counter-Strike
+  de Liquipedia, qui répond par lots de cinquante :
+
+```bash
+godot --headless --path . --script res://tools/import_liquipedia.gd -- \
+    --profiles --contact="esport-manager (outil personnel, usage local)"
+```
+
+Quatre minutes, et **307 dates de naissance et 314 postes sur 372 joueurs**.
+Deux sources, deux fichiers : l'instantané HLTV et `tools/hltv/profiles.json`
+gardent chacun sa provenance et sa licence, et l'import les fusionne.
+
+Le poste n'est pas un détail d'affichage. Il n'y a qu'une AWP par équipe de
+Counter-Strike et tout le monde sait qui la tient : ZywOo rangé « soutien »
+pendant qu'apEX tient l'AWP se voit immédiatement. Le moteur respecte les
+postes déclarés dans les **bornes de composition** de la discipline — une page
+de wiki peut annoncer deux AWPeurs dans le même cinq, le second passe rifleur.
+
+### Licence
+
+Le classement est le **travail éditorial de HLTV** et les noms appartiennent à
+leurs détenteurs. Le manifeste porte la source et sa date, et l'écran de
+démarrage l'affiche à côté de l'attribution Liquipedia. Usage **personnel** :
+ne redistribuez ni l'instantané ni le pack.
+
 ## Écrire un pack à la main
 
 Un pack est un dossier. Il lui faut un manifeste et au moins un fichier de
@@ -165,12 +277,25 @@ données.
 ```
 user://packs/mon-pack/
 ├── pack.json
-└── world/
-    ├── orgs.json        (facultatif)
-    ├── rosters.json     (facultatif)
-    ├── names.json       (facultatif)
-    └── sponsors.json    (facultatif)
+├── world/
+│   ├── orgs.json            structures Valorant       (facultatif)
+│   ├── rosters.json         effectifs réels Valorant  (facultatif)
+│   ├── season_valorant.json circuit Valorant          (facultatif)
+│   ├── orgs_cs2.json        structures CS2            (facultatif)
+│   ├── rosters_cs2.json     effectifs réels CS2       (facultatif)
+│   ├── season_cs2.json      circuit CS2               (facultatif)
+│   ├── names.json           (facultatif)
+│   └── sponsors.json        (facultatif)
+└── games/
+    ├── valorant/            maps.json, agents.json    (facultatif)
+    └── cs2/                 maps.json, weapons.json   (facultatif)
 ```
+
+**Une discipline = un jeu de fichiers.** Valorant a été la première : ses
+fichiers portent les noms historiques, sans suffixe. Toute discipline ajoutée
+ensuite suit la convention `<nom>_<discipline>.json`. Chaque module dit lui-même
+où sont ses fichiers (`GameModule.orgs_path`, `season_path`, `rosters_path`) :
+ajouter une discipline n'oblige donc jamais à toucher au chargeur de packs.
 
 ### `pack.json`
 
@@ -220,13 +345,34 @@ fans et les moyens financiers. `owner` vaut `self_funded`, `investor`,
 `valorant`, `cs2`, `lol`, `rl`, `apex`, `r6`, `dota2`, `ow2` — un identifiant
 inconnu est ignoré plutôt que de créer une section fantôme. Le champ est
 facultatif : sans lui, le jeu en déduit une liste plausible à partir de
-`strength`. Seules les disciplines effectivement simulées (aujourd'hui
-Valorant) donnent lieu à une équipe ; les autres s'affichent comme sections non
-simulées. Voir [`src/gamemodules/GameCatalog.gd`](../src/gamemodules/GameCatalog.gd).
+`strength`. Seules les disciplines effectivement simulées (aujourd'hui Valorant
+et Counter-Strike 2) donnent lieu à une équipe ; les autres s'affichent comme
+sections non simulées.
+Voir [`src/gamemodules/GameCatalog.gd`](../src/gamemodules/GameCatalog.gd).
+
+> **Déclarer `cs2` suffit.** Une structure de votre `orgs.json` qui déclare une
+> discipline simulée reçoit une vraie équipe, même si aucun fichier
+> `orgs_cs2.json` ne la mentionne : le moteur l'engage à l'étage qui correspond
+> à sa `strength`. C'est ce qui évite d'afficher « Counter-Strike 2 — non
+> simulée » sur la fiche d'une écurie pendant que le jeu simule une saison CS
+> complète à côté.
 
 > Un pack **remplace** le fichier qu'il fournit, il ne s'y ajoute pas. Si votre
 > `orgs.json` n'a que les ligues VCT, les Challengers disparaîtront du monde.
 > Repartez du fichier livré et modifiez-le.
+
+### `world/orgs_cs2.json`
+
+Même format, avec les clés de ligue de Counter-Strike (`cs_pro_emea`,
+`cs_chal_emea`, `cs_open_emea` et leurs équivalents `_americas`, `_pacific`,
+`_china`).
+
+**La règle qui fait tout l'intérêt du fichier** : si le `name` d'une entrée
+existe déjà dans le monde, la ligne n'invente PAS une structure — elle ouvre une
+**section** dans la maison existante, qui partage sa trésorerie, sa marque et sa
+direction. C'est ainsi qu'on obtient des écuries à deux rosters sur un seul
+grand livre. Les autres lignes créent des structures 100 % Counter-Strike,
+comme il en existe beaucoup dans la réalité.
 
 ### `world/rosters.json`
 
