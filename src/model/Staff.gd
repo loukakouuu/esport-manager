@@ -69,7 +69,7 @@ var birth_day: int = 0
 var region: String = "EMEA"   # région d’exercice, filtre du marché
 
 var role: Role = Role.HEAD_COACH
-var game_id: String = "valorant"     # "" = polyvalent (GM, manager…)
+var game_id: String = ""             # "" = polyvalent (GM, manager, préparateurs…)
 var attributes: Dictionary = {}
 var reputation: int = 200
 
@@ -165,7 +165,7 @@ static func from_dict(d: Dictionary) -> Staff:
 	s.last_refused_org = d.get("last_refused_org", "")
 	s.refused_until = int(d.get("refused_until", 0))
 	s.role = int(d.get("role", 0)) as Role
-	s.game_id = d.get("game_id", "valorant")
+	s.game_id = d.get("game_id", "")
 	s.attributes = (d.get("attributes", {}) as Dictionary).duplicate()
 	s.reputation = int(d.get("reputation", 200))
 	s.org_id = d.get("org_id", "")

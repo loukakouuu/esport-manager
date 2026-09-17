@@ -10,6 +10,12 @@ extends RefCounted
 ##
 ## L'IA respecte les mêmes règles que le joueur : elle paie les clauses, les
 ## commissions d'agent, et elle peut se ruiner en surpayant.
+##
+## Tout se fait SECTION PAR SECTION : une maison qui aligne Valorant et
+## Counter-Strike gère deux effectifs sur une seule trésorerie, et un roster
+## Counter-Strike laissé de côté finirait la saison à quatre joueurs, donc en
+## forfait. Les marchés, eux, ne se mélangent jamais — un AWPeur ne remplace
+## pas un contrôleur.
 
 
 static func weekly_tick(world: World) -> void:
@@ -17,16 +23,25 @@ static func weekly_tick(world: World) -> void:
 		var o: Organization = world.orgs[oid]
 		if o.is_player_controlled or o.bankrupt:
 			continue
-		_renew_expiring(world, o)
-		_fill_roster(world, o)
-		_seek_upgrade(world, o)
+		for r in _managed_rosters(world, o):
+			_renew_expiring(world, o, r)
+			_fill_roster(world, o, r)
+			_seek_upgrade(world, o, r)
 	_poach_from_player(world)
 
 
+## Équipes dont l'IA doit s'occuper : toutes les sections engagées.
+static func _managed_rosters(world: World, o: Organization) -> Array[Roster]:
+	var out: Array[Roster] = []
+	for r in world.rosters_of(o.id):
+		if not r.is_academy:
+			out.append(r)
+	return out
+
+
 ## Prolongation des joueurs que la structure veut garder.
-static func _renew_expiring(world: World, o: Organization) -> void:
-	var rng := world.rng.derive("renew:%s:%d" % [o.id, world.today])
-	var r := world.main_roster(o.id, "valorant")
+static func _renew_expiring(world: World, o: Organization, r: Roster) -> void:
+	var rng := world.rng.derive("renew:%s:%s:%d" % [o.id, r.id, world.today])
 	if r == null:
 		return
 	for p in world.players_of(r.id):
@@ -49,14 +64,13 @@ static func _renew_expiring(world: World, o: Organization) -> void:
 
 
 ## Complète un roster incomplet avec des agents libres du bon poste.
-static func _fill_roster(world: World, o: Organization) -> void:
-	var r := world.main_roster(o.id, "valorant")
+static func _fill_roster(world: World, o: Organization, r: Roster) -> void:
 	if r == null:
 		return
-	var module := world.module_for("valorant")
+	var module := world.module_for(r.game_id)
 	while r.player_ids.size() < module.team_size():
 		var missing := _missing_role(world, r, module)
-		var target := _best_free_agent(world, o, missing)
+		var target := _best_free_agent(world, o, missing, r.game_id)
 		if target == null:
 			break
 		var salary := ContractSystem.salary_demand(world, target, o)
@@ -80,7 +94,8 @@ static func _missing_role(world: World, r: Roster, module: GameModule) -> String
 	return str(module.roles()[0])
 
 
-static func _best_free_agent(world: World, o: Organization, role: String) -> Player:
+static func _best_free_agent(world: World, o: Organization, role: String,
+		game_id: String) -> Player:
 	var best: Player = null
 	var best_score := -INF
 	# La capacité d'embauche se juge sur les revenus annuels, pas sur la
@@ -89,7 +104,7 @@ static func _best_free_agent(world: World, o: Organization, role: String) -> Pla
 	# problème passager.
 	var ceiling := float(FinanceSystem.recurring_monthly_income(world, o)) * 12.0 * 0.30
 	ceiling = maxf(ceiling, float(o.ledger.cash) * 0.5)
-	for p in world.free_agents("valorant"):
+	for p in world.free_agents(game_id):
 		if p.retired or p.region != o.region:
 			continue
 		var fit := 1.0 if p.primary_role == role else 0.55
@@ -106,12 +121,12 @@ static func _best_free_agent(world: World, o: Organization, role: String) -> Pla
 
 ## Une structure ambitieuse va chercher un joueur meilleur que son maillon
 ## faible — en payant la clause s'il le faut.
-static func _seek_upgrade(world: World, o: Organization) -> void:
-	var rng := world.rng.derive("upgrade:%s:%d" % [o.id, world.today])
+static func _seek_upgrade(world: World, o: Organization, r: Roster) -> void:
+	var rng := world.rng.derive("upgrade:%s:%s:%d" % [o.id, r.id, world.today])
 	if not rng.chance(0.06):
 		return
-	var r := world.main_roster(o.id, "valorant")
-	if r == null or r.starters.size() < 5:
+	var size := world.module_for(r.game_id).team_size()
+	if r.starters.size() < size:
 		return
 	var weakest: Player = null
 	for p in world.players_of(r.id):
@@ -122,7 +137,7 @@ static func _seek_upgrade(world: World, o: Organization) -> void:
 	if weakest == null:
 		return
 
-	var candidate := _best_free_agent(world, o, weakest.primary_role)
+	var candidate := _best_free_agent(world, o, weakest.primary_role, r.game_id)
 	if candidate == null or candidate.current_ability <= weakest.current_ability + 8:
 		return
 	var salary := ContractSystem.salary_demand(world, candidate, o)
@@ -136,7 +151,7 @@ static func _seek_upgrade(world: World, o: Organization) -> void:
 	if rng.chance(ContractSystem.acceptance_chance(world, candidate, o, salary,
 			c.squad_role)):
 		ContractSystem.sign_contract(world, o, candidate, c, r.id)
-		if r.starters.size() >= 5:
+		if r.starters.size() >= size:
 			r.starters.erase(weakest.id)
 			r.starters.append(candidate.id)
 
@@ -150,10 +165,12 @@ static func _poach_from_player(world: World) -> void:
 	if not rng.chance(0.18):
 		return
 	var my_org := world.my_org()
-	var r := world.main_roster(my_org.id, world.player_game_id)
-	if r == null:
-		return
-	var squad := world.players_of(r.id)
+	# Toutes les sections du joueur sont convoitées, pas seulement celle qu'il
+	# regarde : une offre sur son AWPeur doit arriver même s'il est en train de
+	# gérer son roster Valorant.
+	var squad: Array[Player] = []
+	for r in _managed_rosters(world, my_org):
+		squad.append_array(world.players_of(r.id))
 	if squad.is_empty():
 		return
 	# On cible les meilleurs éléments : c'est la rançon du succès.
@@ -189,6 +206,7 @@ static func _poach_from_player(world: World) -> void:
 static func auto_manage(world: World, o: Organization) -> void:
 	if o == null or o.bankrupt:
 		return
-	_renew_expiring(world, o)
-	_fill_roster(world, o)
-	_seek_upgrade(world, o)
+	for r in _managed_rosters(world, o):
+		_renew_expiring(world, o, r)
+		_fill_roster(world, o, r)
+		_seek_upgrade(world, o, r)

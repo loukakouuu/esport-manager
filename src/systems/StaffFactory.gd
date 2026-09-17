@@ -34,7 +34,9 @@ static func create(rng: Rng, ids: Ids, today: int, role: Staff.Role,
 	var s := Staff.new()
 	s.id = ids.next(Ids.STAFF)
 	s.role = role
-	s.game_id = str(opts.get("game_id", "valorant"))
+	# "" = polyvalent : c'est le cas par défaut, seuls les postes de banc
+	# (entraîneur, analyste, adjoint) appartiennent à une discipline.
+	s.game_id = str(opts.get("game_id", ""))
 
 	var region := str(opts.get("region", "EMEA"))
 	var n := DataFile.load_json(PlayerFactory.NAMES_PATH, {"regions": {}}) as Dictionary

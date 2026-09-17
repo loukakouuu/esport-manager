@@ -26,17 +26,10 @@ const AGE_GROWTH := {
 	23: 0.55, 24: 0.40, 25: 0.25, 26: 0.12, 27: 0.05,
 }
 
-## Attributs qui déclinent avec l'âge (mécanique pure) et ceux qui continuent
-## de progresser (compréhension du jeu).
-const DECLINING := [
-	ValorantModule.AIM, ValorantModule.MOVEMENT, ValorantModule.DUELLING,
-	ValorantModule.ENTRY, Attributes.REACTION,
-]
-const AGEING_WELL := [
-	ValorantModule.GAME_SENSE, ValorantModule.MAP_KNOWLEDGE,
-	ValorantModule.MID_ROUND, ValorantModule.ECONOMY, ValorantModule.POSITIONING,
-	Attributes.LEADERSHIP, Attributes.COMPOSURE, Attributes.DECISION_MAKING,
-]
+## Quels attributs déclinent avec l'âge et lesquels continuent de progresser
+## est une question de DISCIPLINE, pas de moteur : c'est le GameModule qui
+## répond (`declining_attributes` / `ageing_attributes`). Un AWPeur perd son
+## AWP avec ses réflexes, un contrôleur Valorant n'a pas d'AWP à perdre.
 
 
 ## Passe hebdomadaire sur tout le monde. Appelée chaque lundi par GameSim.
@@ -163,7 +156,7 @@ static func _bump_attribute(rng: Rng, module: GameModule, p: Player,
 	var candidates: Array[String] = []
 	var weights: Array[float] = []
 	if decline:
-		for k in DECLINING:
+		for k in module.declining_attributes():
 			if p.attr(k) > 4:
 				candidates.append(k)
 				weights.append(float(p.attr(k)))
@@ -174,7 +167,7 @@ static func _bump_attribute(rng: Rng, module: GameModule, p: Player,
 				candidates.append(k)
 				weights.append(float(role_w[k]) + float(focus.get(k, 0.0)))
 		# Un joueur âgé progresse surtout sur la compréhension du jeu.
-		for k in AGEING_WELL:
+		for k in module.ageing_attributes():
 			if p.attr(k) < Attributes.MAX:
 				candidates.append(k)
 				weights.append(1.2 + float(focus.get(k, 0.0)))

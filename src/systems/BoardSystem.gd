@@ -28,14 +28,20 @@ static func confidence_label(v: float) -> String:
 
 ## Fixe les objectifs de la saison selon le rang attendu de la structure dans
 ## sa ligue. Une équipe classée 10e sur 12 n'a pas à viser le titre.
+##
+## La direction juge la section VITRINE — celle engagée à l'étage le plus haut,
+## toutes disciplines confondues. Ce n'est pas forcément celle que le joueur
+## regarde : il peut basculer sur son roster Counter-Strike sans que la
+## direction change d'avis en cours de saison, ce qui serait absurde.
 static func season_objectives(world: World, org: Organization) -> Array:
-	var r := world.main_roster(org.id, world.player_game_id)
+	var r := WorldGenerator.flagship_roster(world, org)
 	if r == null:
 		return []
 	var peers := _league_peers(world, r.league_key)
 	var rank := _expected_rank(world, org, peers)
 	var total := maxi(peers.size(), 1)
-	var tier1 := r.league_key.begins_with("vct")
+	var tier := _league_tier(world, r.league_key)
+	var tier1 := tier == 1
 	var out: Array = []
 
 	var share := float(rank) / float(total)
@@ -52,19 +58,22 @@ static func season_objectives(world: World, org: Organization) -> Array:
 
 	# L'objectif de montée dépend de l'étage de la pyramide où l'on se trouve.
 	# Une équipe du circuit ouvert n'a rien à faire de « se qualifier pour
-	# l'Ascension » : sa marche à elle, c'est le barrage Challengers.
-	match _league_tier(world, r.league_key):
+	# l'Ascension » : sa marche à elle, c'est le barrage de l'étage au-dessus.
+	# Le nom du barrage est celui de la VRAIE compétition : « Ascension EMEA »
+	# en Valorant, « Barrage Pro League EMEA » en Counter-Strike.
+	match tier:
 		1:
 			out.append(_obj("international",
 				"Se qualifier pour un tournoi international", 1, 1.5))
 		2:
-			out.append(_obj("ascension", "Se qualifier pour l'Ascension", 4, 2.0))
+			out.append(_obj("ascension", "Se qualifier pour %s"
+				% _promotion_name(world, r, 2), 4, 2.0))
 		_:
 			# Une structure qu'on attend en fond de tableau n'a pas à se voir
 			# fixer la promotion : ce serait un objectif perdu d'avance.
 			if share <= 0.55:
-				out.append(_obj("promotion", "Disputer le barrage Challengers",
-					2, 2.0))
+				out.append(_obj("promotion", "Disputer %s"
+					% _promotion_name(world, r, 3), 2, 2.0))
 
 	# Objectif financier : toujours présent, jamais négociable.
 	out.append(_obj("finance", "Terminer la saison sans déficit", 0, 2.0))
@@ -74,6 +83,20 @@ static func season_objectives(world: World, org: Organization) -> Array:
 static func _obj(key: String, label: String, target: int, weight: float) -> Dictionary:
 	return {"key": key, "label": label, "target": target, "weight": weight,
 		"met": false, "evaluated": false}
+
+
+## Nom du barrage de montée de cet étage, dans la discipline et la région de
+## l'équipe. Faute de le trouver, une formulation neutre : mieux vaut
+## « la montée » que « l'Ascension » affiché à une équipe Counter-Strike.
+static func _promotion_name(world: World, r: Roster, tier: int) -> String:
+	for cid in world.competitions:
+		var c: Competition = world.competitions[cid]
+		if c.kind != Competition.Kind.ASCENSION or c.game_id != r.game_id:
+			continue
+		if c.tier != tier or c.region != r.region:
+			continue
+		return c.short_name
+	return "la montée à l'étage supérieur"
 
 
 ## Étage de la pyramide d'une ligue (1 = VCT, 2 = Challengers, 3 = circuit
@@ -124,7 +147,7 @@ static func _expected_rank(world: World, org: Organization,
 ## Bilan de fin de saison : met à jour la confiance et peut mettre fin à la
 ## partie si la direction perd patience.
 static func evaluate_season(world: World, org: Organization) -> Dictionary:
-	var r := world.main_roster(org.id, world.player_game_id)
+	var r := WorldGenerator.flagship_roster(world, org)
 	var report := {"met": 0, "total": 0, "delta": 0.0, "details": []}
 	if r == null:
 		return report

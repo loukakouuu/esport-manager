@@ -27,6 +27,21 @@ extends RefCounted
 # Barème et réglages
 # ============================================================================
 
+## Postes de BANC : rattachés à UNE équipe, donc recrutés autant de fois que la
+## maison aligne de sections. Une écurie qui tient un roster Valorant et un
+## roster Counter-Strike paie deux entraîneurs et deux analystes — c'est ce
+## qu'elle fait dans la réalité, et sans ça sa deuxième équipe jouerait toute
+## la saison avec le niveau tactique plancher.
+##
+## Les autres postes (team manager, préparateurs, recruteur, contenu, directeur
+## sportif) servent toute la maison et ne sont recrutés qu'une fois.
+const TEAM_ROLES: Array[int] = [
+	Staff.Role.HEAD_COACH,
+	Staff.Role.ANALYST,
+	Staff.Role.ASSISTANT_COACH,
+]
+
+
 ## Postes par ordre d'utilité décroissante. Sert à l'IA comme à l'affichage :
 ## un entraîneur avant un analyste, un analyste avant un directeur sportif.
 const ROLE_ORDER: Array[int] = [
@@ -104,12 +119,25 @@ static func seed_market(world: World) -> void:
 	var rng := world.rng.derive("staffmarket")
 	for region in REGIONS:
 		for role in ROLE_ORDER:
-			for _i in MARKET_TARGET:
-				_spawn_free(world, rng, role, region)
+			for game_id in _market_games(role):
+				for _i in MARKET_TARGET:
+					_spawn_free(world, rng, role, region, str(game_id))
 
 
-static func _spawn_free(world: World, rng: Rng, role: int,
-		region: String) -> Staff:
+## Disciplines pour lesquelles il faut un vivier à ce poste. Les postes de banc
+## sont spécialisés — un entraîneur Counter-Strike ne se recrute pas dans le
+## vivier Valorant — et tous les autres sont polyvalents (game_id vide).
+static func _market_games(role: int) -> Array:
+	if not TEAM_ROLES.has(role):
+		return [""]
+	var out: Array = []
+	for g in GameRegistry.all_ids():
+		out.append(g)
+	return out
+
+
+static func _spawn_free(world: World, rng: Rng, role: int, region: String,
+		game_id: String = "") -> Staff:
 	# Le vivier libre est en moyenne moins bon que le staff en poste, avec une
 	# queue haute : c'est là qu'on trouve la perle qu'une structure vient de
 	# laisser filer.
@@ -117,6 +145,7 @@ static func _spawn_free(world: World, rng: Rng, role: int,
 	var s := StaffFactory.create(rng, world.ids, world.today, role as Staff.Role, {
 		"region": region,
 		"target_overall": target,
+		"game_id": game_id,
 	})
 	world.staff[s.id] = s
 	return s
@@ -136,22 +165,28 @@ static func market_upkeep(world: World) -> void:
 		if s.age(world.today) >= RETIRE_AGE or rng.chance(0.012):
 			doomed.append(s.id)
 			continue
-		var key := "%s|%d" % [s.region, int(s.role)]
+		var key := "%s|%d|%s" % [s.region, int(s.role),
+			s.game_id if TEAM_ROLES.has(int(s.role)) else ""]
 		counts[key] = int(counts.get(key, 0)) + 1
 	for sid in doomed:
 		world.staff.erase(sid)
 
 	for region in REGIONS:
 		for role in ROLE_ORDER:
-			var key := "%s|%d" % [region, int(role)]
-			var missing := MARKET_TARGET - int(counts.get(key, 0))
-			for _i in maxi(missing, 0):
-				_spawn_free(world, rng, role, region)
+			for game_id in _market_games(role):
+				var key := "%s|%d|%s" % [region, int(role), str(game_id)]
+				var missing := MARKET_TARGET - int(counts.get(key, 0))
+				for _i in maxi(missing, 0):
+					_spawn_free(world, rng, role, region, str(game_id))
 
 
 ## Encadrants sans employeur, filtrés et triés du meilleur au moins bon.
-static func free_agents(world: World, role: int = -1,
-		region: String = "") -> Array[Staff]:
+##
+## `game_id` ne filtre que les postes de BANC, et laisse toujours passer les
+## polyvalents (`game_id` vide) : un préparateur mental ne dépend pas de la
+## discipline, un entraîneur si.
+static func free_agents(world: World, role: int = -1, region: String = "",
+		game_id: String = "") -> Array[Staff]:
 	var out: Array[Staff] = []
 	for sid in world.staff:
 		var s: Staff = world.staff[sid]
@@ -160,6 +195,8 @@ static func free_agents(world: World, role: int = -1,
 		if role >= 0 and int(s.role) != role:
 			continue
 		if region != "" and s.region != region:
+			continue
+		if game_id != "" and s.game_id != "" and s.game_id != game_id:
 			continue
 		out.append(s)
 	out.sort_custom(func(a: Staff, b: Staff) -> bool:
@@ -304,6 +341,15 @@ static func attach(world: World, org: Organization, s: Staff,
 		else world.main_roster(org.id, s.game_id)
 	if r == null:
 		return
+	if not TEAM_ROLES.has(int(s.role)):
+		# Un poste transverse n'est pas rattaché à un banc : l'accrocher au
+		# roster ferait croire qu'il appartient à une section plutôt qu'à la
+		# maison, et il disparaîtrait de l'écran dès qu'on change d'équipe.
+		return
+	# Un encadrant de banc suit la discipline de l'équipe qu'il prend, même
+	# s'il vient d'un autre jeu : c'est courant, et un coach CS2 rattaché à un
+	# roster Valorant serait un bug invisible.
+	s.game_id = r.game_id
 	if s.role == Staff.Role.HEAD_COACH:
 		var previous := world.staffer(r.head_coach_id)
 		if previous != null and previous.id != s.id \
@@ -387,7 +433,14 @@ static func severance(world: World, s: Staff) -> int:
 
 ## Titulaire d'un poste dans la structure (le meilleur s'il y en a plusieurs),
 ## null si le poste est vacant.
-static func holder(world: World, org: Organization, role: int) -> Staff:
+## Qui occupe ce poste ? Pour un poste de banc, la question n'a de sens qu'à
+## l'échelle d'une ÉQUIPE : `roster_id` restreint donc la recherche au banc de
+## cette équipe-là. Sans lui, une maison à deux sections paraîtrait avoir un
+## entraîneur partout alors que sa deuxième équipe n'en a pas.
+static func holder(world: World, org: Organization, role: int,
+		roster_id: String = "") -> Staff:
+	if roster_id != "" and TEAM_ROLES.has(role):
+		return _bench_holder(world, roster_id, role)
 	var best: Staff = null
 	for sid in org.staff_ids:
 		var s := world.staffer(sid)
@@ -396,6 +449,32 @@ static func holder(world: World, org: Organization, role: int) -> Staff:
 		if best == null or s.overall() > best.overall():
 			best = s
 	return best
+
+
+static func _bench_holder(world: World, roster_id: String, role: int) -> Staff:
+	var r := world.roster(roster_id)
+	if r == null:
+		return null
+	if role == Staff.Role.HEAD_COACH:
+		return world.staffer(r.head_coach_id)
+	var best: Staff = null
+	for sid in r.staff_ids:
+		var s := world.staffer(sid)
+		if s == null or int(s.role) != role:
+			continue
+		if best == null or s.overall() > best.overall():
+			best = s
+	return best
+
+
+## Équipes d'une structure réellement engagées en compétition — celles qui ont
+## besoin d'un banc. L'académie s'entraîne, elle ne dispute pas de saison.
+static func competitive_rosters(world: World, org: Organization) -> Array[Roster]:
+	var out: Array[Roster] = []
+	for r in world.rosters_of(org.id):
+		if not r.is_academy:
+			out.append(r)
+	return out
 
 
 ## Facteur de récupération apporté par le pôle performance : 1,0 sans personne,
@@ -444,15 +523,19 @@ static func negotiation_edge(world: World, org: Organization) -> float:
 ## Tableau de bord de l'encadrement : un poste par ligne, avec ce que la
 ## personne en place apporte vraiment. C'est ce qui rend le staff lisible —
 ## jusqu'ici le joueur payait des salaires sans jamais voir la contrepartie.
-static func effect_summary(world: World, org: Organization) -> Array:
+## `roster_id` est la section regardée : pour un poste de banc, c'est SON
+## occupant qu'on décrit, pas le meilleur de la maison.
+static func effect_summary(world: World, org: Organization,
+		roster_id: String = "") -> Array:
 	var out: Array = []
 	for role in ROLE_ORDER:
-		var s := holder(world, org, role)
+		var s := holder(world, org, role, roster_id)
 		out.append({
 			"role": role,
 			"label": Staff.ROLE_LABELS.get(role, "Staff"),
 			"effect": ROLE_EFFECTS.get(role, ""),
 			"staff": s,
+			"team_role": TEAM_ROLES.has(role),
 			"delivers": _delivers(world, org, role, s),
 		})
 	return out
@@ -567,18 +650,26 @@ static func auto_manage(world: World, org: Organization) -> void:
 ## Chaque poste reçoit donc sa propre enveloppe, et l'organigramme s'arrête là
 ## où l'argent s'arrête — un préfixe de ROLE_ORDER, jamais un trou au milieu.
 ##
-## Retourne {role: enveloppe annuelle en cents}.
+## Un poste de BANC compte autant de fois que la maison a de sections : une
+## écurie à deux rosters doit budgéter deux entraîneurs avant d'ouvrir un poste
+## de recruteur. L'enveloppe renvoyée reste celle d'UNE personne.
+##
+## Retourne {role: enveloppe annuelle en cents, par personne}.
 static func org_chart(world: World, org: Organization) -> Dictionary:
 	var budget := float(FinanceSystem.recurring_monthly_income(world, org)) \
 		* 12.0 * AI_PAYROLL_SHARE
+	var teams := maxi(competitive_rosters(world, org).size(), 1)
 	# 1. Combien de postes ouvrir : au prix d'un titulaire correct.
 	var rates := {}
+	var counts := {}
 	var spent := 0.0
 	for role in ROLE_ORDER:
-		var going_rate := float(StaffFactory.salary_for(role, 10.5))
+		var heads := teams if TEAM_ROLES.has(role) else 1
+		var going_rate := float(StaffFactory.salary_for(role, 10.5)) * float(heads)
 		if spent + going_rate > budget and not rates.is_empty():
 			break
 		rates[role] = going_rate
+		counts[role] = heads
 		spent += going_rate
 
 	# Une équipe engagée a toujours un entraîneur au budget, même fauchée :
@@ -594,8 +685,9 @@ static func org_chart(world: World, org: Organization) -> Dictionary:
 	#    trouvait aucun, et jouait trois saisons sans banc.
 	var out := {}
 	for role in rates:
-		out[role] = int(maxf(budget * float(rates[role]) / spent,
-			float(rates[role])))
+		var total: float = maxf(budget * float(rates[role]) / spent,
+			float(rates[role]))
+		out[role] = int(total / float(counts[role]))
 	return out
 
 
@@ -622,29 +714,40 @@ static func _ai_staffing(world: World, o: Organization) -> void:
 		if rng.chance(0.55):
 			renew(world, o, s, demand, rng.range_i(12, 30))
 
+	var teams := competitive_rosters(world, o)
+
 	# 2. Un banc vide est une urgence, pas une ligne de plus sur la liste :
 	#    sans entraîneur l'équipe joue à 8/20 de tactique. On ne passe donc
-	#    pas par le tirage hebdomadaire pour ce poste-là.
-	if chart.has(Staff.Role.HEAD_COACH) \
-			and holder(world, o, Staff.Role.HEAD_COACH) == null:
-		if not _fill_role(world, o, Staff.Role.HEAD_COACH, chart, rng):
-			# Personne dans l'enveloppe : on prend le moins cher du marché.
-			# Un banc vide coûte plus qu'un mauvais entraîneur, et il y a
-			# toujours quelqu'un à ce prix-là.
-			_fill_role(world, o, Staff.Role.HEAD_COACH,
-				{Staff.Role.HEAD_COACH: _cheapest_demand(world, o,
-					Staff.Role.HEAD_COACH)}, rng)
-		return
+	#    pas par le tirage hebdomadaire pour ce poste-là — et on le fait pour
+	#    CHAQUE section, pas seulement pour la vitrine.
+	if chart.has(Staff.Role.HEAD_COACH):
+		for r in teams:
+			if holder(world, o, Staff.Role.HEAD_COACH, r.id) != null:
+				continue
+			if not _fill_role(world, o, Staff.Role.HEAD_COACH, chart, rng, r.id):
+				# Personne dans l'enveloppe : on prend le moins cher du marché.
+				# Un banc vide coûte plus qu'un mauvais entraîneur, et il y a
+				# toujours quelqu'un à ce prix-là.
+				_fill_role(world, o, Staff.Role.HEAD_COACH,
+					{Staff.Role.HEAD_COACH: _cheapest_demand(world, o,
+						Staff.Role.HEAD_COACH)}, rng, r.id)
+			return
 
 	# 3. Combler un autre poste vacant, un seul par semaine : une structure ne
 	#    recrute pas cinq encadrants le même lundi.
 	if not rng.chance(0.35):
 		return
 	for role in ROLE_ORDER:
-		if not chart.has(role) or holder(world, o, role) != null:
+		if not chart.has(role):
 			continue
-		_fill_role(world, o, role, chart, rng)
-		return
+		if TEAM_ROLES.has(role):
+			for r in teams:
+				if holder(world, o, role, r.id) == null:
+					_fill_role(world, o, role, chart, rng, r.id)
+					return
+		elif holder(world, o, role) == null:
+			_fill_role(world, o, role, chart, rng)
+			return
 
 
 ## Prétention la plus basse du marché à ce poste. Sert de plancher : il existe
@@ -665,11 +768,18 @@ static func _cheapest_demand(world: World, o: Organization, role: int) -> int:
 const AI_CALLS_PER_TICK := 3
 
 
-## Embauche le meilleur candidat qui tienne dans l'enveloppe du poste.
+## Embauche le meilleur candidat qui tienne dans l'enveloppe du poste. Pour un
+## poste de banc, `roster_id` dit QUELLE équipe il prend.
 static func _fill_role(world: World, o: Organization, role: int,
-		chart: Dictionary, rng: Rng) -> bool:
+		chart: Dictionary, rng: Rng, roster_id: String = "") -> bool:
 	var envelope := int(chart.get(role, 0))
-	var pool := free_agents(world, role, o.region)
+	var game_id := ""
+	var r := world.roster(roster_id)
+	if r != null and TEAM_ROLES.has(role):
+		game_id = r.game_id
+	var pool := free_agents(world, role, o.region, game_id)
+	if pool.is_empty():
+		pool = free_agents(world, role, "", game_id)
 	if pool.is_empty():
 		pool = free_agents(world, role)
 	# `free_agents` trie du meilleur au moins bon : on descend la liste jusqu'à
@@ -682,6 +792,6 @@ static func _fill_role(world: World, o: Organization, role: int,
 			continue
 		called += 1
 		if bool(hire(world, o, s, salary_demand(world, s, o),
-				rng.range_i(12, 30))["ok"]):
+				rng.range_i(12, 30), roster_id)["ok"]):
 			return true
 	return false

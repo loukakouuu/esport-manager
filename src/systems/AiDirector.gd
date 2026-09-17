@@ -74,15 +74,21 @@ static func _manage_cash(world: World, o: Organization, rng: Rng) -> void:
 		o.budgets["marketing"] = Money.pct(monthly, 12.0)
 
 
+## On ne vend que depuis une section qui a de la marge : céder un titulaire
+## d'un cinq tout juste complet transforme un problème de trésorerie en
+## forfait, et le forfait coûte plus cher que le salaire qu'on voulait
+## économiser.
 static func _emergency_sale(world: World, o: Organization, rng: Rng) -> void:
-	var r := world.main_roster(o.id, "valorant")
-	if r == null or r.player_ids.size() <= 5:
-		return
 	var best: Player = null
-	for p in world.players_of(r.id):
-		if best == null or p.market_value > best.market_value:
-			best = p
-	if best == null:
+	for r in world.rosters_of(o.id):
+		if r.is_academy:
+			continue
+		if r.player_ids.size() <= world.module_for(r.game_id).team_size():
+			continue
+		for p in world.players_of(r.id):
+			if best == null or p.market_value > best.market_value:
+				best = p
+	if best == null or best.contract == null:
 		return
 	for oid in world.orgs:
 		var buyer: Organization = world.orgs[oid]
