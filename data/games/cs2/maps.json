@@ -1,0 +1,15 @@
+{
+  "_comment": "atk_win_rate = taux de victoire du cote TERRORISTE (l'attaque) sur la map, entre equipes de niveau egal. Counter-Strike est structurellement CT-sided : toutes les valeurs sont sous 0.50, contrairement a Valorant. openness = part des duels a longue distance. util_weight = poids des grenades. awp_weight = ce que rapporte un AWPeur sur cette map. active = pool competitif courant.",
+  "maps": [
+    { "name": "Mirage",   "atk_win_rate": 0.472, "active": true,  "openness": 0.70, "util_weight": 1.05, "awp_weight": 1.15 },
+    { "name": "Inferno",  "atk_win_rate": 0.455, "active": true,  "openness": 0.30, "util_weight": 1.22, "awp_weight": 0.75 },
+    { "name": "Nuke",     "atk_win_rate": 0.424, "active": true,  "openness": 0.45, "util_weight": 1.12, "awp_weight": 1.00 },
+    { "name": "Ancient",  "atk_win_rate": 0.489, "active": true,  "openness": 0.45, "util_weight": 1.08, "awp_weight": 0.85 },
+    { "name": "Anubis",   "atk_win_rate": 0.518, "active": true,  "openness": 0.55, "util_weight": 1.00, "awp_weight": 0.95 },
+    { "name": "Dust II",  "atk_win_rate": 0.476, "active": true,  "openness": 0.80, "util_weight": 0.85, "awp_weight": 1.25 },
+    { "name": "Train",    "atk_win_rate": 0.441, "active": true,  "openness": 0.50, "util_weight": 1.06, "awp_weight": 1.15 },
+    { "name": "Overpass", "atk_win_rate": 0.463, "active": false, "openness": 0.55, "util_weight": 1.10, "awp_weight": 1.00 },
+    { "name": "Vertigo",  "atk_win_rate": 0.501, "active": false, "openness": 0.30, "util_weight": 0.95, "awp_weight": 0.75 },
+    { "name": "Cache",    "atk_win_rate": 0.482, "active": false, "openness": 0.60, "util_weight": 0.90, "awp_weight": 1.05 }
+  ]
+}

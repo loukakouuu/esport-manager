@@ -1,0 +1,28 @@
+{
+  "_comment": "Arsenal de reference. role = poste dont cette arme est l'outil habituel ; sert a tirer la MAITRISE D'ARMES d'un joueur a sa creation (equivalent du pool d'agents de Valorant). Un AWPeur qui ne tient pas son AWP ne vaut pas son salaire, et c'est exactement ce que la fiche doit montrer.",
+  "weapons": [
+    { "name": "AWP",         "role": "awper" },
+    { "name": "SSG 08",      "role": "awper" },
+    { "name": "SCAR-20",     "role": "awper" },
+
+    { "name": "AK-47",       "role": "entry" },
+    { "name": "Galil AR",    "role": "entry" },
+    { "name": "MAC-10",      "role": "entry" },
+    { "name": "Nova",        "role": "entry" },
+
+    { "name": "M4A4",        "role": "support" },
+    { "name": "FAMAS",       "role": "support" },
+    { "name": "MP9",         "role": "support" },
+    { "name": "XM1014",      "role": "support" },
+
+    { "name": "M4A1-S",      "role": "lurker" },
+    { "name": "SG 553",      "role": "lurker" },
+    { "name": "UMP-45",      "role": "lurker" },
+    { "name": "Desert Eagle","role": "lurker" },
+
+    { "name": "AUG",         "role": "rifler" },
+    { "name": "Five-SeveN",  "role": "rifler" },
+    { "name": "Tec-9",       "role": "rifler" },
+    { "name": "USP-S",       "role": "rifler" }
+  ]
+}
