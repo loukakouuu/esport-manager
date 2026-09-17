@@ -10,9 +10,10 @@ extends RefCounted
 ## calendrier, progression, sauvegarde) est écrit une seule fois et ne connaît
 ## que cette interface.
 ##
-## Ajouter CS2 = créer src/gamemodules/cs2/Cs2Module.gd + son simulateur,
-## l'enregistrer dans GameRegistry, et fournir les données JSON. Aucune
-## modification du coeur.
+## Ajouter une discipline = créer src/gamemodules/<jeu>/<Jeu>Module.gd + son
+## simulateur, l'enregistrer dans GameRegistry, et fournir les données JSON
+## (`data/games/<jeu>/` et `data/world/season_<jeu>.json`). Aucune modification
+## du coeur — c'est exactement ce qu'a coûté l'arrivée de Counter-Strike 2.
 
 func id() -> String:
 	return "abstract"
@@ -45,6 +46,25 @@ func ideal_composition() -> Dictionary:
 	return {}
 
 
+## Postes attribués aux titulaires d'un effectif GÉNÉRÉ, dans l'ordre. Par
+## défaut on déroule `ideal_composition` ; une discipline dont le méta réel
+## diffère de son idéal théorique surcharge cette méthode.
+func generated_lineup() -> Array[String]:
+	var out: Array[String] = []
+	var ideal := ideal_composition()
+	for role in ideal:
+		for _n in int(ideal[role]):
+			out.append(str(role))
+	return out
+
+
+## Bornes acceptables par poste dans le cinq : role_id -> [min, max].
+## Sert à prévenir le joueur qu'une composition est injouable ; à ne pas
+## confondre avec `ideal_composition`, qui décrit le méta et pas la légalité.
+func composition_bounds() -> Dictionary:
+	return {}
+
+
 ## Attributs SPÉCIFIQUES à la discipline (hors attributs communs).
 func attribute_keys() -> Array[String]:
 	return []
@@ -65,9 +85,52 @@ func role_weights(role_id: String) -> Dictionary:
 	return {}
 
 
+## Attributs qui DÉCLINENT avec l'âge : les qualités purement mécaniques.
+## Lus par ProgressionSystem — sans cette liste, le déclin serait le même
+## partout et un AWPeur de 29 ans perdrait sa lecture de jeu.
+func declining_attributes() -> Array[String]:
+	return [Attributes.REACTION]
+
+
+## Attributs qui continuent de progresser passé le pic : la compréhension.
+func ageing_attributes() -> Array[String]:
+	return [Attributes.LEADERSHIP, Attributes.COMPOSURE,
+		Attributes.DECISION_MAKING]
+
+
 ## Réglages tactiques par défaut d'une équipe de cette discipline.
 func default_tactic() -> Dictionary:
 	return {}
+
+
+## Curseurs tactiques exposés au joueur, dans l'ordre d'affichage :
+## [{"key", "label", "hint"}, …]. L'écran Tactique n'en connaît aucun : c'est
+## la discipline qui dit ce qu'on peut régler et ce que ça change.
+func tactic_sliders() -> Array:
+	return []
+
+
+## Pool de cartes actif de la discipline. Vide = la simulation n'en utilise pas.
+func map_pool() -> Array[String]:
+	return []
+
+
+## Fichier décrivant la structure compétitive de la discipline.
+## Convention : res://data/world/season_<id>.json.
+func season_path() -> String:
+	return "res://data/world/season_%s.json" % id()
+
+
+## Fichier décrivant les structures engagées dans la discipline.
+## Convention : res://data/world/orgs_<id>.json (Valorant garde orgs.json,
+## qui est le fichier historique et celui que remplacent les packs).
+func orgs_path() -> String:
+	return "res://data/world/orgs_%s.json" % id()
+
+
+## Fichier d'effectifs RÉELS fourni par un pack, s'il en existe un.
+func rosters_path() -> String:
+	return "res://data/world/rosters_%s.json" % id()
 
 
 ## Métadonnées spécifiques au joueur (pool d'agents, maps préférées…).
@@ -79,6 +142,12 @@ func generate_game_data(player: Player, rng: Rng) -> Dictionary:
 ## [{"key": "acs", "label": "ACS", "digits": 0}, …]
 func stat_columns() -> Array:
 	return []
+
+
+## Nom du camp attaquant / défenseur — « attaque » et « défense » en Valorant,
+## « terroristes » et « anti-terroristes » en Counter-Strike.
+func side_label(_attacking: bool) -> String:
+	return "attaque" if _attacking else "défense"
 
 
 ## Instancie un simulateur de match pour cette discipline.

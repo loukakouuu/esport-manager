@@ -6,6 +6,12 @@ extends GameModule
 const DATA_MAPS := "res://data/games/valorant/maps.json"
 const DATA_AGENTS := "res://data/games/valorant/agents.json"
 
+# Valorant a été la première discipline : ses fichiers de monde portent les
+# noms historiques, sans suffixe, et c'est eux que remplacent les packs livrés.
+# Les renommer aurait cassé tous les packs existants pour rien.
+const DATA_ORGS := "res://data/world/orgs.json"
+const DATA_ROSTERS := "res://data/world/rosters.json"
+
 # --- Attributs spécifiques (1..20) ------------------------------------------
 # Mécanique
 const AIM := "aim"                    # précision brute
@@ -90,6 +96,13 @@ func composition_bounds() -> Dictionary:
 		DUELIST: [1, 2], INITIATOR: [1, 2],
 		CONTROLLER: [1, 2], SENTINEL: [1, 2], FLEX: [0, 2],
 	}
+
+
+## Le méta RÉEL aligne deux duellistes plus souvent que deux initiateurs :
+## c'est la composition qu'on génère, et elle diffère volontairement de
+## l'idéal théorique ci-dessus.
+func generated_lineup() -> Array[String]:
+	return [DUELIST, DUELIST, INITIATOR, CONTROLLER, SENTINEL]
 
 
 func attribute_keys() -> Array[String]:
@@ -177,6 +190,17 @@ func igl_weights() -> Dictionary:
 	}
 
 
+## Les qualités mécaniques déclinent après le pic ; la lecture de jeu, non.
+func declining_attributes() -> Array[String]:
+	return [AIM, MOVEMENT, DUELLING, ENTRY, Attributes.REACTION]
+
+
+func ageing_attributes() -> Array[String]:
+	return [GAME_SENSE, MAP_KNOWLEDGE, MID_ROUND, ECONOMY, POSITIONING,
+		Attributes.LEADERSHIP, Attributes.COMPOSURE,
+		Attributes.DECISION_MAKING]
+
+
 func default_tactic() -> Dictionary:
 	return {
 		"aggression": 50,       # 0 = tour lent/défaut, 100 = rush permanent
@@ -186,6 +210,35 @@ func default_tactic() -> Dictionary:
 		"anti_strat": 50,       # part de la prépa consacrée à l'adversaire
 		"risk": 50,             # prise de risque en post-plant / retake
 	}
+
+
+func tactic_sliders() -> Array:
+	return [
+		{"key": "aggression", "label": "Agressivité",
+			"hint": "Prendre l'espace tôt : plus d'ouvertures, plus de morts gratuites."},
+		{"key": "tempo", "label": "Tempo",
+			"hint": "Vitesse d'exécution des prises de site."},
+		{"key": "util_discipline", "label": "Discipline utilitaire",
+			"hint": "Utiliser les compétences avec méthode plutôt qu'à l'instinct."},
+		{"key": "eco_policy", "label": "Politique d'économie",
+			"hint": "0 = épargner systématiquement, 100 = forcer l'achat."},
+		{"key": "anti_strat", "label": "Préparation adverse",
+			"hint": "Part du travail hebdomadaire consacrée à l'adversaire."},
+		{"key": "risk", "label": "Prise de risque",
+			"hint": "Post-plant et retakes agressifs."},
+	]
+
+
+func side_label(attacking: bool) -> String:
+	return "attaque" if attacking else "défense"
+
+
+func orgs_path() -> String:
+	return DATA_ORGS
+
+
+func rosters_path() -> String:
+	return DATA_ROSTERS
 
 
 func stat_columns() -> Array:
@@ -221,6 +274,11 @@ func active_map_pool() -> Array[String]:
 		if bool((m as Dictionary).get("active", false)):
 			out.append(str((m as Dictionary)["name"]))
 	return out
+
+
+## Vu depuis le moteur (CompetitionEngine ne connaît que l'interface).
+func map_pool() -> Array[String]:
+	return active_map_pool()
 
 
 func map_info(map_name: String) -> Dictionary:

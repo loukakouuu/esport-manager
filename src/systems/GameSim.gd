@@ -136,7 +136,10 @@ static func advance_days(world: World, count: int,
 ## Avance jusqu'à la veille du prochain match de l'équipe du joueur.
 static func advance_to_next_player_match(world: World, max_days: int = 400) -> Array[Dictionary]:
 	var out: Array[Dictionary] = []
-	var r := world.main_roster(world.player_org_id, world.player_game_id)
+	# L'équipe DIRIGÉE, pas la section principale : avancer jusqu'au prochain
+	# match de son roster Valorant alors qu'on gère sa section Counter-Strike
+	# sauterait par-dessus le match qu'on attend.
+	var r := world.my_roster()
 	if r == null:
 		return out
 	for _i in max_days:

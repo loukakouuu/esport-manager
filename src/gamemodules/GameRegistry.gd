@@ -15,7 +15,7 @@ static func _ensure() -> void:
 		return
 	_initialised = true
 	register(ValorantModule.new())
-	# register(Cs2Module.new())      <- à venir
+	register(Cs2Module.new())
 	# register(LolModule.new())      <- à venir
 
 
