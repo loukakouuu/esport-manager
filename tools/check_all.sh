@@ -17,7 +17,16 @@ echo "== Construction des ecrans =="
 timeout 360 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/ui_check.gd 2>&1 | grep -v -E "$FILTER"
 
 echo "== Saison complete =="
-timeout 300 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/season.gd 2>&1 | grep -v -E "$FILTER"
+timeout 600 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/season.gd 2>&1 | grep -v -E "$FILTER"
+
+echo "== Disciplines (coherence multi-jeux, univers fictif) =="
+timeout 600 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/discipline_probe.gd 2>&1 | grep -v -E "$FILTER"
+
+# L'univers du PACK est celui que le joueur obtient par defaut, et ce n'est
+# plus le meme monde : le circuit Counter-Strike y vient du classement HLTV,
+# avec sa propre hierarchie et des ligues d'une autre taille. Le mesurer aussi.
+echo "== Disciplines (coherence multi-jeux, pack livre) =="
+timeout 600 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/discipline_probe.gd -- --pack=vct_2026 2>&1 | grep -v -E "$FILTER"
 
 echo "== Negociation (equilibrage) =="
 timeout 240 "$GODOT" --headless --path "$PROJECT_DIR" --script res://tools/negotiation_probe.gd 2>&1 | grep -v -E "$FILTER"

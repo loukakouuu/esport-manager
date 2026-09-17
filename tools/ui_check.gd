@@ -60,9 +60,15 @@ const TAB_CONSTANTS := ["TABS", "VIEWS"]
 ## à montrer » : pas de match programmé, effectif vide, phase pas commencée,
 ## aucun classement. Une structure installée depuis deux mois ne passe jamais
 ## par ces branches ; une structure fondée le matin même n'y passe que par là.
+## Le troisième scénario existe depuis l'arrivée d'une deuxième discipline :
+## une maison à deux sections, DIRIGÉE PAR SA SECTION COUNTER-STRIKE. Les
+## écrans d'équipe lisent le module de la discipline dirigée — colonnes de
+## statistiques, postes, curseurs tactiques — et un balayage qui ne verrait
+## jamais que Valorant ne prouverait rien sur eux.
 const SCENARIOS := [
 	["reprise", "structure de Challengers, deux mois de jeu"],
 	["fondation", "structure fondée de zéro, avant le premier match"],
+	["cs2", "maison à deux sections, dirigée côté Counter-Strike"],
 ]
 
 
@@ -92,6 +98,13 @@ func _pass(kind: String) -> Array:
 			"name": "Atelier Test", "tag": "ATT", "region": "EMEA",
 			"country": "FR", "color": "#4aa8ff", "capital_tier": "seed",
 		})
+	elif kind == "cs2":
+		# On cherche une maison qui tient VRAIMENT deux sections : c'est elle
+		# qui met les écrans en difficulté, pas une structure 100 % CS.
+		var pick := _two_section_org(game.world)
+		game.choose_org(str(pick[0]), str(pick[1]))
+		for _i in 70:
+			game.advance_day()
 	else:
 		var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
 		game.choose_org(str(candidates[0]["org_id"]))
@@ -256,3 +269,20 @@ func _some_free_agent(world: World) -> Player:
 	for p in world.free_agents(world.player_game_id):
 		return p
 	return null
+
+
+## Une maison qui aligne au moins deux sections, et l'équipe de sa discipline
+## la moins « historique » — celle qu'on veut voir à l'écran.
+## Renvoie [org_id, roster_id].
+func _two_section_org(world: World) -> Array:
+	var fallback := ["", ""]
+	for oid in world.orgs:
+		var o: Organization = world.orgs[oid]
+		var rosters := world.rosters_of(o.id)
+		if rosters.size() < 2:
+			continue
+		for r in rosters:
+			if r.game_id != "valorant" and not r.is_academy:
+				return [o.id, r.id]
+		fallback = [o.id, rosters[0].id]
+	return fallback

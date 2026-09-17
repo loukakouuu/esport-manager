@@ -141,7 +141,23 @@ static func _sections_and_selection() -> TestCase:
 			t.eq(str(s["roster_id"]), "",
 				"une section non simulée ne désigne aucune équipe")
 	t.eq(current, 1, "exactement une section est dirigée")
-	t.eq(playable, 1, "une seule discipline est simulée aujourd'hui")
+	t.eq(playable, 2, "Valorant et Counter-Strike sont simulés, Rocket League non")
+
+	# Une section déclarée ET simulée doit avoir une vraie équipe : c'est
+	# l'invariant qui empêche d'afficher « Counter-Strike 2 » sur la fiche
+	# d'une maison qui n'aligne personne.
+	var cs := w.main_roster(mine.id, "cs2")
+	t.check(cs != null, "la section Counter-Strike existe vraiment")
+	if cs != null:
+		t.eq(cs.game_id, "cs2", "avec ses propres joueurs")
+		t.check(cs.size() >= 5, "et un effectif complet (%d joueurs)" % cs.size())
+		for p in w.players_of(cs.id):
+			t.eq(p.game_id, "cs2", "chaque joueur appartient à la discipline")
+			t.eq(p.org_id, mine.id, "et à la structure")
+		# Bascule vers l'autre discipline : tout le jeu doit suivre.
+		t.check(facade.select_roster(cs.id), "on peut diriger la section CS2")
+		t.eq(w.player_game_id, "cs2", "la discipline dirigée suit la bascule")
+		t.eq(w.my_roster().id, cs.id, "et l'équipe dirigée aussi")
 
 	# La bascule doit rester dans la maison : sinon c'est une porte dérobée
 	# vers l'effectif d'un rival.

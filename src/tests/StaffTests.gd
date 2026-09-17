@@ -176,8 +176,15 @@ static func _leaving() -> TestCase:
 	t.check(not o.staff_ids.has(coach.id), "il quitte l'organigramme")
 	# LA vérification qui compte : le banc doit être vide.
 	t.eq(r.head_coach_id, "", "le banc est libéré, pas laissé branché")
-	t.check(StaffSystem.holder(w, o, Staff.Role.HEAD_COACH) == null,
-		"le poste est vacant")
+	t.check(StaffSystem.holder(w, o, Staff.Role.HEAD_COACH, r.id) == null,
+		"le poste est vacant sur CETTE équipe")
+	# Un poste de banc appartient à une équipe : licencier l'entraîneur d'une
+	# section ne doit pas vider le banc de l'autre.
+	for other in w.rosters_of(o.id):
+		if other.id == r.id or other.is_academy:
+			continue
+		t.check(StaffSystem.holder(w, o, Staff.Role.HEAD_COACH, other.id) != null,
+			"la section %s garde son entraîneur" % other.game_id)
 
 	# --- Fin de contrat -----------------------------------------------------
 	# Le même piège, par l'autre chemin : l'expiration. C'est celui-là qui

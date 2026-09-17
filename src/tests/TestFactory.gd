@@ -12,12 +12,11 @@ static func today() -> int:
 
 
 ## Crée un cinq complet de niveau `target_ca` avec une composition valide.
+## La composition est celle de la DISCIPLINE : les fabriques de test servent
+## aussi bien Valorant que Counter-Strike.
 static func make_lineup(rng: Rng, module: GameModule, ids: Ids,
 		target_ca: int, region: String = "EMEA") -> Array[Player]:
-	var roles: Array[String] = [
-		ValorantModule.DUELIST, ValorantModule.INITIATOR, ValorantModule.INITIATOR,
-		ValorantModule.CONTROLLER, ValorantModule.SENTINEL,
-	]
+	var roles := module.generated_lineup()
 	var out: Array[Player] = []
 	for i in roles.size():
 		var ca := clampi(target_ca + rng.gauss_i(0.0, 8.0, -20, 20), 20, 195)
@@ -70,5 +69,5 @@ static func make_context(rng: Rng, module: GameModule,
 	ctx.rng = rng
 	ctx.day = today()
 	ctx.detailed = detailed
-	ctx.map_pool = (module as ValorantModule).active_map_pool()
+	ctx.map_pool = module.map_pool()
 	return ctx
