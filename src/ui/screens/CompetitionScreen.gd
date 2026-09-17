@@ -14,11 +14,24 @@ func build() -> void:
 
 	add_child(page_header("Compétitions"))
 
+	# Avec deux disciplines, la liste passe de vingt à plus de quarante
+	# compétitions : un seul ruban devient illisible. On filtre donc d'abord
+	# par discipline — celle qu'on dirige en premier — puis on range les
+	# compétitions de son équipe en tête.
+	var my_game := r.game_id if r != null else w.player_game_id
+	var games: Array = []
+	for g in GameRegistry.all_ids():
+		games.append([g, GameCatalog.label(str(g))])
+	if games.size() > 1:
+		add_child(tab_bar("competition.game", games, my_game))
+	var game_id := current_tab("competition.game", my_game) if games.size() > 1 \
+		else my_game
+
 	var picker := UiKit.hbox(6)
 	var comps: Array[Competition] = []
 	for cid in w.competitions:
 		var c: Competition = w.competitions[cid]
-		if c.season_year == w.season_year:
+		if c.season_year == w.season_year and c.game_id == game_id:
 			comps.append(c)
 	# Les compétitions du joueur d'abord : avec trois étages de pyramide et
 	# quatre régions, la liste dépasse largement la largeur de l'écran, et
@@ -32,6 +45,13 @@ func build() -> void:
 		if a.tier != b.tier:
 			return a.tier < b.tier
 		return a.name < b.name)
+	# Changer d'onglet de discipline doit changer la compétition affichée :
+	# sinon on reste sur une ligue Valorant sous l'onglet Counter-Strike.
+	var visible := {}
+	for c in comps:
+		visible[c.id] = true
+	if not visible.has(comp_id):
+		comp_id = comps[0].id if not comps.is_empty() else ""
 	for c in comps:
 		var cid := c.id
 		var b := UiKit.button(c.short_name, func():

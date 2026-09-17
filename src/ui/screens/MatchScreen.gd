@@ -23,8 +23,13 @@ func build() -> void:
 
 	add_child(UiKit.title("%s  %d - %d  %s"
 		% [home, res.home_score, res.away_score, away]))
-	add_child(UiKit.subtitle("%s · %s · %s"
-		% [comp.name if comp != null else "", f.round_label if f != null else "",
+	# La DISCIPLINE dans le sous-titre : une maison à deux sections joue deux
+	# calendriers, et « dernier match » ne dit pas lequel.
+	var home_roster := w.roster(res.home_id)
+	var game_id := home_roster.game_id if home_roster != null else ""
+	add_child(UiKit.subtitle("%s · %s · %s · %s"
+		% [GameCatalog.label(game_id), comp.name if comp != null else "",
+			f.round_label if f != null else "",
 			GameDate.format_long(res.day)]))
 	add_child(UiKit.label(res.headline, 15, UiKit.ACCENT))
 
@@ -57,6 +62,17 @@ func build() -> void:
 	body.add_child(_stats_panel(w, res))
 
 
+## Camp tenu par l'équipe à domicile au round N. Stocké tel quel par le
+## simulateur, qui emploie le vocabulaire de sa discipline : « atk » et « def »
+## en Valorant, « T » et « CT » en Counter-Strike.
+func _side_badge(r: Dictionary) -> Control:
+	var side := str(r.get("home_side", ""))
+	var label := UiKit.label(side.to_upper(), 11,
+		UiKit.WARN if side == "atk" or side == "T" else UiKit.INFO)
+	label.custom_minimum_size = Vector2(28, 0)
+	return label
+
+
 func _rounds_panel(m: MapResult) -> Control:
 	var panel := UiKit.panel(12)
 	panel.custom_minimum_size = Vector2(560, 0)
@@ -82,6 +98,7 @@ func _rounds_panel(m: MapResult) -> Control:
 			UiKit.GOOD if home_won else UiKit.BAD)
 		sc.custom_minimum_size = Vector2(46, 0)
 		line.add_child(sc)
+		line.add_child(_side_badge(r))
 		var badge := UiKit.label(_type_label(str(r["type"])), 11,
 			_type_color(str(r["type"])))
 		badge.custom_minimum_size = Vector2(60, 0)
@@ -122,12 +139,35 @@ func _org_name(w: World, roster_id: String) -> String:
 	return o.name if o != null else "?"
 
 
+## Les colonnes appartiennent à la DISCIPLINE : ACS en Valorant, ADR et KAST en
+## Counter-Strike. Cet écran ne connaît que « Joueur » et « K/D/A », le reste
+## est déclaré par le module (`GameModule.stat_columns`).
 func _stats_panel(w: World, res: MatchResult) -> Control:
 	var panel := UiKit.panel(12)
 	panel.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	var v := UiKit.vbox(8)
 	panel.add_child(v)
 	v.add_child(UiKit.label("Statistiques de la série", 15, UiKit.ACCENT))
+
+	var home := w.roster(res.home_id)
+	var module := w.module_for(home.game_id if home != null else "valorant")
+	# La note et le triplet K/D/A ont leur propre mise en forme : on retire de
+	# la liste du module les colonnes qu'on dessine à la main.
+	var extra: Array = []
+	for c_v in module.stat_columns():
+		var c: Dictionary = c_v
+		if ["rating", "kills", "deaths", "assists"].has(str(c["key"])):
+			continue
+		extra.append(c)
+
+	var columns: Array = [
+		{"label": "Joueur", "width": 140},
+		{"label": "Note", "width": 55, "align": "right"},
+		{"label": "K/D/A", "width": 90, "align": "center"},
+	]
+	for c_v in extra:
+		var c: Dictionary = c_v
+		columns.append({"label": str(c["label"]), "width": 52, "align": "right"})
 
 	var sides: Array[String] = [res.home_id, res.away_id]
 	for rid in sides:
@@ -146,24 +186,17 @@ func _stats_panel(w: World, res: MatchResult) -> Control:
 			var name := p.display_name() if p != null else "?"
 			if str(pid) == res.mvp_id:
 				name += "  *MVP"
-			rows.append([
+			var row: Array = [
 				name,
 				{"text": "%.2f" % float(st["rating"]),
 					"color": UiKit.rating_color(float(st["rating"]))},
-				"%.0f" % float(st["acs"]),
 				"%d / %d / %d" % [int(st["kills"]), int(st["deaths"]),
 					int(st["assists"])],
-				str(int(st["first_kills"])),
-				str(int(st["clutches"])),
-				str(int(st["aces"])),
-			])
-		v.add_child(UiKit.table([
-			{"label": "Joueur", "width": 140},
-			{"label": "Note", "width": 55, "align": "right"},
-			{"label": "ACS", "width": 55, "align": "right"},
-			{"label": "K/D/A", "width": 90, "align": "center"},
-			{"label": "FK", "width": 40, "align": "right"},
-			{"label": "CL", "width": 40, "align": "right"},
-			{"label": "ACE", "width": 45, "align": "right"},
-		], rows))
+			]
+			for c_v in extra:
+				var c: Dictionary = c_v
+				row.append(String.num(float(st.get(str(c["key"]), 0.0)),
+					int(c.get("digits", 0))))
+			rows.append(row)
+		v.add_child(UiKit.table(columns, rows))
 	return panel

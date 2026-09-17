@@ -10,10 +10,10 @@ extends Screen
 ## Voir WorldGenerator.found_org pour ce que la structure reçoit vraiment.
 
 const REGIONS := [
-	["EMEA", "EMEA", "Circuit ouvert EMEA"],
-	["AMERICAS", "Americas", "Circuit ouvert Americas"],
-	["PACIFIC", "Pacific", "Circuit ouvert Pacific"],
-	["CHINA", "China", "Circuit ouvert China"],
+	["EMEA", "EMEA"],
+	["AMERICAS", "Americas"],
+	["PACIFIC", "Pacific"],
+	["CHINA", "China"],
 ]
 
 ## Palette proposée. Une couleur d'écusson n'a pas d'effet en jeu : c'est de
@@ -34,7 +34,7 @@ const TIERS := [
 		+ "vendre l'âme de la structure. Ni filet, ni pression particulière."],
 	["backed", "Investisseur", "320 k$ · la montée exigée dès la première saison",
 		"L'argent d'un fonds. Vous pouvez recruter tout de suite, mais la "
-		+ "montée en Challengers devient un objectif contractuel, et la "
+		+ "montée à l'étage supérieur devient un objectif contractuel, et la "
 		+ "patience de départ est nettement plus courte."],
 ]
 
@@ -55,6 +55,7 @@ func build() -> void:
 	var side: VBoxContainer = parts[1]
 
 	main.add_child(_identity_card())
+	main.add_child(_discipline_card())
 	main.add_child(_region_card())
 	main.add_child(_capital_card())
 	main.add_child(UiKit.vspacer())
@@ -130,6 +131,29 @@ func _color_swatch(hex: String) -> Control:
 	return b
 
 
+## On fonde sur UNE discipline. Pas parce que le moteur l'exige — une maison
+## peut tenir plusieurs sections — mais parce qu'ouvrir deux équipes le jour où
+## l'on n'a encore signé personne serait le plus court chemin vers le dépôt de
+## bilan. La deuxième section viendra quand la première tiendra debout.
+func _discipline_card() -> Control:
+	var games := GameRegistry.all_ids()
+	if games.size() <= 1:
+		return UiKit.gap(0)
+	var card := UiKit.card("Discipline", 8, 14)
+	var st := ui("found")
+	var items: Array = []
+	for g in games:
+		items.append([str(g), GameCatalog.label(str(g))])
+	card.body.add_child(UiKit.tabs(items, st, "game", func(_k): refresh(),
+		str(games[0])))
+	card.body.add_child(UiKit.wrap(
+		"Chaque discipline a son circuit, son marché de joueurs et son "
+		+ "économie. Counter-Strike verse moins de subventions de ligue que "
+		+ "Valorant et distribue beaucoup plus en tournoi : on y vit de ses "
+		+ "résultats.", UiKit.FS_SMALL, UiKit.TEXT_FAINT))
+	return card.panel
+
+
 func _region_card() -> Control:
 	var card := UiKit.card("Région et pays", 8, 14)
 	var st := ui("found")
@@ -155,7 +179,7 @@ func _region_card() -> Control:
 
 	card.body.add_child(UiKit.wrap(
 		"La région décide du circuit où vous êtes engagé, du vivier d'agents "
-		+ "libres accessible et, plus tard, de la ligue Challengers que vous "
+		+ "libres accessible et, plus tard, du championnat que vous "
 		+ "viserez.", UiKit.FS_SMALL, UiKit.TEXT_FAINT))
 	return card.panel
 
@@ -212,6 +236,8 @@ func _preview_card() -> Control:
 	var chips := UiKit.hbox(6)
 	chips.add_child(UiKit.pill(_country()))
 	chips.add_child(UiKit.pill(_region(), UiKit.INFO))
+	chips.add_child(UiKit.pill(GameCatalog.short(_game()),
+		GameCatalog.color(_game()), true))
 	idn.add_child(chips)
 	head.add_child(idn)
 	card.body.add_child(head)
@@ -244,6 +270,7 @@ func _preview_card() -> Control:
 		game().found_org({
 			"name": _name(), "tag": _tag(), "region": _region(),
 			"country": _country(), "color": _color(), "capital_tier": _tier(),
+			"game_id": _game(),
 		})
 		navigate("home"))
 	go.custom_minimum_size = Vector2(0, 38)
@@ -321,10 +348,21 @@ func _tier() -> String:
 	return str(ui("found").get("tier", "seed"))
 
 
+func _game() -> String:
+	var stored := str(ui("found").get("game", ""))
+	if GameRegistry.has(stored):
+		return stored
+	return GameRegistry.all_ids()[0]
+
+
+## Nom de la compétition dans laquelle on entre, lu sur le monde réel plutôt
+## qu'écrit ici : les circuits d'entrée sont déclarés par chaque discipline.
 func _league_label() -> String:
-	for r in REGIONS:
-		if str((r as Array)[0]) == _region():
-			return str((r as Array)[2])
+	var key := WorldGenerator.entry_league_key(_game(), _region())
+	for cid in world().competitions:
+		var c: Competition = world().competitions[cid]
+		if c.key == key and c.season_year == world().season_year:
+			return c.short_name
 	return "Circuit ouvert"
 
 

@@ -5,19 +5,11 @@ extends Screen
 ## Les curseurs ne sont pas cosmétiques : ils entrent directement dans la
 ## formule de round (agressivité, discipline utilitaire, politique d'économie,
 ## part d'anti-strat). Chacun est décrit par son effet réel.
-
-const SLIDERS := [
-	["aggression", "Agressivité",
-		"Prendre l'espace tôt : plus d'ouvertures, plus de morts gratuites."],
-	["tempo", "Tempo", "Vitesse d'exécution des prises de site."],
-	["util_discipline", "Discipline utilitaire",
-		"Utiliser les compétences avec méthode plutôt qu'à l'instinct."],
-	["eco_policy", "Politique d'économie",
-		"0 = épargner systématiquement, 100 = forcer l'achat."],
-	["anti_strat", "Préparation adverse",
-		"Part du travail hebdomadaire consacrée à l'adversaire."],
-	["risk", "Prise de risque", "Post-plant et retakes agressifs."],
-]
+##
+## L'écran ne connaît AUCUN curseur : c'est la discipline qui déclare ce qu'on
+## peut régler (`GameModule.tactic_sliders`). Counter-Strike expose une
+## priorité à l'AWP là où Valorant expose une prise de risque en post-plant,
+## et cet écran affiche l'un ou l'autre sans rien savoir des deux.
 
 
 func build() -> void:
@@ -40,9 +32,12 @@ func build() -> void:
 	var right := UiKit.vbox(12)
 	right.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	body.add_child(right)
-	right.add_child(UiKit.label("Réglages d'équipe", 15, UiKit.ACCENT))
-	for entry in SLIDERS:
-		right.add_child(_slider(r, str(entry[0]), str(entry[1]), str(entry[2])))
+	right.add_child(UiKit.label("Réglages d'équipe — %s"
+		% GameCatalog.label(r.game_id), 15, UiKit.ACCENT))
+	for entry_v in module.tactic_sliders():
+		var entry: Dictionary = entry_v
+		right.add_child(_slider(r, str(entry["key"]), str(entry["label"]),
+			str(entry.get("hint", ""))))
 	right.add_child(_composition_report(w, r, module))
 
 
@@ -99,7 +94,8 @@ func _slider(r: Roster, key: String, label_text: String, help: String) -> Contro
 	return v
 
 
-## Contrôle de composition : le méta impose un contrôleur et une sentinelle.
+## Contrôle de composition. Les bornes appartiennent à la discipline : le méta
+## Valorant impose un contrôleur et une sentinelle, Counter-Strike un AWPeur.
 func _composition_report(w: World, r: Roster, module: GameModule) -> Control:
 	var counts := {}
 	for pid in r.starters:
@@ -110,9 +106,7 @@ func _composition_report(w: World, r: Roster, module: GameModule) -> Control:
 	var v := UiKit.vbox(4)
 	panel.add_child(v)
 	v.add_child(UiKit.label("Composition", 14, UiKit.ACCENT))
-	var bounds := {}
-	if module.has_method("composition_bounds"):
-		bounds = module.call("composition_bounds")
+	var bounds := module.composition_bounds()
 	for role in module.roles():
 		var n := int(counts.get(role, 0))
 		var ok := true

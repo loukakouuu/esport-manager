@@ -59,11 +59,27 @@ static func run(app: Control, game: Node) -> void:
 	print("[shots] préparation du monde…")
 	game.new_world(20260105)
 	if want_all or names.has("picker"):
-		# Deux ligues : les Challengers sont fictifs, le VCT vient du pack de
-		# données. Une seule capture ne montrerait pas les vraies sections.
-		for league in ["chal_emea", "vct_emea"]:
-			app.call("ui_state", "newgame")["tab"] = league
-			await _shoot_front(app, dir, "picker-%s" % league)
+		# Quatre états du sélecteur : le deuxième étage (la campagne que
+		# l'écran recommande, et le seul endroit où les Challengers fictifs se
+		# voient), l'élite des deux disciplines, et une RECHERCHE — c'est elle
+		# qui traverse les quatre régions, donc celle qu'il faut regarder.
+		for entry in [["valorant", "2", "", ""], ["valorant", "1", "", ""],
+				["cs2", "1", "", ""], ["cs2", "1", "", "na"]]:
+			var e: Array = entry
+			app.call("ui_state", "newgame.game")["tab"] = str(e[0])
+			var st: Dictionary = app.call("ui_state", "newgame")
+			st["tier"] = str(e[1])
+			st["region"] = str(e[2])
+			st["q"] = str(e[3])
+			st.erase("org_id")
+			var suffix := "%s-t%s%s" % [str(e[0]), str(e[1]),
+				"" if str(e[3]) == "" else "-recherche"]
+			await _shoot_front(app, dir, "picker-%s" % suffix)
+		app.call("ui_state", "newgame.game")["tab"] = "valorant"
+		var reset: Dictionary = app.call("ui_state", "newgame")
+		reset["tier"] = "2"
+		reset["q"] = ""
+		reset.erase("org_id")
 	if want_all or names.has("found"):
 		app.call("ui_state", "start")["mode"] = "found"
 		app.call("ui_state", "found")["name"] = "Atelier Neuf"
@@ -80,6 +96,15 @@ static func run(app: Control, game: Node) -> void:
 			"country": "FR", "color": "#4aa8ff", "capital_tier": "seed",
 		})
 		for _i in FOUNDED_DAYS:
+			game.advance_day()
+	elif names.has("cs2"):
+		# « cs2 » dirige une maison à DEUX sections par sa section
+		# Counter-Strike : postes, colonnes de statistiques et curseurs
+		# tactiques changent tous, et c'est ce qu'on veut regarder.
+		names.erase("cs2")
+		var pick := _two_section_org(game.world)
+		game.choose_org(str(pick[0]), str(pick[1]))
+		for _i in SETUP_DAYS:
 			game.advance_day()
 	else:
 		var candidates := WorldGenerator.selectable_orgs(game.world, "chal_emea")
@@ -179,3 +204,29 @@ static func _best_free_agent(world: World) -> Player:
 		if best == null or p.current_ability > best.current_ability:
 			best = p
 	return best
+
+
+## Une maison à plusieurs sections, et l'équipe de sa discipline secondaire.
+## Renvoie [org_id, roster_id].
+##
+## On prend la PLUS GROSSE, et pas la première venue : avec le pack actif, la
+## première venue est une équipe de remplissage du circuit ouvert chinois,
+## alors que le but de cette capture est justement de regarder à quoi
+## ressemble une maison qui tient deux sections pour de bon.
+static func _two_section_org(world: World) -> Array:
+	var best: Array = []
+	var best_rep := -1
+	for oid in world.orgs:
+		var o: Organization = world.orgs[oid]
+		var rosters := world.rosters_of(o.id)
+		if rosters.size() < 2 or o.reputation <= best_rep:
+			continue
+		for r in rosters:
+			if r.game_id != "valorant" and not r.is_academy:
+				best = [o.id, r.id]
+				best_rep = o.reputation
+				break
+	if not best.is_empty():
+		return best
+	var fallback := WorldGenerator.selectable_orgs(world, "chal_emea")
+	return [str(fallback[0]["org_id"]), str(fallback[0].get("roster_id", ""))]

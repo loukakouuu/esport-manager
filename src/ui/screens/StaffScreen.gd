@@ -51,6 +51,13 @@ func _build_chart(o: Organization) -> void:
 		+ "plancher à sa place. Sans entraîneur, l'équipe joue avec 8/20 de "
 		+ "tactique, quel que soit le niveau des joueurs.",
 		UiKit.FS_BODY, UiKit.TEXT_FAINT))
+	var r: Roster = game().my_roster()
+	if r != null and world().rosters_of(o.id).size() > 1:
+		list.add_child(UiKit.wrap(
+			"Les postes marqués « banc » appartiennent à la section %s. "
+				% GameCatalog.label(r.game_id)
+			+ "Chaque équipe de la maison a le sien ; les autres postes "
+			+ "servent toute la structure.", UiKit.FS_BODY, UiKit.TEXT_FAINT))
 	add_child(UiKit.scroll(list))
 
 
@@ -62,7 +69,13 @@ func _role_row(o: Organization, e: Dictionary) -> Control:
 
 	var info := UiKit.vbox(2)
 	info.custom_minimum_size = Vector2(300, 0)
-	info.add_child(UiKit.label(str(e["label"]), UiKit.FS_LEAD))
+	var title := UiKit.hbox(6)
+	title.add_child(UiKit.label(str(e["label"]), UiKit.FS_LEAD))
+	# Dire quels postes sont attachés à une équipe : c'est ce qui explique
+	# pourquoi la maison en paie deux quand elle aligne deux sections.
+	if bool(e.get("team_role", false)) and world().rosters_of(o.id).size() > 1:
+		title.add_child(UiKit.pill("banc", UiKit.INFO))
+	info.add_child(title)
 	info.add_child(UiKit.wrap(str(e["effect"]), UiKit.FS_SMALL, UiKit.TEXT_DIM))
 	h.add_child(info)
 
@@ -155,7 +168,8 @@ func _build_market(o: Organization) -> void:
 	var filters := UiKit.hbox(2)
 	for r_v in StaffSystem.ROLE_ORDER:
 		var r: int = r_v
-		var occupied := StaffSystem.holder(world(), o, r) != null
+		var occupied := StaffSystem.holder(world(), o, r,
+			world().player_roster_id) != null
 		var text := str(Staff.ROLE_LABELS.get(r, "?"))
 		if occupied:
 			text += " •"

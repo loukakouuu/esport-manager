@@ -48,12 +48,16 @@ func _tab_sections(o: Organization) -> void:
 		main.add_child(_section_card(entry_v))
 
 	if o.upcoming_games().size() > 0:
+		var simulated: Array[String] = []
+		for g in GameRegistry.all_ids():
+			simulated.append(GameCatalog.label(str(g)))
 		main.add_child(UiKit.wrap(
 			"Les sections grisées font partie de la structure — elles pèsent "
 			+ "sur sa réputation et sur son budget — mais le moteur ne simule "
-			+ "encore que Valorant. Elles s'ouvriront quand la discipline "
-			+ "correspondante sera jouable, sans qu'il faille recommencer une "
-			+ "carrière.", UiKit.FS_SMALL, UiKit.TEXT_FAINT))
+			+ "pour l'instant que %s. " % " et ".join(simulated)
+			+ "Elles s'ouvriront quand la discipline correspondante sera "
+			+ "jouable, sans qu'il faille recommencer une carrière.",
+			UiKit.FS_SMALL, UiKit.TEXT_FAINT))
 	main.add_child(UiKit.vspacer())
 
 	side.add_child(_summary_card(o))
