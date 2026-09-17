@@ -1,0 +1,1329 @@
+{
+	"_comment": "Dates de naissance et postes relevés sur Liquipedia (CC-BY-SA 3.0) pour des effectifs importés d'une autre source. Fusionné par tools/import_hltv.gd. Clé : le pseudo tel que l'écrit la source d'origine.",
+	"license": "CC-BY-SA 3.0",
+	"players": {
+		"0SAMAS": {
+			"born": "2002-04-10",
+			"roles": "rifle"
+		},
+		"3gl": {
+			"roles": "awp"
+		},
+		"910": {
+			"born": "2002-07-05",
+			"roles": "awp"
+		},
+		"ADK": {
+			"born": "2001-03-8",
+			"roles": "awp"
+		},
+		"AW": {
+			"born": "2006-01-11",
+			"roles": "rifle"
+		},
+		"AZUWU": {
+			"born": "2003-11-05",
+			"roles": "rifle"
+		},
+		"AccuracyTG": {
+			"born": "2000-06-21",
+			"roles": "awp"
+		},
+		"Aleksib": {
+			"born": "1997-03-30",
+			"igl": true,
+			"roles": "igl"
+		},
+		"ArtFr0st": {
+			"born": "2001-11-27",
+			"roles": "awp"
+		},
+		"Ax1Le": {
+			"born": "2002-4-29",
+			"roles": "rifle"
+		},
+		"B1NGO": {
+			"born": "1999-11-28",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"BELCHONOKK": {
+			"born": "2004-01-14",
+			"roles": "rifle"
+		},
+		"BZA": {
+			"born": "2002-08-30",
+			"roles": "rifler"
+		},
+		"Banjo": {
+			"born": "2004-5-15",
+			"roles": "rifle"
+		},
+		"Bart4k": {
+			"born": "2004-5-29",
+			"roles": "rifle"
+		},
+		"Bibu": {
+			"born": "2002-1-10",
+			"roles": "rifle"
+		},
+		"Biuckmt": {
+			"born": "2003-04-25",
+			"roles": "rifler"
+		},
+		"Bloody": {
+			"born": "2005-04-01",
+			"roles": "rifle"
+		},
+		"BnTeT": {
+			"born": "1995-8-28",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"Boombl4": {
+			"born": "1998-12-20",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"Brehze": {
+			"born": "1998-5-22",
+			"roles": "rifle"
+		},
+		"Brollan": {
+			"born": "2002-06-17",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"Bwills": {
+			"born": "2001-05-11",
+			"roles": "rifle"
+		},
+		"C4LLM3SU3": {
+			"born": "2004-03-09",
+			"roles": "rifler"
+		},
+		"CacaNito": {
+			"born": "2000-11-9",
+			"roles": "rifle"
+		},
+		"CeRq": {
+			"born": "1999-12-7",
+			"roles": "awp"
+		},
+		"ChildKing": {
+			"born": "2000-02-22",
+			"roles": "rifle"
+		},
+		"Chr1zN": {
+			"born": "2006-08-21",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"Cryptic": {
+			"born": "2001-02-25",
+			"igl": true,
+			"roles": "igl"
+		},
+		"Cxzi": {
+			"born": "2000-06-15",
+			"igl": true,
+			"roles": "rifle,awp,igl"
+		},
+		"DarkMeister": {
+			"roles": "rifler"
+		},
+		"Dawy": {
+			"born": "2007-09-21",
+			"roles": "rifle"
+		},
+		"EliGE": {
+			"born": "1997-7-16",
+			"roles": "entryfragger"
+		},
+		"EmiliaQAQ": {
+			"born": "2004-08-23",
+			"roles": "rifle"
+		},
+		"FL1T": {
+			"born": "2000-12-21",
+			"roles": "lurk"
+		},
+		"FL4MUS": {
+			"born": "2004-08-14",
+			"roles": "entryfragger"
+		},
+		"FaNg": {
+			"born": "2002-05-07",
+			"roles": "entry"
+		},
+		"FalleN": {
+			"born": "1991-05-30",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"Forleks": {
+			"born": "2002-11-14",
+			"roles": "rifle"
+		},
+		"Gizmy": {
+			"born": "2004-02-20",
+			"igl": true,
+			"roles": "igl,rifler"
+		},
+		"Graviti": {
+			"born": "2003-11-08",
+			"roles": "rifle"
+		},
+		"Grim": {
+			"born": "2000-11-22",
+			"roles": "entry"
+		},
+		"Grizz": {
+			"born": "2005-01-18",
+			"roles": "rifle"
+		},
+		"HUASOPEEK": {
+			"born": "2003-04-29",
+			"roles": "entry"
+		},
+		"HeavyGod": {
+			"born": "2002-7-24",
+			"roles": "rifle"
+		},
+		"HexT": {
+			"born": "2001-10-30",
+			"roles": "entry"
+		},
+		"HooXi": {
+			"born": "1995-5-21",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"INS": {
+			"born": "1998-9-22",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"Infinite": {
+			"born": "1998-7-23",
+			"roles": "lurk"
+		},
+		"JBOEN": {
+			"born": "2005-07-21",
+			"roles": "awp"
+		},
+		"JBa": {
+			"born": "2004-06-10",
+			"roles": "rifle"
+		},
+		"JDC": {
+			"born": "2000-4-7",
+			"roles": "support"
+		},
+		"JT": {
+			"born": "1999-04-09",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"JamYoung": {
+			"born": "2001-07-23",
+			"roles": "rifle"
+		},
+		"Jame": {
+			"born": "1998-08-23",
+			"igl": true,
+			"roles": "igl,awp"
+		},
+		"Jee": {
+			"born": "2004-12-21",
+			"roles": "awp"
+		},
+		"Jeorge": {
+			"born": "2003-4-14",
+			"roles": "rifle"
+		},
+		"Jimpphat": {
+			"born": "2006-09-09",
+			"roles": "support"
+		},
+		"Jorko": {
+			"born": "2008-12-11",
+			"roles": "awp"
+		},
+		"KSCERATO": {
+			"born": "1999-9-12",
+			"roles": "lurk"
+		},
+		"KaiR0N-": {
+			"born": "2004-1-31",
+			"roles": "rifle"
+		},
+		"Krabeni": {
+			"born": "2005-04-07",
+			"igl": true,
+			"roles": "igl"
+		},
+		"Krimbo": {
+			"born": "2002-9-26",
+			"igl": true,
+			"roles": "lurk, igl"
+		},
+		"Kursy": {
+			"born": "2001-08-17",
+			"roles": "rifle, awp"
+		},
+		"L1haNg": {
+			"born": "2003-11-14",
+			"roles": "rifler"
+		},
+		"LNZ": {
+			"born": "2002-10-20",
+			"igl": true,
+			"roles": "igl"
+		},
+		"Lake": {
+			"born": "2004-10-19",
+			"roles": "rifle"
+		},
+		"Liazz": {
+			"born": "1997-08-30",
+			"roles": "lurk"
+		},
+		"Ltz": {
+			"born": "2005-07-26",
+			"roles": "rifler"
+		},
+		"MaSvAl": {
+			"born": "2003-01-17",
+			"roles": "rifler"
+		},
+		"Magnojez": {
+			"born": "2004-10-14",
+			"roles": "rifle"
+		},
+		"Maka": {
+			"born": "1997-07-06",
+			"igl": true,
+			"roles": "igl,awp"
+		},
+		"Matheos": {
+			"born": "2002-11-12",
+			"roles": "rifle"
+		},
+		"Mercury": {
+			"born": "2000-12-15",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"MiQ": {
+			"born": "2003-02-18",
+			"roles": "rifle"
+		},
+		"Moseyuh": {
+			"born": "2004-12-21",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"NAF": {
+			"born": "1997-11-24",
+			"roles": "rifle"
+		},
+		"NEUZ": {
+			"born": "1999-10-12",
+			"igl": true,
+			"roles": "igl,rifler"
+		},
+		"Neityu": {
+			"born": "2005-08-03",
+			"roles": "rifle"
+		},
+		"NertZ": {
+			"born": "1999-07-12",
+			"roles": "rifle"
+		},
+		"NiKo": {
+			"born": "1997-2-16",
+			"roles": "entry"
+		},
+		"Omichella": {
+			"born": "2002-01-27",
+			"roles": "rifler"
+		},
+		"PKL": {
+			"born": "1994-7-21",
+			"igl": true,
+			"roles": "igl,support"
+		},
+		"PR": {
+			"born": "2007-09-17",
+			"roles": "rifle"
+		},
+		"Peeping": {
+			"born": "2005-05-25",
+			"roles": "rifle"
+		},
+		"PokemoN": {
+			"born": "1998-4-15"
+		},
+		"Purely": {
+			"roles": "rifler"
+		},
+		"REZ": {
+			"born": "1998-1-11",
+			"roles": "rifle,awp"
+		},
+		"ROUX": {
+			"born": "2000-5-26",
+			"roles": "rifle"
+		},
+		"Rainwaker": {
+			"born": "2001-4-27",
+			"roles": "lurk,support"
+		},
+		"Roninbaby": {
+			"born": "2003-7-30",
+			"roles": "rifle"
+		},
+		"S1ren": {
+			"born": "2002-07-16",
+			"roles": "rifle"
+		},
+		"SLIGHT": {
+			"born": "2002-10-24",
+			"roles": "awp"
+		},
+		"SPine": {
+			"born": "2000-02-04",
+			"igl": true,
+			"roles": "igl, rifler"
+		},
+		"Sandman": {
+			"born": "2001-04-23",
+			"roles": "rifle"
+		},
+		"SkulL": {
+			"born": "1998-01-01",
+			"roles": "rifle"
+		},
+		"Snax": {
+			"born": "1993-07-05",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"Spinx": {
+			"born": "2000-9-13",
+			"roles": "lurk"
+		},
+		"Staehr": {
+			"born": "2004-7-19",
+			"roles": "rifle"
+		},
+		"Starry": {
+			"born": "2005-01-03",
+			"roles": "rifle"
+		},
+		"Stewie2K": {
+			"born": "1998-1-7",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"Summer": {
+			"born": "1997-05-16",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"Swisher": {
+			"born": "1998-09-17",
+			"roles": "entry"
+		},
+		"Tauson": {
+			"born": "2005-08-17",
+			"roles": "rifle"
+		},
+		"TeSeS": {
+			"born": "2000-12-12",
+			"roles": "entry"
+		},
+		"TjP": {
+			"born": "2002-06-10",
+			"roles": "rifle"
+		},
+		"Trash": {
+			"born": "2004-08-31",
+			"roles": "rifler"
+		},
+		"Twistzz": {
+			"born": "1999-11-14",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"VINI": {
+			"born": "1999-5-20",
+			"igl": true,
+			"roles": "igl,support"
+		},
+		"Vexite": {
+			"born": "2004-09-5",
+			"roles": "rifle"
+		},
+		"Westmelon": {
+			"born": "2001-02-04",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"Wicadia": {
+			"born": "2005-03-04",
+			"roles": "rifle"
+		},
+		"X5G7V": {
+			"born": "2003-06-18",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"XANTARES": {
+			"born": "1995-08-07",
+			"roles": "entryfragger"
+		},
+		"Xant3r": {
+			"born": "2004-03-15",
+			"roles": "rifle"
+		},
+		"YEKINDAR": {
+			"born": "1999-10-04",
+			"roles": "entry"
+		},
+		"Zero": {
+			"born": "1998-9-16",
+			"roles": "rifle"
+		},
+		"Zesta": {
+			"born": "2003-06-22",
+			"roles": "rifler"
+		},
+		"ZywOo": {
+			"born": "2000-11-09",
+			"roles": "awp,rifle"
+		},
+		"abizz": {
+			"born": "2004-09-01",
+			"roles": "support"
+		},
+		"adeX": {
+			"born": "2000-12-03",
+			"roles": "awp"
+		},
+		"afro": {
+			"born": "1999-06-11",
+			"roles": "awp"
+		},
+		"alex666": {
+			"born": "2001-08-03",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"aliStair": {
+			"born": "1998-4-7",
+			"roles": "awp"
+		},
+		"apEX": {
+			"born": "1993-2-22",
+			"igl": true,
+			"roles": "igl"
+		},
+		"apocdud": {
+			"born": "1999-01-31",
+			"igl": true,
+			"roles": "igl,awp"
+		},
+		"arT": {
+			"born": "1996-03-27",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"ariucle": {
+			"born": "2004-09-29",
+			"roles": "rifle"
+		},
+		"asap": {
+			"born": "2003-5-1",
+			"roles": "rifle"
+		},
+		"autimatic": {
+			"born": "1996-9-10",
+			"roles": "rifle"
+		},
+		"avid": {
+			"born": "2002-04-02",
+			"roles": "rifle"
+		},
+		"b1t": {
+			"born": "2003-01-05",
+			"roles": "support"
+		},
+		"bLitz": {
+			"born": "2001-6-26",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"biguzera": {
+			"born": "1997-2-18",
+			"igl": true,
+			"roles": "igl,rifler"
+		},
+		"blameF": {
+			"born": "1997-06-10",
+			"igl": true,
+			"roles": "lurk,igl"
+		},
+		"bobeksde": {
+			"born": "2003-11-21",
+			"roles": "rifle"
+		},
+		"buda": {
+			"born": "2003-02-24",
+			"roles": "entry"
+		},
+		"cairne": {
+			"born": "2002-10-25",
+			"roles": "rifle"
+		},
+		"cass1n": {
+			"born": "2002-03-09",
+			"roles": "awp"
+		},
+		"chelleos": {
+			"born": "2000-05-24",
+			"roles": "awp"
+		},
+		"chelo": {
+			"born": "1998-6-8",
+			"roles": "entry"
+		},
+		"chuzhongT": {
+			"roles": "rifle"
+		},
+		"clax": {
+			"born": "2002-06-08",
+			"roles": "rifle"
+		},
+		"clouden": {
+			"born": "2000-09-21",
+			"roles": "rifle"
+		},
+		"cmtry": {
+			"born": "2007-09-27",
+			"roles": "awp"
+		},
+		"consti": {
+			"born": "2000-06-09",
+			"roles": "awper"
+		},
+		"controlez": {
+			"born": "1997-05-23",
+			"roles": "rifle"
+		},
+		"cptkurtka023": {
+			"born": "1999-7-24",
+			"roles": "rifle"
+		},
+		"d1Ledez": {
+			"born": "2003-07-03",
+			"roles": "rifle"
+		},
+		"damyo": {
+			"born": "2001-07-03",
+			"roles": "rifle"
+		},
+		"dangeR": {
+			"born": "2000-05-02",
+			"roles": "rifle"
+		},
+		"dav1deuS": {
+			"born": "2000-6-7",
+			"roles": "rifler"
+		},
+		"decenty": {
+			"born": "2004-03-01",
+			"roles": "lurker"
+		},
+		"dem0n": {
+			"born": "2007-10-02",
+			"roles": "rifle"
+		},
+		"destiny": {
+			"born": "1997-7-3",
+			"roles": "entry"
+		},
+		"detr0ittJ": {
+			"born": "2000-06-18",
+			"igl": true,
+			"roles": "awper,igl"
+		},
+		"dexter": {
+			"born": "1994-8-15",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"dgt": {
+			"born": "2001-5-12",
+			"roles": "lurker"
+		},
+		"djay": {
+			"born": "1993-07-30",
+			"roles": "rifle"
+		},
+		"doc": {
+			"born": "2002-09-20",
+			"roles": "rifler"
+		},
+		"donk": {
+			"born": "2007-01-25",
+			"roles": "entry"
+		},
+		"drop": {
+			"born": "2004-01-15",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"dumau": {
+			"born": "2003-11-09",
+			"roles": "rifle,awp"
+		},
+		"dwushka": {
+			"born": "2004-11-30",
+			"roles": "rifler"
+		},
+		"dziugss": {
+			"born": "2008-09-12",
+			"roles": "rifle"
+		},
+		"eraa": {
+			"born": "2001-08-12",
+			"roles": "awp"
+		},
+		"erkaSt": {
+			"born": "1995-3-19",
+			"igl": true,
+			"roles": "igl"
+		},
+		"esenthial": {
+			"born": "2006-02-26",
+			"roles": "rifle"
+		},
+		"exit": {
+			"born": "1996-8-29",
+			"igl": true,
+			"roles": "igl,lurk"
+		},
+		"fame": {
+			"born": "2003-03-03",
+			"roles": "rifle"
+		},
+		"faveN": {
+			"born": "2000-2-8",
+			"roles": "rifle"
+		},
+		"flameZ": {
+			"born": "2003-06-22",
+			"roles": "entry"
+		},
+		"freshie": {
+			"born": "2002-04-26",
+			"roles": "rifle"
+		},
+		"frontales": {
+			"born": "2002-08-03",
+			"roles": "awper"
+		},
+		"frozen": {
+			"born": "2002-7-18",
+			"roles": "rifle"
+		},
+		"gafolo": {
+			"born": "2002-04-25",
+			"igl": true,
+			"roles": "igl,rifler"
+		},
+		"gas": {
+			"born": "1996-01-13",
+			"igl": true,
+			"roles": "igl, rifler"
+		},
+		"gbb": {
+			"born": "2002-10-02",
+			"roles": "support"
+		},
+		"gr1ks": {
+			"born": "2005-10-24",
+			"roles": "awp"
+		},
+		"guty": {
+			"born": "2005-02-28",
+			"roles": "rifler"
+		},
+		"hallzerk": {
+			"born": "2000-7-14",
+			"roles": "awp"
+		},
+		"hasteka": {
+			"born": "1998-7-19",
+			"roles": "rifle"
+		},
+		"headtr1ck": {
+			"born": "2004-6-30",
+			"roles": "rifle,awp"
+		},
+		"hoolig4n": {
+			"igl": true,
+			"roles": "awp,igl"
+		},
+		"huNter-": {
+			"born": "1996-01-03",
+			"igl": true,
+			"roles": "igl,lurk"
+		},
+		"hypex": {
+			"born": "2003-12-22",
+			"roles": "awp"
+		},
+		"iM": {
+			"born": "1999-07-29",
+			"roles": "entry"
+		},
+		"insani": {
+			"born": "2004-04-25",
+			"roles": "support"
+		},
+		"ivz": {
+			"born": "2003-04-22",
+			"roles": "awp"
+		},
+		"jabbi": {
+			"born": "2003-7-23",
+			"roles": "rifle"
+		},
+		"jackasmo": {
+			"born": "2007-05-28",
+			"roles": "rifle"
+		},
+		"jambo": {
+			"born": "2004-10-14",
+			"roles": "awp"
+		},
+		"jcobbb": {
+			"born": "2004-01-27",
+			"roles": "rifle"
+		},
+		"jks": {
+			"born": "1995-12-12",
+			"roles": "rifle"
+		},
+		"jocab": {
+			"born": "2005-05-30",
+			"roles": "rifle"
+		},
+		"ju1ces": {
+			"born": "2002-10-18",
+			"roles": "rifler"
+		},
+		"junior": {
+			"born": "2000-12-10",
+			"roles": "awp"
+		},
+		"kade0": {
+			"born": "2000-01-07",
+			"roles": "rifle"
+		},
+		"karrigan": {
+			"born": "1990-4-14",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"kashl1d": {
+			"born": "2006-11-30",
+			"roles": "awp"
+		},
+		"kauez": {
+			"born": "2003-05-08",
+			"roles": "lurk"
+		},
+		"kensizor": {
+			"born": "2006-02-02",
+			"roles": "rifle"
+		},
+		"khaN": {
+			"born": "2003-10-13",
+			"roles": "awp"
+		},
+		"koala": {
+			"born": "2005-02-26",
+			"roles": "rifler"
+		},
+		"kye": {
+			"born": "2004-10-15",
+			"roles": "support"
+		},
+		"kyousuke": {
+			"born": "2008-01-30",
+			"roles": "entry"
+		},
+		"kyxsan": {
+			"born": "2000-05-26",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"lan": {
+			"born": "2001-9-17",
+			"igl": true,
+			"roles": "igl, awp"
+		},
+		"latto": {
+			"born": "2002-12-21",
+			"roles": "rifle,awp"
+		},
+		"laxiee": {
+			"roles": "rifler"
+		},
+		"luchov": {
+			"born": "2001-05-11",
+			"roles": "entry"
+		},
+		"lux": {
+			"born": "2002-04-18",
+			"igl": true,
+			"roles": "igl,rifler"
+		},
+		"m0NESY": {
+			"born": "2005-05-01",
+			"roles": "awp"
+		},
+		"m1N1": {
+			"born": "2004-09-17",
+			"roles": "rifle"
+		},
+		"magixx": {
+			"born": "2003-06-03",
+			"igl": true,
+			"roles": "igl"
+		},
+		"makazze": {
+			"born": "2006-12-21",
+			"roles": "rifle"
+		},
+		"malbsMd": {
+			"born": "2002-10-17",
+			"roles": "entry"
+		},
+		"max": {
+			"born": "1999-6-15",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"maxxkor": {
+			"born": "2002-10-02",
+			"roles": "awp"
+		},
+		"mazay": {
+			"born": "2008-10-30",
+			"roles": "entry"
+		},
+		"meyern": {
+			"born": "2002-09-10",
+			"roles": "awp"
+		},
+		"mezii": {
+			"born": "1998-10-15",
+			"roles": "rifle"
+		},
+		"mhL": {
+			"born": "2002-03-03",
+			"roles": "awp"
+		},
+		"misutaaa": {
+			"born": "2003-01-15",
+			"roles": "rifle"
+		},
+		"mizu": {
+			"born": "1995-3-13",
+			"roles": "rifle"
+		},
+		"mo0N": {
+			"born": "2005-07-19",
+			"roles": "awp"
+		},
+		"molodoy": {
+			"born": "2005-01-10",
+			"roles": "awp"
+		},
+		"motm": {
+			"born": "1999-10-23",
+			"roles": "entry"
+		},
+		"n0rb3r7": {
+			"born": "2001-03-11",
+			"roles": "support"
+		},
+		"n0te": {
+			"born": "2006-02-02",
+			"roles": "rifle"
+		},
+		"n1ssim": {
+			"born": "2001-04-27",
+			"roles": "rifler"
+		},
+		"nEMANHA": {
+			"born": "1997-09-21",
+			"igl": true,
+			"roles": "igl,rifler"
+		},
+		"nafany": {
+			"born": "2001-6-15",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"naz": {
+			"born": "2000-06-04",
+			"roles": "support"
+		},
+		"nettik": {
+			"born": "2003-7-30",
+			"roles": "rifle"
+		},
+		"nicx": {
+			"born": "2004-11-29",
+			"roles": "rifle"
+		},
+		"nilo": {
+			"born": "2005-01-04",
+			"roles": "rifle"
+		},
+		"nin9": {
+			"born": "1998-04-03",
+			"igl": true,
+			"roles": "igl,awp"
+		},
+		"nitr0": {
+			"born": "1995-8-16",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"nosraC": {
+			"born": "2000-2-24",
+			"roles": "rifle"
+		},
+		"noway": {
+			"born": "2005-05-12",
+			"roles": "rifler"
+		},
+		"npl": {
+			"born": "2005-07-21",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"nqz": {
+			"born": "2005-01-18",
+			"roles": "awp"
+		},
+		"ogwizard": {
+			"born": "2006-01-13",
+			"roles": "awp"
+		},
+		"onic": {
+			"born": "2005-01-18",
+			"igl": true,
+			"roles": "rifle,igl"
+		},
+		"p5p": {
+			"roles": "rifler"
+		},
+		"phoebe": {
+			"born": "2002-05-10",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"phzy": {
+			"born": "2002-09-24",
+			"roles": "awp"
+		},
+		"podi": {
+			"born": "2004-08-05",
+			"roles": "awp"
+		},
+		"poiii": {
+			"born": "2006-09-16",
+			"roles": "rifle"
+		},
+		"qw1nk1": {
+			"born": "2008-04-20",
+			"roles": "rifle"
+		},
+		"r1nkle": {
+			"born": "2004-10-27",
+			"roles": "awp"
+		},
+		"rain": {
+			"born": "1994-8-27",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"rate": {
+			"born": "2002-10-02",
+			"roles": "rifle"
+		},
+		"rdnzao": {
+			"born": "2003-04-23",
+			"roles": "rifle"
+		},
+		"reck": {
+			"born": "2003-11-22",
+			"roles": "rifle"
+		},
+		"rekonz": {
+			"born": "2001-03-30",
+			"roles": "rifle"
+		},
+		"robo": {
+			"born": "2006-03-10",
+			"roles": "rifle"
+		},
+		"ropz": {
+			"born": "1999-12-22",
+			"roles": "lurk"
+		},
+		"rubeN": {
+			"roles": "rifle"
+		},
+		"ryu": {
+			"born": "1985-8-14",
+			"roles": "coach"
+		},
+		"s1n": {
+			"born": "2002-03-18",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"s1zzi": {
+			"born": "2009-12-20",
+			"roles": "awp"
+		},
+		"sFade8": {
+			"born": "2004-01-26",
+			"igl": true,
+			"roles": "igl, rifle"
+		},
+		"saadzin": {
+			"born": "2004-05-14",
+			"roles": "awp"
+		},
+		"saffee": {
+			"born": "1994-12-19",
+			"roles": "awp"
+		},
+		"sh1ro": {
+			"born": "2001-7-15",
+			"roles": "awp"
+		},
+		"shadiy": {
+			"born": "2002-12-12",
+			"roles": "rifle"
+		},
+		"shane": {
+			"born": "2003-05-20",
+			"roles": "rifle"
+		},
+		"sinnopsyy": {
+			"born": "1995-07-24",
+			"igl": true,
+			"roles": "igl,lurk"
+		},
+		"sirah": {
+			"born": "2006-11-16",
+			"roles": "rifle"
+		},
+		"sjuush": {
+			"born": "1999-01-03",
+			"roles": "support"
+		},
+		"sk0R": {
+			"born": "2002-5-12",
+			"roles": "rifle"
+		},
+		"skrr": {
+			"born": "2001-12-14",
+			"roles": "rifler"
+		},
+		"slaxejezzz": {
+			"born": "2007-11-01",
+			"roles": "rifler"
+		},
+		"slaxz-": {
+			"born": "1998-11-25",
+			"roles": "awp"
+		},
+		"sliimey": {
+			"born": "2005-09-01",
+			"roles": "rifle"
+		},
+		"snav": {
+			"born": "2001-1-16",
+			"igl": true,
+			"roles": "igl"
+		},
+		"snow": {
+			"born": "2007-03-22",
+			"roles": "support"
+		},
+		"stavn": {
+			"born": "2002-3-26",
+			"roles": "rifle,awp"
+		},
+		"suki": {
+			"born": "2004-01-24",
+			"roles": "rifler"
+		},
+		"susp": {
+			"born": "2005-01-07",
+			"roles": "rifle"
+		},
+		"tN1R": {
+			"born": "2001-2-14",
+			"roles": "rifle"
+		},
+		"tabseN": {
+			"born": "1995-4-5",
+			"roles": "rifle"
+		},
+		"tenzy": {
+			"born": "2005-03-15",
+			"roles": "entry"
+		},
+		"tikuak": {
+			"roles": "rifler"
+		},
+		"timo": {
+			"born": "2004-07-19",
+			"roles": "rifle"
+		},
+		"tom1jed": {
+			"born": "2002-11-14",
+			"igl": true,
+			"roles": "igl,entry"
+		},
+		"tomaszin": {
+			"born": "2004-02-15",
+			"roles": "lurker"
+		},
+		"tomate": {
+			"born": "2004-02-17",
+			"roles": "rifle"
+		},
+		"torzsi": {
+			"born": "2002-05-17",
+			"roles": "awp"
+		},
+		"try": {
+			"born": "2004-09-23",
+			"roles": "awp"
+		},
+		"twist": {
+			"born": "1994-12-12",
+			"igl": true,
+			"roles": "igl,support"
+		},
+		"upE": {
+			"born": "2004-05-12",
+			"roles": "rifle"
+		},
+		"venomzera": {
+			"born": "2004-08-19",
+			"roles": "rifle"
+		},
+		"vision": {
+			"born": "2002-01-27",
+			"roles": "rifler"
+		},
+		"void": {
+			"born": "2001-04-20"
+		},
+		"w0nderful": {
+			"born": "2004-12-14",
+			"roles": "awp"
+		},
+		"woxic": {
+			"born": "1998-9-2",
+			"roles": "awp"
+		},
+		"xKacpersky": {
+			"born": "2006-10-22",
+			"roles": "rifle"
+		},
+		"xeedo": {
+			"born": "2007-01-19",
+			"roles": "rifle"
+		},
+		"xelex": {
+			"born": "2008-06-03",
+			"roles": "rifle"
+		},
+		"xerolte": {
+			"born": "2003-5-3",
+			"roles": "rifler"
+		},
+		"xertioN": {
+			"born": "2004-07-22",
+			"igl": true,
+			"roles": "igl, entry"
+		},
+		"xfl0ud": {
+			"born": "2002-12-23",
+			"roles": "support"
+		},
+		"xiELO": {
+			"born": "2006-01-28",
+			"roles": "rifle"
+		},
+		"yAmi": {
+			"born": "2005-2-3",
+			"roles": "rifle"
+		},
+		"yuurih": {
+			"born": "1999-12-22",
+			"roles": "rifle"
+		},
+		"yxngstxr": {
+			"born": "2004-10-22",
+			"roles": "rifle"
+		},
+		"zeRRoFIX": {
+			"born": "2007-04-22",
+			"roles": "rifle"
+		},
+		"zevy": {
+			"born": "2001-05-30",
+			"roles": "awp"
+		},
+		"zont1x": {
+			"born": "2005-07-20",
+			"roles": "rifle"
+		},
+		"zorte": {
+			"born": "1998-05-27",
+			"roles": "awp"
+		},
+		"ztr": {
+			"born": "2003-8-2",
+			"igl": true,
+			"roles": "igl,rifle"
+		},
+		"zune": {
+			"born": "2004-12-19",
+			"roles": "awp,rifle"
+		},
+		"zweih": {
+			"born": "2007-09-19",
+			"roles": "rifle"
+		}
+	},
+	"source": "https://liquipedia.net/counterstrike",
+	"updated": "2026-09-17"
+}

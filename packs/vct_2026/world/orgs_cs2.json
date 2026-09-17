@@ -1,0 +1,717 @@
+{
+	"_comment": "Pyramide Counter-Strike bâtie sur le classement mondial HLTV du 2026-09-14. `strength` vient du RANG mondial : contrairement au circuit Valorant, la hiérarchie du CS est publiée. Une entrée dont le nom existe déjà ouvre une SECTION dans cette maison au lieu de créer une structure. Marques appartenant à leurs détenteurs.",
+	"leagues": {
+		"cs_chal_americas": [
+			{
+				"color": "#604cc7",
+				"country": "US",
+				"name": "Wildcard",
+				"owner": "endemic",
+				"strength": 61.0,
+				"tag": "WIL"
+			},
+			{
+				"color": "#4cc7b4",
+				"country": "US",
+				"name": "NRG",
+				"owner": "self_funded",
+				"strength": 58.6,
+				"tag": "NRG"
+			},
+			{
+				"color": "#584cc7",
+				"country": "BR",
+				"name": "Fluxo",
+				"owner": "endemic",
+				"strength": 56.2,
+				"tag": "FLU"
+			},
+			{
+				"color": "#c7c54c",
+				"country": "BR",
+				"name": "Imperial",
+				"owner": "self_funded",
+				"strength": 53.8,
+				"tag": "IMP"
+			},
+			{
+				"color": "#a6c74c",
+				"country": "US",
+				"name": "SportsBetExpert",
+				"owner": "investor",
+				"strength": 51.4,
+				"tag": "SPO"
+			},
+			{
+				"color": "#87c74c",
+				"country": "AR",
+				"name": "ShindeN",
+				"owner": "self_funded",
+				"strength": 49.0,
+				"tag": "SHI"
+			}
+		],
+		"cs_chal_china": [
+			{
+				"color": "#c74c9e",
+				"country": "CN",
+				"name": "Nas",
+				"owner": "investor",
+				"strength": 46.8,
+				"tag": "NAS"
+			},
+			{
+				"color": "#c74c5a",
+				"country": "CN",
+				"name": "XDM",
+				"owner": "endemic",
+				"strength": 46.0,
+				"tag": "XDM"
+			},
+			{
+				"color": "#d4ac0d",
+				"country": "CN",
+				"name": "Golden Crane",
+				"owner": "investor",
+				"strength": 44.9,
+				"tag": "GCR"
+			},
+			{
+				"color": "#5f7a61",
+				"country": "CN",
+				"name": "Shanhai",
+				"owner": "self_funded",
+				"strength": 43.9,
+				"tag": "SHH"
+			},
+			{
+				"color": "#af7ac5",
+				"country": "CN",
+				"name": "Yulong",
+				"owner": "self_funded",
+				"strength": 43.0,
+				"tag": "YLG"
+			},
+			{
+				"color": "#5dade2",
+				"country": "CN",
+				"name": "Qingyun",
+				"owner": "self_funded",
+				"strength": 42.0,
+				"tag": "QGY"
+			}
+		],
+		"cs_chal_emea": [
+			{
+				"color": "#c7b94c",
+				"country": "RU",
+				"name": "magic",
+				"owner": "endemic",
+				"strength": 61.0,
+				"tag": "MAG"
+			},
+			{
+				"color": "#aec74c",
+				"country": "RU",
+				"name": "PARIVISION",
+				"owner": "investor",
+				"strength": 60.2,
+				"tag": "PAR"
+			},
+			{
+				"color": "#c7714c",
+				"country": "PL",
+				"name": "GamerLegion",
+				"owner": "endemic",
+				"strength": 59.4,
+				"tag": "GAM"
+			},
+			{
+				"color": "#c1c74c",
+				"country": "SE",
+				"name": "Alliance",
+				"owner": "self_funded",
+				"strength": 58.6,
+				"tag": "ALL"
+			},
+			{
+				"color": "#c7734c",
+				"country": "FR",
+				"name": "3DMAX",
+				"owner": "self_funded",
+				"strength": 57.8,
+				"tag": "3DM"
+			},
+			{
+				"color": "#4caac7",
+				"country": "UA",
+				"name": "Inner Circle",
+				"owner": "endemic",
+				"strength": 57.1,
+				"tag": "IC"
+			},
+			{
+				"color": "#4c4cc7",
+				"country": "DE",
+				"name": "BIG",
+				"owner": "investor",
+				"strength": 56.3,
+				"tag": "BIG"
+			},
+			{
+				"color": "#4cc79e",
+				"country": "RU",
+				"name": "HOTU",
+				"owner": "investor",
+				"strength": 55.5,
+				"tag": "HOT"
+			},
+			{
+				"color": "#c74c56",
+				"country": "DK",
+				"name": "Ninjas in Pyjamas",
+				"owner": "self_funded",
+				"strength": 54.7,
+				"tag": "NIP"
+			},
+			{
+				"color": "#9c4cc7",
+				"country": "IQ",
+				"name": "JiJieHao",
+				"owner": "self_funded",
+				"strength": 53.9,
+				"tag": "JIJ"
+			}
+		],
+		"cs_chal_pacific": [
+			{
+				"color": "#77c74c",
+				"country": "ID",
+				"name": "Alter Ego",
+				"owner": "self_funded",
+				"strength": 43.6,
+				"tag": "AE"
+			},
+			{
+				"color": "#c74c77",
+				"country": "AU",
+				"name": "Abyssal",
+				"owner": "self_funded",
+				"strength": 43.3,
+				"tag": "ABY"
+			},
+			{
+				"color": "#bdc74c",
+				"country": "MN",
+				"name": "The Huns",
+				"owner": "endemic",
+				"strength": 43.0,
+				"tag": "TH"
+			},
+			{
+				"color": "#4c9ec7",
+				"country": "AU",
+				"name": "Rooster",
+				"owner": "investor",
+				"strength": 42.6,
+				"tag": "ROO"
+			},
+			{
+				"color": "#c5c74c",
+				"country": "MN",
+				"name": "Chinggis Warriors",
+				"owner": "endemic",
+				"strength": 42.3,
+				"tag": "CW"
+			},
+			{
+				"color": "#4cc7c5",
+				"country": "AU",
+				"name": "Finishers",
+				"owner": "self_funded",
+				"strength": 42.0,
+				"tag": "FIN"
+			}
+		],
+		"cs_open_americas": [
+			{
+				"color": "#4c6fc7",
+				"country": "US",
+				"name": "Voca",
+				"owner": "celebrity",
+				"strength": 38.0,
+				"tag": "VOC"
+			},
+			{
+				"color": "#75c74c",
+				"country": "BR",
+				"name": "BESTIA",
+				"owner": "self_funded",
+				"strength": 37.6,
+				"tag": "BES"
+			},
+			{
+				"color": "#c7ac4c",
+				"country": "US",
+				"name": "Marsborne",
+				"owner": "celebrity",
+				"strength": 37.2,
+				"tag": "MAR"
+			},
+			{
+				"color": "#504cc7",
+				"country": "US",
+				"name": "LAG",
+				"owner": "endemic",
+				"strength": 36.7,
+				"tag": "LAG"
+			},
+			{
+				"color": "#4cc7ac",
+				"country": "BR",
+				"name": "Galorys",
+				"owner": "celebrity",
+				"strength": 36.3,
+				"tag": "GAL"
+			},
+			{
+				"color": "#c74c98",
+				"country": "US",
+				"name": "Without a Roof",
+				"owner": "celebrity",
+				"strength": 35.9,
+				"tag": "WAR"
+			}
+		],
+		"cs_open_china": [
+			{
+				"color": "#9fb6c9",
+				"country": "CN",
+				"name": "Baiyun",
+				"owner": "self_funded",
+				"strength": 38.0,
+				"tag": "BYU"
+			},
+			{
+				"color": "#5f7a61",
+				"country": "CN",
+				"name": "Fenhe",
+				"owner": "self_funded",
+				"strength": 36.0,
+				"tag": "FNH"
+			},
+			{
+				"color": "#5f7a61",
+				"country": "CN",
+				"name": "Wushan",
+				"owner": "self_funded",
+				"strength": 34.0,
+				"tag": "WSH"
+			},
+			{
+				"color": "#7f8c8d",
+				"country": "CN",
+				"name": "Taihang",
+				"owner": "self_funded",
+				"strength": 32.0,
+				"tag": "THG"
+			},
+			{
+				"color": "#3498db",
+				"country": "CN",
+				"name": "Jiangnan Nine",
+				"owner": "self_funded",
+				"strength": 30.0,
+				"tag": "JN9"
+			},
+			{
+				"color": "#c9a227",
+				"country": "CN",
+				"name": "Luoyang Line",
+				"owner": "endemic",
+				"strength": 28.0,
+				"tag": "LYL"
+			}
+		],
+		"cs_open_emea": [
+			{
+				"color": "#85c74c",
+				"country": "SE",
+				"name": "HEROIC",
+				"owner": "self_funded",
+				"strength": 38.0,
+				"tag": "HER"
+			},
+			{
+				"color": "#4cc7a8",
+				"country": "DK",
+				"name": "100 Thieves",
+				"owner": "self_funded",
+				"strength": 37.4,
+				"tag": "1T"
+			},
+			{
+				"color": "#4cc77f",
+				"country": "BG",
+				"name": "Luminosity",
+				"owner": "self_funded",
+				"strength": 36.7,
+				"tag": "LUM"
+			},
+			{
+				"color": "#98c74c",
+				"country": "RU",
+				"name": "1win",
+				"owner": "celebrity",
+				"strength": 36.1,
+				"tag": "1WI"
+			},
+			{
+				"color": "#83c74c",
+				"country": "RU",
+				"name": "Nemiga",
+				"owner": "self_funded",
+				"strength": 35.5,
+				"tag": "NEM"
+			},
+			{
+				"color": "#4c4cc7",
+				"country": "RU",
+				"name": "K27",
+				"owner": "self_funded",
+				"strength": 34.9,
+				"tag": "K27"
+			},
+			{
+				"color": "#c7984c",
+				"country": "UA",
+				"name": "Fnatic",
+				"owner": "self_funded",
+				"strength": 34.2,
+				"tag": "FNA"
+			},
+			{
+				"color": "#4c5cc7",
+				"country": "FI",
+				"name": "FOKUS",
+				"owner": "self_funded",
+				"strength": 33.6,
+				"tag": "FOK"
+			}
+		],
+		"cs_open_pacific": [
+			{
+				"color": "#4cbdc7",
+				"country": "AU",
+				"name": "5dads",
+				"owner": "self_funded",
+				"strength": 37.9,
+				"tag": "5DA"
+			},
+			{
+				"color": "#4cacc7",
+				"country": "AU",
+				"name": "Mindfreak",
+				"owner": "self_funded",
+				"strength": 37.0,
+				"tag": "MIN"
+			},
+			{
+				"color": "#664cc7",
+				"country": "AU",
+				"name": "LFO 8",
+				"owner": "self_funded",
+				"strength": 36.1,
+				"tag": "L8"
+			},
+			{
+				"color": "#c74cbb",
+				"country": "PK",
+				"name": "Legion",
+				"owner": "endemic",
+				"strength": 35.2,
+				"tag": "LEG"
+			},
+			{
+				"color": "#c74c7d",
+				"country": "AU",
+				"name": "Arcade",
+				"owner": "self_funded",
+				"strength": 34.3,
+				"tag": "ARC"
+			},
+			{
+				"color": "#4c96c7",
+				"country": "AU",
+				"name": "BGNS Orange",
+				"owner": "self_funded",
+				"strength": 33.4,
+				"tag": "BO"
+			}
+		],
+		"cs_pro_americas": [
+			{
+				"color": "#a8c74c",
+				"country": "BR",
+				"name": "FURIA",
+				"owner": "endemic",
+				"strength": 86.7,
+				"tag": "FUR"
+			},
+			{
+				"color": "#4cc7c1",
+				"country": "BR",
+				"name": "Legacy",
+				"owner": "investor",
+				"strength": 83.7,
+				"tag": "LEG"
+			},
+			{
+				"color": "#8bc74c",
+				"country": "AR",
+				"name": "9z",
+				"owner": "investor",
+				"strength": 80.8,
+				"tag": "9Z"
+			},
+			{
+				"color": "#c74cb6",
+				"country": "BR",
+				"name": "MIBR",
+				"owner": "corporate",
+				"strength": 77.8,
+				"tag": "MIB"
+			},
+			{
+				"color": "#4c4ec7",
+				"country": "BG",
+				"name": "Team Liquid",
+				"owner": "endemic",
+				"strength": 74.9,
+				"tag": "TL"
+			},
+			{
+				"color": "#4cc5c7",
+				"country": "US",
+				"name": "M80",
+				"owner": "investor",
+				"strength": 71.9,
+				"tag": "M80"
+			},
+			{
+				"color": "#c7794c",
+				"country": "BR",
+				"name": "paiN",
+				"owner": "investor",
+				"strength": 69.0,
+				"tag": "PAI"
+			},
+			{
+				"color": "#4cc7ac",
+				"country": "BR",
+				"name": "DENDELE",
+				"owner": "endemic",
+				"strength": 66.0,
+				"tag": "DEN"
+			}
+		],
+		"cs_pro_china": [
+			{
+				"color": "#4c8fc7",
+				"country": "CN",
+				"name": "TYLOO",
+				"owner": "endemic",
+				"strength": 67.6,
+				"tag": "TYL"
+			},
+			{
+				"color": "#b44cc7",
+				"country": "CN",
+				"name": "Lynn Vision",
+				"owner": "endemic",
+				"strength": 67.3,
+				"tag": "LV"
+			},
+			{
+				"color": "#8fc74c",
+				"country": "CN",
+				"name": "Rare Atom",
+				"owner": "endemic",
+				"strength": 67.0,
+				"tag": "RA"
+			},
+			{
+				"color": "#52c74c",
+				"country": "CN",
+				"name": "Kaleido",
+				"owner": "investor",
+				"strength": 66.6,
+				"tag": "KAL"
+			},
+			{
+				"color": "#914cc7",
+				"country": "CN",
+				"name": "Just Swing",
+				"owner": "investor",
+				"strength": 66.3,
+				"tag": "JS"
+			},
+			{
+				"color": "#4c58c7",
+				"country": "CN",
+				"name": "Vitalem Aerem",
+				"owner": "investor",
+				"strength": 66.0,
+				"tag": "VA"
+			}
+		],
+		"cs_pro_emea": [
+			{
+				"color": "#4cbdc7",
+				"country": "RU",
+				"name": "Spirit",
+				"owner": "investor",
+				"strength": 88.0,
+				"tag": "SPI"
+			},
+			{
+				"color": "#4cc760",
+				"country": "DK",
+				"name": "Falcons",
+				"owner": "investor",
+				"strength": 86.7,
+				"tag": "FAL"
+			},
+			{
+				"color": "#4cb0c7",
+				"country": "HU",
+				"name": "MOUZ",
+				"owner": "endemic",
+				"strength": 85.4,
+				"tag": "MOU"
+			},
+			{
+				"color": "#4cc798",
+				"country": "FR",
+				"name": "Team Vitality",
+				"owner": "investor",
+				"strength": 84.1,
+				"tag": "TV"
+			},
+			{
+				"color": "#8f4cc7",
+				"country": "UA",
+				"name": "FUT Esports",
+				"owner": "investor",
+				"strength": 82.8,
+				"tag": "FE"
+			},
+			{
+				"color": "#4c7fc7",
+				"country": "IL",
+				"name": "G2 Esports",
+				"owner": "endemic",
+				"strength": 81.5,
+				"tag": "GE"
+			},
+			{
+				"color": "#c74c8d",
+				"country": "TR",
+				"name": "Aurora",
+				"owner": "corporate",
+				"strength": 80.3,
+				"tag": "AUR"
+			},
+			{
+				"color": "#4cc78b",
+				"country": "UA",
+				"name": "Natus Vincere",
+				"owner": "endemic",
+				"strength": 79.0,
+				"tag": "NV"
+			},
+			{
+				"color": "#c74c94",
+				"country": "DK",
+				"name": "Astralis",
+				"owner": "investor",
+				"strength": 77.7,
+				"tag": "AST"
+			},
+			{
+				"color": "#754cc7",
+				"country": "RU",
+				"name": "BETBOOM",
+				"owner": "corporate",
+				"strength": 76.4,
+				"tag": "BET"
+			},
+			{
+				"color": "#50c74c",
+				"country": "CA",
+				"name": "FaZe",
+				"owner": "investor",
+				"strength": 75.1,
+				"tag": "FAZ"
+			},
+			{
+				"color": "#c74cc3",
+				"country": "UA",
+				"name": "B8",
+				"owner": "investor",
+				"strength": 73.8,
+				"tag": "B8"
+			}
+		],
+		"cs_pro_pacific": [
+			{
+				"color": "#4cc762",
+				"country": "MN",
+				"name": "The MongolZ",
+				"owner": "endemic",
+				"strength": 76.5,
+				"tag": "TM"
+			},
+			{
+				"color": "#c7bd4c",
+				"country": "MN",
+				"name": "5star",
+				"owner": "endemic",
+				"strength": 74.4,
+				"tag": "5ST"
+			},
+			{
+				"color": "#4ec74c",
+				"country": "AU",
+				"name": "FlyQuest",
+				"owner": "endemic",
+				"strength": 72.3,
+				"tag": "FLY"
+			},
+			{
+				"color": "#c7774c",
+				"country": "MN",
+				"name": "NEXVOID",
+				"owner": "investor",
+				"strength": 70.2,
+				"tag": "NEX"
+			},
+			{
+				"color": "#4cc74e",
+				"country": "AU",
+				"name": "Ground Zero",
+				"owner": "investor",
+				"strength": 68.1,
+				"tag": "GZ"
+			},
+			{
+				"color": "#c7814c",
+				"country": "AU",
+				"name": "THUNDER dOWNUNDER",
+				"owner": "investor",
+				"strength": 66.0,
+				"tag": "TD"
+			}
+		]
+	}
+}

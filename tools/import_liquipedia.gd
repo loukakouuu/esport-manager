@@ -56,8 +56,18 @@ const LEAGUES := [
 ## Rôles qui désignent un capitaine en jeu (l'orthographe varie sur le wiki).
 const CAPTAIN_ROLES := ["captain", "capitain", "igl"]
 
+## Mode `--profiles` : compléter en dates de naissance ET en postes des
+## effectifs importés d'ailleurs. Voir _run_profiles.
+const DEFAULT_WIKI := "counterstrike"
+const DEFAULT_FROM := "res://packs/vct_2026/world/rosters_cs2.json"
+const DEFAULT_OUT := "res://tools/hltv/profiles.json"
+
 var _contact := ""
 var _pack := "liquipedia"
+var _profiles := false
+var _wiki := DEFAULT_WIKI
+var _from := DEFAULT_FROM
+var _out := DEFAULT_OUT
 var _season := "2026"
 var _stage := "Stage 1"
 var _with_players := true
@@ -106,6 +116,14 @@ func _parse_args() -> void:
 			_with_sections = false
 		elif arg == "--no-players":
 			_with_players = false
+		elif arg == "--profiles":
+			_profiles = true
+		elif arg.begins_with("--wiki="):
+			_wiki = arg.substr(7).strip_edges()
+		elif arg.begins_with("--from="):
+			_from = arg.substr(7).strip_edges()
+		elif arg.begins_with("--out="):
+			_out = arg.substr(6).strip_edges()
 		elif arg == "--dry":
 			_dry = true
 
@@ -127,6 +145,15 @@ func _usage(message: String) -> void:
 	print("  --sections-only  ne rafraîchit que les disciplines d'un pack existant")
 	print("  --dry          n'écrit rien, montre ce qui serait importé")
 	print("")
+	print("  --profiles     complète un fichier d'effectifs importé d'AILLEURS en")
+	print("                 dates de naissance et en postes, et les écrit en")
+	print("                 annexe. Sert au circuit Counter-Strike, dont les")
+	print("                 effectifs viennent de HLTV — qui ne publie ni l'âge")
+	print("                 ni le poste de façon exploitable (voir tools/hltv/).")
+	print("  --wiki=        wiki interrogé par --profiles (défaut %s)" % DEFAULT_WIKI)
+	print("  --from=        effectifs à compléter (défaut %s)" % DEFAULT_FROM)
+	print("  --out=         annexe écrite (défaut %s)" % DEFAULT_OUT)
+	print("")
 	quit(1)
 
 
@@ -135,6 +162,9 @@ func _run() -> void:
 	# second import se construirait sur le résultat du premier.
 	DataPack.set_active("")
 	print("")
+	if _profiles:
+		await _run_profiles()
+		return
 	if _sections_only:
 		await _run_sections_only()
 		return
@@ -435,17 +465,122 @@ func _is_captain(params: String) -> bool:
 # Fiches joueurs
 # ============================================================================
 
+## Dates de naissance d'effectifs importés d'AILLEURS.
+##
+## POURQUOI CE MODE EXISTE
+## Le circuit Counter-Strike du pack vient du classement mondial HLTV, qui
+## donne le pseudo, le nom civil et la nationalité de chaque joueur — mais pas
+## son âge : HLTV ne l'affiche que sur les fiches individuelles, soit ~450
+## pages pour un nombre. Le wiki Counter-Strike de Liquipedia, lui, répond par
+## lots de cinquante.
+##
+## Et l'âge n'est pas un détail : il fixe la position sur la courbe de
+## progression. Sans lui, apEX est un espoir de dix-sept ans qui progresse
+## quand il devrait être un vétéran de trente-trois qui décline — et le joueur
+## le voit, parce qu'il connaît apEX.
+##
+## Le résultat est écrit EN ANNEXE et pas dans l'instantané HLTV : ce sont deux
+## sources, elles gardent chacune sa provenance. tools/import_hltv.gd fusionne
+## les deux au moment de fabriquer le pack.
+func _run_profiles() -> void:
+	print("Profils joueurs (date de naissance, poste) — wiki « %s »" % _wiki)
+	print("Contact déclaré : %s" % _contact)
+	var d := _read_json(_from)
+	var teams: Dictionary = d.get("teams", {})
+	if teams.is_empty():
+		print("\n%s ne contient aucun effectif." % _from)
+		quit(1)
+		return
+
+	var tags: Array[String] = []
+	var seen := {}
+	for team_name in teams:
+		for p_v in (teams[team_name] as Dictionary).get("players", []):
+			var tag := str((p_v as Dictionary).get("tag", "")).strip_edges()
+			if tag != "" and not seen.has(tag.to_lower()):
+				seen[tag.to_lower()] = true
+				tags.append(tag)
+	print("  %d équipes, %d joueurs distincts à chercher" % [teams.size(), tags.size()])
+	print("  %d requête(s), une toutes les %d s"
+		% [ceili(float(tags.size()) / float(BATCH)), int(RATE_LIMIT_SEC)])
+
+	var details := await _player_details(tags, _wiki)
+
+	var players := {}
+	var dated := 0
+	var roled := 0
+	var vocabulary := {}
+	for tag in tags:
+		var detail: Dictionary = details.get(tag.to_lower(), {})
+		var born := str(detail.get("born", ""))
+		var roles := str(detail.get("roles", ""))
+		if born == "" and roles == "":
+			continue
+		var entry := {}
+		if born != "":
+			entry["born"] = born
+			dated += 1
+		if roles != "":
+			entry["roles"] = roles
+			roled += 1
+			for token in roles.split(",", false):
+				var t := token.strip_edges()
+				vocabulary[t] = int(vocabulary.get(t, 0)) + 1
+		if bool(detail.get("igl", false)):
+			entry["igl"] = true
+		players[tag] = entry
+	var n := maxf(float(tags.size()), 1.0)
+	print("  %d dates de naissance sur %d (%.0f %%)"
+		% [dated, tags.size(), float(dated) / n * 100.0])
+	print("  %d postes sur %d (%.0f %%)"
+		% [roled, tags.size(), float(roled) / n * 100.0])
+	print("  Ce qui manque reste généré par le moteur.")
+
+	# Le vocabulaire des postes n'est pas normalisé sur le wiki : l'imprimer
+	# est la seule façon de voir apparaître un libellé que la conversion ne
+	# saurait pas traduire (voir ROLE_MAP dans tools/import_hltv.gd).
+	var vocab_keys: Array = vocabulary.keys()
+	vocab_keys.sort_custom(func(a, b):
+		return int(vocabulary[a]) > int(vocabulary[b]))
+	var shown: Array[String] = []
+	for k in vocab_keys:
+		shown.append("%s %d" % [str(k), int(vocabulary[k])])
+	print("  Vocabulaire rencontré : %s" % " · ".join(shown))
+
+	if _dry:
+		print("\n--dry : rien n'écrit.")
+		quit(0)
+		return
+	DirAccess.make_dir_recursive_absolute(_out.get_base_dir())
+	DataFile.save_json(_out, {
+		"_comment": "Dates de naissance et postes relevés sur Liquipedia (CC-BY-SA 3.0)"
+			+ " pour des effectifs importés d'une autre source. Fusionné par"
+			+ " tools/import_hltv.gd. Clé : le pseudo tel que l'écrit la source"
+			+ " d'origine.",
+		"source": "https://liquipedia.net/%s" % _wiki,
+		"license": "CC-BY-SA 3.0",
+		"updated": Time.get_date_string_from_system(),
+		"players": players,
+	})
+	print("\nAnnexe écrite dans %s" % ProjectSettings.globalize_path(_out))
+	print("Relancez tools/import_hltv.gd pour la verser dans le pack.")
+	quit(0)
+
+
 ## Nom réel, pays et date de naissance, par lots de 50 titres.
-func _player_details(tags: Array[String]) -> Dictionary:
+## `wiki` vide = le wiki Valorant, celui de l'import principal.
+func _player_details(tags: Array[String], wiki: String = "") -> Dictionary:
 	var out := {}
 	var index := 0
 	while index < tags.size():
 		var slice := tags.slice(index, mini(index + BATCH, tags.size()))
 		index += BATCH
-		var data := await _api_get({
+		var params := {
 			"action": "query", "prop": "revisions", "rvprop": "content",
 			"rvslots": "main", "titles": "|".join(slice), "format": "json",
-		})
+		}
+		var data := await _api_get(params) if wiki == "" \
+			else await _api_get_on(wiki, params)
 		var pages = (data.get("query", {}) as Dictionary).get("pages", {})
 		for pid in pages:
 			var page: Dictionary = pages[pid]
@@ -526,13 +661,17 @@ func _parse_player(text: String) -> Dictionary:
 			given = full
 	var country := _country_code(_field(text, ["country", "nationality"]))
 	var born := _field(text, ["birth_date"])
-	# « |roles=igl » est renseigné sur certaines fiches et complète ce que la
-	# page de tournoi indique via role=Captain.
-	var igl := _field(text, ["roles"]).to_lower().contains("igl")
-	if given == "" and country == "" and born == "":
+	# « |roles=awp,rifle » : le POSTE tenu en jeu, séparé par des virgules.
+	# C'est la seule source publique exploitable — et en Counter-Strike elle
+	# n'est pas décorative : il n'y a qu'une AWP par équipe, tout le monde sait
+	# qui la tient, et un ZywOo rangé « soutien » se remarque immédiatement.
+	var roles := _field(text, ["roles"]).to_lower()
+	# « |roles=igl » complète ce que la page de tournoi indique via role=Captain.
+	var igl := roles.contains("igl")
+	if given == "" and country == "" and born == "" and roles == "":
 		return {}
 	return {"first": given, "last": family, "country": country, "born": born,
-		"igl": igl}
+		"roles": roles, "igl": igl}
 
 
 ## Cherche « | champ = valeur » dans le wikitexte, premier champ trouvé.
@@ -942,19 +1081,40 @@ func _write_pack(orgs: Dictionary, rosters: Dictionary, imported: int) -> void:
 
 	var teams := imported
 
-	DataFile.save_json(root_dir + "/" + DataPack.MANIFEST, {
-		"name": "VCT %s — équipes réelles" % _season,
-		"author": "Import Liquipedia",
-		"version": Time.get_date_string_from_system(),
-		"description": "%d structures réelles du VCT %s et %d joueurs. "
-			% [teams, _season, _roster_size(rosters)]
-			+ "Les niveaux et les attributs restent générés par le jeu.",
-		"source": "https://liquipedia.net/valorant",
-		"license": "CC-BY-SA 3.0",
-		"attribution": "Contenu issu de Liquipedia, sous licence CC-BY-SA 3.0. "
-			+ "Noms et marques appartenant à leurs détenteurs.",
-		"game": "valorant",
-	})
+	# Un pack de l'utilisateur MASQUE entièrement le pack livré du même nom
+	# (DataPack.root_of), fichier par fichier : écrire ici les seuls fichiers
+	# Valorant ferait disparaître la pyramide Counter-Strike du pack livré,
+	# sans le moindre message. On recopie donc ce qu'on ne régénère pas.
+	var copied := _copy_bundled(root_dir,
+		["world/orgs.json", "world/rosters.json", DataPack.MANIFEST])
+
+	# Le manifeste est COMPLÉTÉ et non réécrit, pour la même raison : le pack
+	# peut porter une seconde discipline et sa propre source (voir
+	# tools/import_hltv.gd), qu'un import Valorant n'a pas à effacer.
+	var m := _read_json("%s/%s" % [DataPack.root_of(_pack), DataPack.MANIFEST])
+	m.erase("id")
+	m.erase("files")
+	m.erase("bundled")
+	m["version"] = Time.get_date_string_from_system()
+	m["game"] = "valorant"
+	if str(m.get("name", "")) == "":
+		m["name"] = "VCT %s — équipes réelles" % _season
+	if not str(m.get("source", "")).contains("liquipedia.net"):
+		m["source"] = "https://liquipedia.net/valorant"
+	if str(m.get("license", "")) == "":
+		m["license"] = "CC-BY-SA 3.0"
+	if not str(m.get("attribution", "")).contains("Liquipedia"):
+		m["attribution"] = "Contenu issu de Liquipedia, sous licence "\
+			+ "CC-BY-SA 3.0. Noms et marques appartenant à leurs détenteurs."
+	var tail: String = ""
+	if str(m.get("description", "")).contains(" Côté "):
+		tail = " Côté " + str(m["description"]).split(" Côté ", true, 1)[1]
+	m["description"] = "%d structures réelles du VCT %s et %d joueurs. " \
+		% [teams, _season, _roster_size(rosters)] \
+		+ "Les niveaux et les attributs restent générés par le jeu." + tail
+	DataFile.save_json(root_dir + "/" + DataPack.MANIFEST, m)
+	if copied > 0:
+		print("\n%d fichier(s) du pack livré recopiés tels quels." % copied)
 	DataFile.save_json(root_dir + "/world/orgs.json", orgs)
 	if not rosters.is_empty():
 		DataFile.save_json(root_dir + "/world/rosters.json", {
@@ -982,3 +1142,35 @@ func _roster_size(rosters: Dictionary) -> int:
 	for k in rosters:
 		n += ((rosters[k] as Dictionary)["players"] as Array).size()
 	return n
+
+
+## Recopie les fichiers du pack livré que cet import ne régénère pas.
+func _copy_bundled(root_dir: String, generated: Array) -> int:
+	var bundled := "%s/%s" % [DataPack.BUNDLED_DIR, _pack]
+	if root_dir.begins_with(DataPack.BUNDLED_DIR) \
+			or not DirAccess.dir_exists_absolute(bundled):
+		return 0
+	var n := 0
+	for rel in _walk_pack(bundled, ""):
+		if generated.has(rel):
+			continue
+		var dest := "%s/%s" % [root_dir, rel]
+		DirAccess.make_dir_recursive_absolute(dest.get_base_dir())
+		if DirAccess.copy_absolute("%s/%s" % [bundled, rel], dest) == OK:
+			n += 1
+	return n
+
+
+func _walk_pack(base: String, relative: String) -> Array:
+	var out: Array = []
+	var full := base if relative == "" else "%s/%s" % [base, relative]
+	var dir := DirAccess.open(full)
+	if dir == null:
+		return out
+	for f in dir.get_files():
+		if f.ends_with(".json"):
+			out.append(f if relative == "" else "%s/%s" % [relative, f])
+	for sub in dir.get_directories():
+		out.append_array(_walk_pack(base,
+			sub if relative == "" else "%s/%s" % [relative, sub]))
+	return out

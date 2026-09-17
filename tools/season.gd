@@ -4,9 +4,24 @@ extends SceneTree
 ## C'est l'outil d'équilibrage principal : il montre d'un coup d'oeil si les
 ## finances tiennent, si les classements sont crédibles et si le monde vit.
 ##
-##   godot --headless --path . --script res://tools/season.gd
+##   godot --headless --path . --script res://tools/season.gd [--pack=vct_2026]
+##
+## Sans `--pack`, l'univers fictif ; avec, celui du pack — qui est celui que
+## le joueur obtient par défaut, et qui n'a plus la même hiérarchie ni les
+## mêmes tailles de ligue depuis que le circuit Counter-Strike vient du
+## classement mondial HLTV.
 
 func _initialize() -> void:
+	var pack := _requested_pack()
+	if pack != "":
+		if not DataPack.exists(pack):
+			print("Pack introuvable : %s" % pack)
+			quit(1)
+			return
+		DataPack.set_active(pack)
+	print("Univers : %s" % ("contenu livré (fictif)" if pack == ""
+		else "pack « %s »" % str(DataPack.manifest(pack).get("name", pack))))
+
 	var t0 := Time.get_ticks_msec()
 	var start := GameDate.from_ymd(2026, 1, 5)
 	print("Génération du monde…")
@@ -44,10 +59,14 @@ func _initialize() -> void:
 	_print_league(world, "promo_emea")
 	_print_league(world, "chal_emea")
 	_print_league(world, "vct_emea")
+	_print_league(world, "cs_chal_emea")
+	_print_league(world, "cs_pro_emea")
+	_print_league(world, "cs_major_fall")
 	_print_finances(world)
 	_print_squad(world)
 	_print_staff(world)
 	_print_top_players(world)
+	_print_disciplines(world)
 	_print_inbox(world)
 	_check_save(world)
 	quit(0)
@@ -110,16 +129,85 @@ func _print_finances(world: World) -> void:
 
 func _print_squad(world: World) -> void:
 	var o := world.my_org()
-	var r := world.main_roster(o.id, "valorant")
-	print("\n=== Effectif — %s (cohésion %.0f) ===" % [o.name, r.chemistry])
-	for p in world.players_of(r.id):
-		var st: Dictionary = p.season_stats
-		print("  %-12s %-11s %2d ans  CA %3d/%3d  note %.2f  forme %2.0f  "
-			% [p.display_name(), p.primary_role, p.age(world.today),
-				p.current_ability, p.potential_ability,
-				float(st.get("rating", 0.0)), p.form]
-			+ "moral %2.0f  %s/an" % [p.morale,
-				Money.fmt_short(p.contract.salary_yearly if p.contract != null else 0)])
+	for r in world.rosters_of(o.id):
+		print("\n=== Effectif %s — %s (cohésion %.0f) ==="
+			% [GameCatalog.short(r.game_id), o.name, r.chemistry])
+		for p in world.players_of(r.id):
+			var st: Dictionary = p.season_stats
+			print("  %-12s %-14s %2d ans  CA %3d/%3d  note %.2f  forme %2.0f  "
+				% [p.display_name(), p.primary_role, p.age(world.today),
+					p.current_ability, p.potential_ability,
+					float(st.get("rating", 0.0)), p.form]
+				+ "moral %2.0f  %s/an" % [p.morale,
+					Money.fmt_short(p.contract.salary_yearly if p.contract != null else 0)])
+
+
+## Bilan PAR DISCIPLINE. C'est le tableau qui dit si Counter-Strike est
+## réellement intégré ou seulement branché : population, note moyenne — qui
+## doit tomber sur 1.00 dans les deux disciplines — et santé financière des
+## maisons qui tiennent deux sections.
+func _print_disciplines(world: World) -> void:
+	print("\n=== Disciplines ===")
+	for game_id in GameRegistry.all_ids():
+		var teams := 0
+		var players := 0
+		var free := 0
+		var rating_sum := 0.0
+		var rated := 0
+		var rounds := 0
+		var maps := 0
+		for rid in world.rosters:
+			var r: Roster = world.rosters[rid]
+			if r.game_id == game_id:
+				teams += 1
+		for pid in world.players:
+			var p: Player = world.players[pid]
+			if p.game_id != game_id or p.retired:
+				continue
+			players += 1
+			if p.is_free_agent():
+				free += 1
+			if int(p.season_stats.get("series", 0)) >= 8:
+				rating_sum += float(p.season_stats.get("rating", 0.0))
+				rated += 1
+		for fid in world.fixtures:
+			var f: Fixture = world.fixtures[fid]
+			if not f.played or f.result == null:
+				continue
+			var r2 := world.roster(f.home_id)
+			if r2 == null or r2.game_id != game_id:
+				continue
+			for m in f.result.maps:
+				maps += 1
+				rounds += m.home_rounds + m.away_rounds
+		print("  %-18s %3d équipes  %4d joueurs (%d libres)  note moy. %.2f  "
+			% [GameCatalog.label(game_id), teams, players, free,
+				rating_sum / maxf(float(rated), 1.0)]
+			+ "%.1f rounds/map" % (float(rounds) / maxf(float(maps), 1.0)))
+
+	# Les maisons à plusieurs sections sont le vrai test de cohérence : elles
+	# paient deux masses salariales sur une seule trésorerie.
+	var multi := 0
+	var solvent := 0
+	var worst: Organization = null
+	for oid in world.orgs:
+		var o: Organization = world.orgs[oid]
+		if world.rosters_of(o.id).size() < 2:
+			continue
+		multi += 1
+		if o.cash() >= 0 and not o.bankrupt:
+			solvent += 1
+		if worst == null or o.cash() < worst.cash():
+			worst = o
+	print("  %d structures à plusieurs sections, %d solvables (%.0f %%)"
+		% [multi, solvent, float(solvent) / maxf(float(multi), 1.0) * 100.0])
+	if worst != null:
+		print("  la plus en peine : %s à %s" % [worst.name, Money.fmt(worst.cash())])
+	var broke := 0
+	for oid in world.orgs:
+		if (world.orgs[oid] as Organization).bankrupt:
+			broke += 1
+	print("  %d dépôts de bilan sur %d structures" % [broke, world.orgs.size()])
 
 
 func _print_top_players(world: World) -> void:
@@ -133,12 +221,12 @@ func _print_top_players(world: World) -> void:
 		return float(a.season_stats.get("rating", 0.0)) \
 			> float(b.season_stats.get("rating", 0.0)))
 	print("\n=== Meilleures notes de la saison ===")
-	for i in mini(8, all.size()):
+	for i in mini(10, all.size()):
 		var p: Player = all[i]
 		var o := world.org(p.org_id)
-		print("  %.2f  %-12s %-20s ACS %3.0f  CA %d"
-			% [float(p.season_stats["rating"]), p.display_name(),
-				o.name if o != null else "agent libre",
+		print("  %.2f  %-5s %-12s %-20s ACS/ADR %3.0f  CA %d"
+			% [float(p.season_stats["rating"]), GameCatalog.short(p.game_id),
+				p.display_name(), o.name if o != null else "agent libre",
 				float(p.season_stats.get("acs", 0.0)), p.current_ability])
 
 
@@ -174,3 +262,10 @@ func _print_staff(world: World) -> void:
 		print("  %-22s %-24s note %.1f  %s/an"
 			% [s.display_name(), s.role_label(), s.overall(),
 				Money.fmt_short(s.contract.salary_yearly if s.contract != null else 0)])
+
+
+func _requested_pack() -> String:
+	for arg in OS.get_cmdline_user_args():
+		if arg.begins_with("--pack="):
+			return arg.substr(7)
+	return ""

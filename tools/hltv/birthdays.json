@@ -1,0 +1,996 @@
+{
+	"_comment": "Dates de naissance relevées sur Liquipedia (CC-BY-SA 3.0) pour des effectifs importés d'une autre source. Fusionné par tools/import_hltv.gd. Clé : le pseudo tel que l'écrit la source d'origine.",
+	"license": "CC-BY-SA 3.0",
+	"players": {
+		"0SAMAS": {
+			"born": "2002-04-10"
+		},
+		"910": {
+			"born": "2002-07-05"
+		},
+		"ADK": {
+			"born": "2001-03-8"
+		},
+		"AW": {
+			"born": "2006-01-11"
+		},
+		"AZUWU": {
+			"born": "2003-11-05"
+		},
+		"AccuracyTG": {
+			"born": "2000-06-21"
+		},
+		"Aleksib": {
+			"born": "1997-03-30",
+			"igl": true
+		},
+		"ArtFr0st": {
+			"born": "2001-11-27"
+		},
+		"Ax1Le": {
+			"born": "2002-4-29"
+		},
+		"B1NGO": {
+			"born": "1999-11-28",
+			"igl": true
+		},
+		"BELCHONOKK": {
+			"born": "2004-01-14"
+		},
+		"BZA": {
+			"born": "2002-08-30"
+		},
+		"Banjo": {
+			"born": "2004-5-15"
+		},
+		"Bart4k": {
+			"born": "2004-5-29"
+		},
+		"Bibu": {
+			"born": "2002-1-10"
+		},
+		"Biuckmt": {
+			"born": "2003-04-25"
+		},
+		"Bloody": {
+			"born": "2005-04-01"
+		},
+		"BnTeT": {
+			"born": "1995-8-28",
+			"igl": true
+		},
+		"Boombl4": {
+			"born": "1998-12-20",
+			"igl": true
+		},
+		"Brehze": {
+			"born": "1998-5-22"
+		},
+		"Brollan": {
+			"born": "2002-06-17",
+			"igl": true
+		},
+		"Bwills": {
+			"born": "2001-05-11"
+		},
+		"C4LLM3SU3": {
+			"born": "2004-03-09"
+		},
+		"CacaNito": {
+			"born": "2000-11-9"
+		},
+		"CeRq": {
+			"born": "1999-12-7"
+		},
+		"ChildKing": {
+			"born": "2000-02-22"
+		},
+		"Chr1zN": {
+			"born": "2006-08-21",
+			"igl": true
+		},
+		"Cryptic": {
+			"born": "2001-02-25",
+			"igl": true
+		},
+		"Cxzi": {
+			"born": "2000-06-15",
+			"igl": true
+		},
+		"Dawy": {
+			"born": "2007-09-21"
+		},
+		"EliGE": {
+			"born": "1997-7-16"
+		},
+		"EmiliaQAQ": {
+			"born": "2004-08-23"
+		},
+		"FL1T": {
+			"born": "2000-12-21"
+		},
+		"FL4MUS": {
+			"born": "2004-08-14"
+		},
+		"FaNg": {
+			"born": "2002-05-07"
+		},
+		"FalleN": {
+			"born": "1991-05-30",
+			"igl": true
+		},
+		"Forleks": {
+			"born": "2002-11-14"
+		},
+		"Gizmy": {
+			"born": "2004-02-20",
+			"igl": true
+		},
+		"Graviti": {
+			"born": "2003-11-08"
+		},
+		"Grim": {
+			"born": "2000-11-22"
+		},
+		"Grizz": {
+			"born": "2005-01-18"
+		},
+		"HUASOPEEK": {
+			"born": "2003-04-29"
+		},
+		"HeavyGod": {
+			"born": "2002-7-24"
+		},
+		"HexT": {
+			"born": "2001-10-30"
+		},
+		"HooXi": {
+			"born": "1995-5-21",
+			"igl": true
+		},
+		"INS": {
+			"born": "1998-9-22",
+			"igl": true
+		},
+		"Infinite": {
+			"born": "1998-7-23"
+		},
+		"JBOEN": {
+			"born": "2005-07-21"
+		},
+		"JBa": {
+			"born": "2004-06-10"
+		},
+		"JDC": {
+			"born": "2000-4-7"
+		},
+		"JT": {
+			"born": "1999-04-09",
+			"igl": true
+		},
+		"JamYoung": {
+			"born": "2001-07-23"
+		},
+		"Jame": {
+			"born": "1998-08-23",
+			"igl": true
+		},
+		"Jee": {
+			"born": "2004-12-21"
+		},
+		"Jeorge": {
+			"born": "2003-4-14"
+		},
+		"Jimpphat": {
+			"born": "2006-09-09"
+		},
+		"Jorko": {
+			"born": "2008-12-11"
+		},
+		"KSCERATO": {
+			"born": "1999-9-12"
+		},
+		"KaiR0N-": {
+			"born": "2004-1-31"
+		},
+		"Krabeni": {
+			"born": "2005-04-07",
+			"igl": true
+		},
+		"Krimbo": {
+			"born": "2002-9-26",
+			"igl": true
+		},
+		"Kursy": {
+			"born": "2001-08-17"
+		},
+		"L1haNg": {
+			"born": "2003-11-14"
+		},
+		"LNZ": {
+			"born": "2002-10-20",
+			"igl": true
+		},
+		"Lake": {
+			"born": "2004-10-19"
+		},
+		"Liazz": {
+			"born": "1997-08-30"
+		},
+		"Ltz": {
+			"born": "2005-07-26"
+		},
+		"MaSvAl": {
+			"born": "2003-01-17"
+		},
+		"Magnojez": {
+			"born": "2004-10-14"
+		},
+		"Maka": {
+			"born": "1997-07-06",
+			"igl": true
+		},
+		"Matheos": {
+			"born": "2002-11-12"
+		},
+		"Mercury": {
+			"born": "2000-12-15",
+			"igl": true
+		},
+		"MiQ": {
+			"born": "2003-02-18"
+		},
+		"Moseyuh": {
+			"born": "2004-12-21",
+			"igl": true
+		},
+		"NAF": {
+			"born": "1997-11-24"
+		},
+		"NEUZ": {
+			"born": "1999-10-12",
+			"igl": true
+		},
+		"Neityu": {
+			"born": "2005-08-03"
+		},
+		"NertZ": {
+			"born": "1999-07-12"
+		},
+		"NiKo": {
+			"born": "1997-2-16"
+		},
+		"Omichella": {
+			"born": "2002-01-27"
+		},
+		"PKL": {
+			"born": "1994-7-21",
+			"igl": true
+		},
+		"PR": {
+			"born": "2007-09-17"
+		},
+		"Peeping": {
+			"born": "2005-05-25"
+		},
+		"PokemoN": {
+			"born": "1998-4-15"
+		},
+		"REZ": {
+			"born": "1998-1-11"
+		},
+		"ROUX": {
+			"born": "2000-5-26"
+		},
+		"Rainwaker": {
+			"born": "2001-4-27"
+		},
+		"Roninbaby": {
+			"born": "2003-7-30"
+		},
+		"S1ren": {
+			"born": "2002-07-16"
+		},
+		"SLIGHT": {
+			"born": "2002-10-24"
+		},
+		"SPine": {
+			"born": "2000-02-04",
+			"igl": true
+		},
+		"Sandman": {
+			"born": "2001-04-23"
+		},
+		"SkulL": {
+			"born": "1998-01-01"
+		},
+		"Snax": {
+			"born": "1993-07-05",
+			"igl": true
+		},
+		"Spinx": {
+			"born": "2000-9-13"
+		},
+		"Staehr": {
+			"born": "2004-7-19"
+		},
+		"Starry": {
+			"born": "2005-01-03"
+		},
+		"Stewie2K": {
+			"born": "1998-1-7",
+			"igl": true
+		},
+		"Summer": {
+			"born": "1997-05-16",
+			"igl": true
+		},
+		"Swisher": {
+			"born": "1998-09-17"
+		},
+		"Tauson": {
+			"born": "2005-08-17"
+		},
+		"TeSeS": {
+			"born": "2000-12-12"
+		},
+		"TjP": {
+			"born": "2002-06-10"
+		},
+		"Trash": {
+			"born": "2004-08-31"
+		},
+		"Twistzz": {
+			"born": "1999-11-14",
+			"igl": true
+		},
+		"VINI": {
+			"born": "1999-5-20",
+			"igl": true
+		},
+		"Vexite": {
+			"born": "2004-09-5"
+		},
+		"Westmelon": {
+			"born": "2001-02-04",
+			"igl": true
+		},
+		"Wicadia": {
+			"born": "2005-03-04"
+		},
+		"X5G7V": {
+			"born": "2003-06-18",
+			"igl": true
+		},
+		"XANTARES": {
+			"born": "1995-08-07"
+		},
+		"Xant3r": {
+			"born": "2004-03-15"
+		},
+		"YEKINDAR": {
+			"born": "1999-10-04"
+		},
+		"Zero": {
+			"born": "1998-9-16"
+		},
+		"Zesta": {
+			"born": "2003-06-22"
+		},
+		"ZywOo": {
+			"born": "2000-11-09"
+		},
+		"abizz": {
+			"born": "2004-09-01"
+		},
+		"adeX": {
+			"born": "2000-12-03"
+		},
+		"afro": {
+			"born": "1999-06-11"
+		},
+		"alex666": {
+			"born": "2001-08-03",
+			"igl": true
+		},
+		"aliStair": {
+			"born": "1998-4-7"
+		},
+		"apEX": {
+			"born": "1993-2-22",
+			"igl": true
+		},
+		"apocdud": {
+			"born": "1999-01-31",
+			"igl": true
+		},
+		"arT": {
+			"born": "1996-03-27",
+			"igl": true
+		},
+		"ariucle": {
+			"born": "2004-09-29"
+		},
+		"asap": {
+			"born": "2003-5-1"
+		},
+		"autimatic": {
+			"born": "1996-9-10"
+		},
+		"avid": {
+			"born": "2002-04-02"
+		},
+		"b1t": {
+			"born": "2003-01-05"
+		},
+		"bLitz": {
+			"born": "2001-6-26",
+			"igl": true
+		},
+		"biguzera": {
+			"born": "1997-2-18",
+			"igl": true
+		},
+		"blameF": {
+			"born": "1997-06-10",
+			"igl": true
+		},
+		"bobeksde": {
+			"born": "2003-11-21"
+		},
+		"buda": {
+			"born": "2003-02-24"
+		},
+		"cairne": {
+			"born": "2002-10-25"
+		},
+		"cass1n": {
+			"born": "2002-03-09"
+		},
+		"chelleos": {
+			"born": "2000-05-24"
+		},
+		"chelo": {
+			"born": "1998-6-8"
+		},
+		"clax": {
+			"born": "2002-06-08"
+		},
+		"clouden": {
+			"born": "2000-09-21"
+		},
+		"cmtry": {
+			"born": "2007-09-27"
+		},
+		"consti": {
+			"born": "2000-06-09"
+		},
+		"controlez": {
+			"born": "1997-05-23"
+		},
+		"cptkurtka023": {
+			"born": "1999-7-24"
+		},
+		"d1Ledez": {
+			"born": "2003-07-03"
+		},
+		"damyo": {
+			"born": "2001-07-03"
+		},
+		"dangeR": {
+			"born": "2000-05-02"
+		},
+		"dav1deuS": {
+			"born": "2000-6-7"
+		},
+		"decenty": {
+			"born": "2004-03-01"
+		},
+		"dem0n": {
+			"born": "2007-10-02"
+		},
+		"destiny": {
+			"born": "1997-7-3"
+		},
+		"detr0ittJ": {
+			"born": "2000-06-18",
+			"igl": true
+		},
+		"dexter": {
+			"born": "1994-8-15",
+			"igl": true
+		},
+		"dgt": {
+			"born": "2001-5-12"
+		},
+		"djay": {
+			"born": "1993-07-30"
+		},
+		"doc": {
+			"born": "2002-09-20"
+		},
+		"donk": {
+			"born": "2007-01-25"
+		},
+		"drop": {
+			"born": "2004-01-15",
+			"igl": true
+		},
+		"dumau": {
+			"born": "2003-11-09"
+		},
+		"dwushka": {
+			"born": "2004-11-30"
+		},
+		"dziugss": {
+			"born": "2008-09-12"
+		},
+		"eraa": {
+			"born": "2001-08-12"
+		},
+		"erkaSt": {
+			"born": "1995-3-19",
+			"igl": true
+		},
+		"esenthial": {
+			"born": "2006-02-26"
+		},
+		"exit": {
+			"born": "1996-8-29",
+			"igl": true
+		},
+		"fame": {
+			"born": "2003-03-03"
+		},
+		"faveN": {
+			"born": "2000-2-8"
+		},
+		"flameZ": {
+			"born": "2003-06-22"
+		},
+		"freshie": {
+			"born": "2002-04-26"
+		},
+		"frontales": {
+			"born": "2002-08-03"
+		},
+		"frozen": {
+			"born": "2002-7-18"
+		},
+		"gafolo": {
+			"born": "2002-04-25",
+			"igl": true
+		},
+		"gas": {
+			"born": "1996-01-13",
+			"igl": true
+		},
+		"gbb": {
+			"born": "2002-10-02"
+		},
+		"gr1ks": {
+			"born": "2005-10-24"
+		},
+		"guty": {
+			"born": "2005-02-28"
+		},
+		"hallzerk": {
+			"born": "2000-7-14"
+		},
+		"hasteka": {
+			"born": "1998-7-19"
+		},
+		"headtr1ck": {
+			"born": "2004-6-30"
+		},
+		"huNter-": {
+			"born": "1996-01-03",
+			"igl": true
+		},
+		"hypex": {
+			"born": "2003-12-22"
+		},
+		"iM": {
+			"born": "1999-07-29"
+		},
+		"insani": {
+			"born": "2004-04-25"
+		},
+		"ivz": {
+			"born": "2003-04-22"
+		},
+		"jabbi": {
+			"born": "2003-7-23"
+		},
+		"jackasmo": {
+			"born": "2007-05-28"
+		},
+		"jambo": {
+			"born": "2004-10-14"
+		},
+		"jcobbb": {
+			"born": "2004-01-27"
+		},
+		"jks": {
+			"born": "1995-12-12"
+		},
+		"jocab": {
+			"born": "2005-05-30"
+		},
+		"ju1ces": {
+			"born": "2002-10-18"
+		},
+		"junior": {
+			"born": "2000-12-10"
+		},
+		"kade0": {
+			"born": "2000-01-07"
+		},
+		"karrigan": {
+			"born": "1990-4-14",
+			"igl": true
+		},
+		"kashl1d": {
+			"born": "2006-11-30"
+		},
+		"kauez": {
+			"born": "2003-05-08"
+		},
+		"kensizor": {
+			"born": "2006-02-02"
+		},
+		"khaN": {
+			"born": "2003-10-13"
+		},
+		"koala": {
+			"born": "2005-02-26"
+		},
+		"kye": {
+			"born": "2004-10-15"
+		},
+		"kyousuke": {
+			"born": "2008-01-30"
+		},
+		"kyxsan": {
+			"born": "2000-05-26",
+			"igl": true
+		},
+		"lan": {
+			"born": "2001-9-17",
+			"igl": true
+		},
+		"latto": {
+			"born": "2002-12-21"
+		},
+		"luchov": {
+			"born": "2001-05-11"
+		},
+		"lux": {
+			"born": "2002-04-18",
+			"igl": true
+		},
+		"m0NESY": {
+			"born": "2005-05-01"
+		},
+		"m1N1": {
+			"born": "2004-09-17"
+		},
+		"magixx": {
+			"born": "2003-06-03",
+			"igl": true
+		},
+		"makazze": {
+			"born": "2006-12-21"
+		},
+		"malbsMd": {
+			"born": "2002-10-17"
+		},
+		"max": {
+			"born": "1999-6-15",
+			"igl": true
+		},
+		"maxxkor": {
+			"born": "2002-10-02"
+		},
+		"mazay": {
+			"born": "2008-10-30"
+		},
+		"meyern": {
+			"born": "2002-09-10"
+		},
+		"mezii": {
+			"born": "1998-10-15"
+		},
+		"mhL": {
+			"born": "2002-03-03"
+		},
+		"misutaaa": {
+			"born": "2003-01-15"
+		},
+		"mizu": {
+			"born": "1995-3-13"
+		},
+		"mo0N": {
+			"born": "2005-07-19"
+		},
+		"molodoy": {
+			"born": "2005-01-10"
+		},
+		"motm": {
+			"born": "1999-10-23"
+		},
+		"n0rb3r7": {
+			"born": "2001-03-11"
+		},
+		"n0te": {
+			"born": "2006-02-02"
+		},
+		"n1ssim": {
+			"born": "2001-04-27"
+		},
+		"nEMANHA": {
+			"born": "1997-09-21",
+			"igl": true
+		},
+		"nafany": {
+			"born": "2001-6-15",
+			"igl": true
+		},
+		"naz": {
+			"born": "2000-06-04"
+		},
+		"nettik": {
+			"born": "2003-7-30"
+		},
+		"nicx": {
+			"born": "2004-11-29"
+		},
+		"nilo": {
+			"born": "2005-01-04"
+		},
+		"nin9": {
+			"born": "1998-04-03",
+			"igl": true
+		},
+		"nitr0": {
+			"born": "1995-8-16",
+			"igl": true
+		},
+		"nosraC": {
+			"born": "2000-2-24"
+		},
+		"noway": {
+			"born": "2005-05-12"
+		},
+		"npl": {
+			"born": "2005-07-21",
+			"igl": true
+		},
+		"nqz": {
+			"born": "2005-01-18"
+		},
+		"ogwizard": {
+			"born": "2006-01-13"
+		},
+		"onic": {
+			"born": "2005-01-18",
+			"igl": true
+		},
+		"phoebe": {
+			"born": "2002-05-10",
+			"igl": true
+		},
+		"phzy": {
+			"born": "2002-09-24"
+		},
+		"podi": {
+			"born": "2004-08-05"
+		},
+		"poiii": {
+			"born": "2006-09-16"
+		},
+		"qw1nk1": {
+			"born": "2008-04-20"
+		},
+		"r1nkle": {
+			"born": "2004-10-27"
+		},
+		"rain": {
+			"born": "1994-8-27",
+			"igl": true
+		},
+		"rate": {
+			"born": "2002-10-02"
+		},
+		"rdnzao": {
+			"born": "2003-04-23"
+		},
+		"reck": {
+			"born": "2003-11-22"
+		},
+		"rekonz": {
+			"born": "2001-03-30"
+		},
+		"robo": {
+			"born": "2006-03-10"
+		},
+		"ropz": {
+			"born": "1999-12-22"
+		},
+		"ryu": {
+			"born": "1985-8-14"
+		},
+		"s1n": {
+			"born": "2002-03-18",
+			"igl": true
+		},
+		"s1zzi": {
+			"born": "2009-12-20"
+		},
+		"sFade8": {
+			"born": "2004-01-26",
+			"igl": true
+		},
+		"saadzin": {
+			"born": "2004-05-14"
+		},
+		"saffee": {
+			"born": "1994-12-19"
+		},
+		"sh1ro": {
+			"born": "2001-7-15"
+		},
+		"shadiy": {
+			"born": "2002-12-12"
+		},
+		"shane": {
+			"born": "2003-05-20"
+		},
+		"sinnopsyy": {
+			"born": "1995-07-24",
+			"igl": true
+		},
+		"sirah": {
+			"born": "2006-11-16"
+		},
+		"sjuush": {
+			"born": "1999-01-03"
+		},
+		"sk0R": {
+			"born": "2002-5-12"
+		},
+		"skrr": {
+			"born": "2001-12-14"
+		},
+		"slaxejezzz": {
+			"born": "2007-11-01"
+		},
+		"slaxz-": {
+			"born": "1998-11-25"
+		},
+		"sliimey": {
+			"born": "2005-09-01"
+		},
+		"snav": {
+			"born": "2001-1-16",
+			"igl": true
+		},
+		"snow": {
+			"born": "2007-03-22"
+		},
+		"stavn": {
+			"born": "2002-3-26"
+		},
+		"suki": {
+			"born": "2004-01-24"
+		},
+		"susp": {
+			"born": "2005-01-07"
+		},
+		"tN1R": {
+			"born": "2001-2-14"
+		},
+		"tabseN": {
+			"born": "1995-4-5"
+		},
+		"tenzy": {
+			"born": "2005-03-15"
+		},
+		"timo": {
+			"born": "2004-07-19"
+		},
+		"tom1jed": {
+			"born": "2002-11-14",
+			"igl": true
+		},
+		"tomaszin": {
+			"born": "2004-02-15"
+		},
+		"tomate": {
+			"born": "2004-02-17"
+		},
+		"torzsi": {
+			"born": "2002-05-17"
+		},
+		"try": {
+			"born": "2004-09-23"
+		},
+		"twist": {
+			"born": "1994-12-12",
+			"igl": true
+		},
+		"upE": {
+			"born": "2004-05-12"
+		},
+		"venomzera": {
+			"born": "2004-08-19"
+		},
+		"vision": {
+			"born": "2002-01-27"
+		},
+		"void": {
+			"born": "2001-04-20"
+		},
+		"w0nderful": {
+			"born": "2004-12-14"
+		},
+		"woxic": {
+			"born": "1998-9-2"
+		},
+		"xKacpersky": {
+			"born": "2006-10-22"
+		},
+		"xeedo": {
+			"born": "2007-01-19"
+		},
+		"xelex": {
+			"born": "2008-06-03"
+		},
+		"xerolte": {
+			"born": "2003-5-3"
+		},
+		"xertioN": {
+			"born": "2004-07-22",
+			"igl": true
+		},
+		"xfl0ud": {
+			"born": "2002-12-23"
+		},
+		"xiELO": {
+			"born": "2006-01-28"
+		},
+		"yAmi": {
+			"born": "2005-2-3"
+		},
+		"yuurih": {
+			"born": "1999-12-22"
+		},
+		"yxngstxr": {
+			"born": "2004-10-22"
+		},
+		"zeRRoFIX": {
+			"born": "2007-04-22"
+		},
+		"zevy": {
+			"born": "2001-05-30"
+		},
+		"zont1x": {
+			"born": "2005-07-20"
+		},
+		"zorte": {
+			"born": "1998-05-27"
+		},
+		"ztr": {
+			"born": "2003-8-2",
+			"igl": true
+		},
+		"zune": {
+			"born": "2004-12-19"
+		},
+		"zweih": {
+			"born": "2007-09-19"
+		}
+	},
+	"source": "https://liquipedia.net/counterstrike",
+	"updated": "2026-09-16"
+}

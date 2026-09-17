@@ -1,0 +1,212 @@
+{
+  "_comment": "Squelette d'une saison Counter-Strike 2. Meme format que season_valorant.json (dates MM-DD, montants en dollars). Difference de MODELE ECONOMIQUE assumee et voulue : Counter-Strike n'est pas franchise. Les subventions de ligue y sont trois fois plus faibles qu'en VCT, et l'argent se gagne en tournoi — dotations de ligue plus grosses, Majors a 1,25 M$. Une ecurie CS vit donc de ses resultats la ou une ecurie Valorant vit de son slot.",
+
+  "stage_presets": {
+    "cs_pro_season": [
+      { "name": "Split 1 — phase régulière", "format": "round_robin", "start": "01-20", "end": "03-03", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 1 — playoffs", "format": "double_elim", "start": "03-09", "end": "03-21", "best_of": 3, "final_best_of": 5, "qualifiers": 3 },
+      { "name": "Split 2 — phase régulière", "format": "round_robin", "start": "05-05", "end": "06-16", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 2 — playoffs", "format": "double_elim", "start": "06-22", "end": "07-04", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
+      { "name": "Split 3 — phase régulière", "format": "round_robin", "start": "08-18", "end": "09-26", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 3 — playoffs", "format": "double_elim", "start": "10-02", "end": "10-14", "best_of": 3, "final_best_of": 5, "qualifiers": 3 }
+    ],
+    "cs_challenger_season": [
+      { "name": "Split 1 — phase régulière", "format": "round_robin", "start": "02-10", "end": "03-31", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 1 — playoffs", "format": "double_elim", "start": "04-07", "end": "04-19", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
+      { "name": "Split 2 — phase régulière", "format": "round_robin", "start": "05-26", "end": "07-07", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 2 — playoffs", "format": "double_elim", "start": "07-14", "end": "07-26", "best_of": 3, "final_best_of": 5, "qualifiers": 2 }
+    ],
+    "cs_open_season": [
+      { "name": "Split 1 — phase régulière", "format": "round_robin", "start": "02-24", "end": "04-07", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 1 — playoffs", "format": "double_elim", "start": "04-14", "end": "04-24", "best_of": 3, "final_best_of": 5, "qualifiers": 2 },
+      { "name": "Split 2 — phase régulière", "format": "round_robin", "start": "06-02", "end": "07-14", "best_of": 3, "qualifiers": 8 },
+      { "name": "Split 2 — playoffs", "format": "double_elim", "start": "07-21", "end": "07-31", "best_of": 3, "final_best_of": 5, "qualifiers": 2 }
+    ]
+  },
+
+  "leagues": [
+    { "key": "cs_pro_emea",      "name": "Pro League EMEA",      "short_name": "PRO EMEA", "region": "EMEA",     "tier": 1, "teams": 10, "prestige": 8600, "stipend_yearly": 180000, "rev_share_yearly": 90000, "prize_pool": 620000, "stages_preset": "cs_pro_season", "lan": true },
+    { "key": "cs_pro_americas",  "name": "Pro League Americas",  "short_name": "PRO AMER", "region": "AMERICAS", "tier": 1, "teams": 8,  "prestige": 8100, "stipend_yearly": 170000, "rev_share_yearly": 80000, "prize_pool": 520000, "stages_preset": "cs_pro_season", "lan": true },
+    { "key": "cs_pro_pacific",   "name": "Pro League Pacific",   "short_name": "PRO PAC",  "region": "PACIFIC",  "tier": 1, "teams": 6,  "prestige": 7400, "stipend_yearly": 140000, "rev_share_yearly": 60000, "prize_pool": 380000, "stages_preset": "cs_pro_season", "lan": true },
+    { "key": "cs_pro_china",     "name": "Pro League China",     "short_name": "PRO CN",   "region": "CHINA",    "tier": 1, "teams": 6,  "prestige": 7300, "stipend_yearly": 150000, "rev_share_yearly": 70000, "prize_pool": 380000, "stages_preset": "cs_pro_season", "lan": true },
+
+    { "key": "cs_chal_emea",     "name": "Challenger League EMEA",     "short_name": "CHAL EMEA", "region": "EMEA",     "tier": 2, "teams": 8, "prestige": 3800, "prize_pool": 110000, "entry_fee": 3000, "stages_preset": "cs_challenger_season", "lan": false },
+    { "key": "cs_chal_americas", "name": "Challenger League Americas", "short_name": "CHAL AMER", "region": "AMERICAS", "tier": 2, "teams": 6, "prestige": 3500, "prize_pool": 90000,  "entry_fee": 3000, "stages_preset": "cs_challenger_season", "lan": false },
+    { "key": "cs_chal_pacific",  "name": "Challenger League Pacific",  "short_name": "CHAL PAC",  "region": "PACIFIC",  "tier": 2, "teams": 6, "prestige": 3200, "prize_pool": 70000,  "entry_fee": 2500, "stages_preset": "cs_challenger_season", "lan": false },
+    { "key": "cs_chal_china",    "name": "Challenger League China",    "short_name": "CHAL CN",   "region": "CHINA",    "tier": 2, "teams": 6, "prestige": 3200, "prize_pool": 70000,  "entry_fee": 2500, "stages_preset": "cs_challenger_season", "lan": false },
+
+    { "key": "cs_open_emea",     "name": "Circuit ouvert CS2 EMEA",     "short_name": "OPEN EMEA", "region": "EMEA",     "tier": 3, "teams": 6, "prestige": 1300, "prize_pool": 16000, "entry_fee": 600, "stages_preset": "cs_open_season", "lan": false },
+    { "key": "cs_open_americas", "name": "Circuit ouvert CS2 Americas", "short_name": "OPEN AMER", "region": "AMERICAS", "tier": 3, "teams": 6, "prestige": 1250, "prize_pool": 14000, "entry_fee": 600, "stages_preset": "cs_open_season", "lan": false },
+    { "key": "cs_open_pacific",  "name": "Circuit ouvert CS2 Pacific",  "short_name": "OPEN PAC",  "region": "PACIFIC",  "tier": 3, "teams": 6, "prestige": 1150, "prize_pool": 12000, "entry_fee": 500, "stages_preset": "cs_open_season", "lan": false },
+    { "key": "cs_open_china",    "name": "Circuit ouvert CS2 China",    "short_name": "OPEN CN",   "region": "CHINA",    "tier": 3, "teams": 6, "prestige": 1150, "prize_pool": 12000, "entry_fee": 500, "stages_preset": "cs_open_season", "lan": false }
+  ],
+
+  "internationals": [
+    {
+      "_comment": "Le Major, format historique de Counter-Strike : seize equipes, phase suisse (trois victoires pour passer, trois defaites pour sortir), puis arbre. C'est la seule competition du jeu ou un outsider peut se hisser en playoffs sans avoir domine sa ligue.",
+      "key": "cs_major_spring", "name": "Major de printemps", "short_name": "Major 1", "region": "WORLD",
+      "tier": 1, "kind": "international", "prestige": 9600, "prize_pool": 1250000, "lan": true,
+      "travel_cost_per_team": 48000,
+      "prize_distribution": [40, 16, 9, 9, 4.5, 4.5, 4.5, 4.5, 1.2, 1.2, 1.2, 1.2, 0.8, 0.8, 0.8, 0.8],
+      "stages": [
+        { "name": "Major — phase suisse", "format": "swiss", "start": "04-07", "end": "04-13", "best_of": 1, "final_best_of": 3, "wins_to_qualify": 3, "losses_out": 3, "max_rounds": 5, "qualifiers": 8 },
+        { "name": "Major — playoffs", "format": "double_elim", "start": "04-15", "end": "04-19", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_pro_emea", "stage": 1, "places": 5 },
+        { "comp_key": "cs_pro_americas", "stage": 1, "places": 4 },
+        { "comp_key": "cs_pro_pacific", "stage": 1, "places": 3 },
+        { "comp_key": "cs_pro_china", "stage": 1, "places": 4 }
+      ]
+    },
+    {
+      "key": "cs_intercontinental", "name": "Intercontinental Masters", "short_name": "Intercontinental", "region": "WORLD",
+      "tier": 1, "kind": "international", "prestige": 9000, "prize_pool": 1000000, "lan": true,
+      "travel_cost_per_team": 40000,
+      "prize_distribution": [30, 20, 13, 13, 6, 6, 6, 6],
+      "stages": [
+        { "name": "Intercontinental — bracket", "format": "double_elim", "start": "07-20", "end": "08-01", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_pro_emea", "stage": 3, "places": 2 },
+        { "comp_key": "cs_pro_americas", "stage": 3, "places": 2 },
+        { "comp_key": "cs_pro_pacific", "stage": 3, "places": 2 },
+        { "comp_key": "cs_pro_china", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_major_fall", "name": "Major d'automne", "short_name": "Major 2", "region": "WORLD",
+      "tier": 1, "kind": "international", "prestige": 10000, "prize_pool": 1250000, "lan": true,
+      "travel_cost_per_team": 52000,
+      "prize_distribution": [40, 16, 9, 9, 4.5, 4.5, 4.5, 4.5, 1.2, 1.2, 1.2, 1.2, 0.8, 0.8, 0.8, 0.8],
+      "stages": [
+        { "name": "Major — phase suisse", "format": "swiss", "start": "10-24", "end": "10-30", "best_of": 1, "final_best_of": 3, "wins_to_qualify": 3, "losses_out": 3, "max_rounds": 5, "qualifiers": 8 },
+        { "name": "Major — playoffs", "format": "double_elim", "start": "11-01", "end": "11-05", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_pro_emea", "stage": 5, "places": 5 },
+        { "comp_key": "cs_pro_americas", "stage": 5, "places": 4 },
+        { "comp_key": "cs_pro_pacific", "stage": 5, "places": 3 },
+        { "comp_key": "cs_pro_china", "stage": 5, "places": 4 }
+      ]
+    },
+
+    {
+      "_comment": "Montee Challenger -> Pro, une par region. Meme mecanique que l'Ascension Valorant : le vainqueur prend la place du dernier de la Pro League.",
+      "key": "cs_ascend_emea", "name": "Barrage Pro League EMEA", "short_name": "Barrage PRO EMEA", "region": "EMEA",
+      "tier": 2, "kind": "ascension", "prestige": 5000, "prize_pool": 110000, "lan": true,
+      "travel_cost_per_team": 9000,
+      "prize_distribution": [40, 24, 16, 10, 5, 5],
+      "promotes_to": "cs_pro_emea",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-10", "end": "08-21", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_chal_emea", "stage": 1, "places": 2 },
+        { "comp_key": "cs_chal_emea", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_ascend_americas", "name": "Barrage Pro League Americas", "short_name": "Barrage PRO AMER", "region": "AMERICAS",
+      "tier": 2, "kind": "ascension", "prestige": 4800, "prize_pool": 90000, "lan": true,
+      "travel_cost_per_team": 9000,
+      "prize_distribution": [40, 24, 16, 10, 5, 5],
+      "promotes_to": "cs_pro_americas",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-10", "end": "08-21", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_chal_americas", "stage": 1, "places": 2 },
+        { "comp_key": "cs_chal_americas", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_ascend_pacific", "name": "Barrage Pro League Pacific", "short_name": "Barrage PRO PAC", "region": "PACIFIC",
+      "tier": 2, "kind": "ascension", "prestige": 4400, "prize_pool": 70000, "lan": false,
+      "travel_cost_per_team": 6000,
+      "prize_distribution": [40, 24, 16, 10, 5, 5],
+      "promotes_to": "cs_pro_pacific",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-10", "end": "08-21", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_chal_pacific", "stage": 1, "places": 2 },
+        { "comp_key": "cs_chal_pacific", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_ascend_china", "name": "Barrage Pro League China", "short_name": "Barrage PRO CN", "region": "CHINA",
+      "tier": 2, "kind": "ascension", "prestige": 4400, "prize_pool": 70000, "lan": false,
+      "travel_cost_per_team": 6000,
+      "prize_distribution": [40, 24, 16, 10, 5, 5],
+      "promotes_to": "cs_pro_china",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-10", "end": "08-21", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_chal_china", "stage": 1, "places": 2 },
+        { "comp_key": "cs_chal_china", "stage": 3, "places": 2 }
+      ]
+    },
+
+    {
+      "_comment": "Montee circuit ouvert -> Challenger. C'est la porte d'entree du mode 'fonder sa structure' cote Counter-Strike.",
+      "key": "cs_promo_emea", "name": "Barrage Challenger EMEA", "short_name": "Barrage CHAL EMEA", "region": "EMEA",
+      "tier": 3, "kind": "ascension", "prestige": 2300, "prize_pool": 22000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "cs_chal_emea",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-25", "end": "09-04", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_open_emea", "stage": 1, "places": 2 },
+        { "comp_key": "cs_open_emea", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_promo_americas", "name": "Barrage Challenger Americas", "short_name": "Barrage CHAL AMER", "region": "AMERICAS",
+      "tier": 3, "kind": "ascension", "prestige": 2250, "prize_pool": 20000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "cs_chal_americas",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-25", "end": "09-04", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_open_americas", "stage": 1, "places": 2 },
+        { "comp_key": "cs_open_americas", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_promo_pacific", "name": "Barrage Challenger Pacific", "short_name": "Barrage CHAL PAC", "region": "PACIFIC",
+      "tier": 3, "kind": "ascension", "prestige": 2100, "prize_pool": 18000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "cs_chal_pacific",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-25", "end": "09-04", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_open_pacific", "stage": 1, "places": 2 },
+        { "comp_key": "cs_open_pacific", "stage": 3, "places": 2 }
+      ]
+    },
+    {
+      "key": "cs_promo_china", "name": "Barrage Challenger China", "short_name": "Barrage CHAL CN", "region": "CHINA",
+      "tier": 3, "kind": "ascension", "prestige": 2100, "prize_pool": 18000, "lan": false,
+      "travel_cost_per_team": 2500,
+      "prize_distribution": [45, 25, 18, 12],
+      "promotes_to": "cs_chal_china",
+      "stages": [
+        { "name": "Barrage — bracket", "format": "double_elim", "start": "08-25", "end": "09-04", "best_of": 3, "final_best_of": 5, "qualifiers": 1 }
+      ],
+      "seed_from": [
+        { "comp_key": "cs_open_china", "stage": 1, "places": 2 },
+        { "comp_key": "cs_open_china", "stage": 3, "places": 2 }
+      ]
+    }
+  ],
+
+  "default_prize_distribution": [28, 19, 13, 10, 8, 6, 5, 4, 3, 2, 1.2, 0.8]
+}

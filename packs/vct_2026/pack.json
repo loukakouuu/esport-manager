@@ -1,11 +1,11 @@
 {
-	"attribution": "Contenu issu de Liquipedia, sous licence CC-BY-SA 3.0. Noms et marques appartenant à leurs détenteurs.",
-	"author": "Import Liquipedia",
-	"description": "48 structures réelles du VCT 2026, 187 joueurs et leurs sections sur les autres disciplines. Les niveaux et les attributs restent générés par le jeu.",
+	"attribution": "Équipes Valorant issues de Liquipedia (CC-BY-SA 3.0). Classement et effectifs Counter-Strike issus de HLTV.org. Noms et marques appartenant à leurs détenteurs.",
+	"author": "Import Liquipedia + HLTV",
+	"description": "48 structures réelles du VCT 2026, 187 joueurs et leurs sections sur les autres disciplines. Les niveaux et les attributs restent générés par le jeu. Côté Counter-Strike, 76 écuries réelles et 373 joueurs, rangés selon le classement mondial HLTV du 2026-09-14.",
 	"game": "valorant",
-	"license": "CC-BY-SA 3.0",
-	"name": "VCT 2026 — équipes réelles",
-	"note": "Les sections viennent des portails d'équipes actives de chaque wiki Liquipedia. Une structure dont le nom diffère d'un wiki à l'autre peut se voir attribuer moins de sections qu'elle n'en a : mieux vaut en manquer une que d'en inventer une. Les ligues Challengers restent fictives.",
-	"source": "https://liquipedia.net/valorant",
-	"version": "2026-09-11"
+	"license": "CC-BY-SA 3.0 (Liquipedia) · HLTV.org (classement)",
+	"name": "Saison 2026 — équipes réelles",
+	"note": "Les sections d'autres disciplines viennent des portails d'équipes actives des wikis Liquipedia : une structure dont le nom diffère d'un wiki à l'autre peut en recevoir moins qu'elle n'en a — mieux vaut en manquer une que d'en inventer une. Les Challengers Valorant restent fictifs, faute de source. La pyramide Counter-Strike suit le classement mondial HLTV ; ses étages sont relatifs à chaque région, mais la force est absolue, et les rares places que le classement ne remplit pas gardent l'équipe fictive livrée.",
+	"source": "https://liquipedia.net/valorant + https://www.hltv.org/ranking/teams/2026/september/14",
+	"version": "2026-09-17"
 }

@@ -1,0 +1,111 @@
+{
+  "_comment": "Structures engagees en Counter-Strike 2 (FICTIVES). Meme format que orgs.json. REGLE : si le nom existe deja dans le monde, la ligne n'inventE PAS une structure — elle ouvre une SECTION CS2 dans la maison existante, qui partage sa tresorerie, sa marque et son staff. C'est ce qui fait qu'une ecurie comme Vantage Six aligne Valorant ET Counter-Strike sur un seul grand livre. Les autres lignes creent des structures 100 % CS, comme il en existe beaucoup dans la vraie vie.",
+  "leagues": {
+    "cs_pro_emea": [
+      { "name": "Vantage Six", "tag": "VS6", "country": "GB", "strength": 87, "owner": "investor", "color": "#1e6fd9" },
+      { "name": "Varyag", "tag": "VRG", "country": "UA", "strength": 85, "owner": "investor", "color": "#4a7fb5" },
+      { "name": "Kaltbrand", "tag": "KLB", "country": "DE", "strength": 83, "owner": "corporate", "color": "#3d4b5c" },
+      { "name": "Nordvik", "tag": "NVK", "country": "SE", "strength": 81, "owner": "endemic", "color": "#2fb3a0" },
+      { "name": "Ursa Nord", "tag": "URS", "country": "DK", "strength": 79, "owner": "investor", "color": "#c05621" },
+      { "name": "Tramontane", "tag": "TRM", "country": "FR", "strength": 77, "owner": "celebrity", "color": "#d98c3f" },
+      { "name": "Obsidian Pact", "tag": "OBP", "country": "TR", "strength": 75, "owner": "investor", "color": "#2c3e50" },
+      { "name": "Blackwater", "tag": "BKW", "country": "GB", "strength": 73, "owner": "corporate", "color": "#4d5a66" },
+      { "name": "Aurora Collective", "tag": "AUR", "country": "FR", "strength": 71, "owner": "celebrity", "color": "#e67e22" },
+      { "name": "Bastion Praha", "tag": "BSP", "country": "PL", "strength": 68, "owner": "self_funded", "color": "#8e6fc4" }
+    ],
+    "cs_pro_americas": [
+      { "name": "Redline Sports", "tag": "RDL", "country": "US", "strength": 84, "owner": "corporate", "color": "#e74c3c" },
+      { "name": "Selvagem", "tag": "SVG", "country": "BR", "strength": 82, "owner": "investor", "color": "#1e8449" },
+      { "name": "Bayfront", "tag": "BYF", "country": "US", "strength": 79, "owner": "investor", "color": "#2e86c1" },
+      { "name": "Vermilion", "tag": "VML", "country": "BR", "strength": 77, "owner": "endemic", "color": "#c0392b" },
+      { "name": "Iron Range", "tag": "IRR", "country": "US", "strength": 74, "owner": "self_funded", "color": "#7f8c8d" },
+      { "name": "Quilmes Nine", "tag": "QM9", "country": "AR", "strength": 72, "owner": "self_funded", "color": "#5dade2" },
+      { "name": "Zenith Union", "tag": "ZNU", "country": "AR", "strength": 70, "owner": "self_funded", "color": "#5dade2" },
+      { "name": "Coyote Nine", "tag": "CY9", "country": "MX", "strength": 67, "owner": "celebrity", "color": "#d68910" }
+    ],
+    "cs_pro_pacific": [
+      { "name": "Sunbreak", "tag": "SBK", "country": "KR", "strength": 80, "owner": "corporate", "color": "#f5a623" },
+      { "name": "Shirogane", "tag": "SRG", "country": "JP", "strength": 77, "owner": "investor", "color": "#b0bec5" },
+      { "name": "Hanok Nine", "tag": "HK9", "country": "KR", "strength": 74, "owner": "endemic", "color": "#4a6fd4" },
+      { "name": "Koguma", "tag": "KGM", "country": "JP", "strength": 72, "owner": "celebrity", "color": "#e0796b" },
+      { "name": "Wayang", "tag": "WYG", "country": "ID", "strength": 69, "owner": "self_funded", "color": "#af601a" },
+      { "name": "Bushmaster", "tag": "BSM", "country": "AU", "strength": 67, "owner": "self_funded", "color": "#2c5aa0" }
+    ],
+    "cs_pro_china": [
+      { "name": "Crimson Wall", "tag": "CRW", "country": "CN", "strength": 80, "owner": "corporate", "color": "#b03a3a" },
+      { "name": "Kunlun Nine", "tag": "KL9", "country": "CN", "strength": 78, "owner": "investor", "color": "#5b8ec4" },
+      { "name": "Tianlong", "tag": "TLG", "country": "CN", "strength": 75, "owner": "investor", "color": "#c9a227" },
+      { "name": "Bronze Tiger", "tag": "BZT", "country": "CN", "strength": 72, "owner": "endemic", "color": "#a9762f" },
+      { "name": "Yellow Sea", "tag": "YSE", "country": "CN", "strength": 69, "owner": "self_funded", "color": "#d4ac0d" },
+      { "name": "Sanjiang", "tag": "SJG", "country": "CN", "strength": 67, "owner": "self_funded", "color": "#3f8f7f" }
+    ],
+
+    "cs_chal_emea": [
+      { "name": "Hexline", "tag": "HXL", "country": "GB", "strength": 61, "owner": "investor", "color": "#6c5ce7" },
+      { "name": "Steppe Wolves", "tag": "STW", "country": "RU", "strength": 59, "owner": "self_funded", "color": "#8d9aa8" },
+      { "name": "Grimwald", "tag": "GRW", "country": "DE", "strength": 56, "owner": "self_funded", "color": "#4f6b52" },
+      { "name": "Kartal Esports", "tag": "KTL", "country": "TR", "strength": 54, "owner": "endemic", "color": "#c0392b" },
+      { "name": "Oldtown", "tag": "OLD", "country": "GB", "strength": 51, "owner": "self_funded", "color": "#9c7b52" },
+      { "name": "Alpin", "tag": "ALP", "country": "IT", "strength": 49, "owner": "self_funded", "color": "#5dade2" },
+      { "name": "Boreal", "tag": "BOR", "country": "FI", "strength": 46, "owner": "self_funded", "color": "#7fb3d5" },
+      { "name": "Marée Basse", "tag": "MRB", "country": "FR", "strength": 43, "owner": "celebrity", "color": "#48a9a6" }
+    ],
+    "cs_chal_americas": [
+      { "name": "Golden Ridge", "tag": "GDR", "country": "US", "strength": 60, "owner": "investor", "color": "#fdcb6e" },
+      { "name": "Rocket City", "tag": "RKC", "country": "US", "strength": 56, "owner": "self_funded", "color": "#e17055" },
+      { "name": "Cafezinho", "tag": "CFZ", "country": "BR", "strength": 53, "owner": "self_funded", "color": "#8b5a2b" },
+      { "name": "Volcán", "tag": "VLC", "country": "CL", "strength": 50, "owner": "self_funded", "color": "#c0392b" },
+      { "name": "Lakeshore", "tag": "LKS", "country": "CA", "strength": 47, "owner": "self_funded", "color": "#5499c7" },
+      { "name": "Chaco", "tag": "CHC", "country": "AR", "strength": 44, "owner": "endemic", "color": "#a3b18a" }
+    ],
+    "cs_chal_pacific": [
+      { "name": "Hallyu", "tag": "HLY", "country": "KR", "strength": 59, "owner": "investor", "color": "#e84393" },
+      { "name": "Tsunami Line", "tag": "TSL", "country": "JP", "strength": 55, "owner": "self_funded", "color": "#3498db" },
+      { "name": "Chao Phraya", "tag": "CPY", "country": "TH", "strength": 52, "owner": "self_funded", "color": "#16a085" },
+      { "name": "Barangay", "tag": "BRY", "country": "PH", "strength": 49, "owner": "self_funded", "color": "#f1c40f" },
+      { "name": "Selat", "tag": "SLT", "country": "MY", "strength": 46, "owner": "self_funded", "color": "#1abc9c" },
+      { "name": "Coolgardie", "tag": "CLG", "country": "AU", "strength": 43, "owner": "endemic", "color": "#d35400" }
+    ],
+    "cs_chal_china": [
+      { "name": "Golden Crane", "tag": "GCR", "country": "CN", "strength": 58, "owner": "investor", "color": "#d4ac0d" },
+      { "name": "Shanhai", "tag": "SHH", "country": "CN", "strength": 55, "owner": "self_funded", "color": "#5f7a61" },
+      { "name": "Yulong", "tag": "YLG", "country": "CN", "strength": 52, "owner": "self_funded", "color": "#af7ac5" },
+      { "name": "Qingyun", "tag": "QGY", "country": "CN", "strength": 49, "owner": "self_funded", "color": "#5dade2" },
+      { "name": "Bixi Nine", "tag": "BX9", "country": "CN", "strength": 46, "owner": "self_funded", "color": "#7f8c8d" },
+      { "name": "Dawan", "tag": "DWN", "country": "CN", "strength": 43, "owner": "endemic", "color": "#2ecc71" }
+    ],
+
+    "cs_open_emea": [
+      { "name": "Brume", "tag": "BRM", "country": "FR", "strength": 38, "owner": "self_funded", "color": "#8fa3b0" },
+      { "name": "Zubr", "tag": "ZBR", "country": "PL", "strength": 36, "owner": "self_funded", "color": "#6b7a8f" },
+      { "name": "Ostwind", "tag": "OSW", "country": "DE", "strength": 34, "owner": "self_funded", "color": "#5c7cfa" },
+      { "name": "Cellar Five", "tag": "CL5", "country": "GB", "strength": 32, "owner": "self_funded", "color": "#9b59b6" },
+      { "name": "Kopparberg", "tag": "KPB", "country": "SE", "strength": 30, "owner": "self_funded", "color": "#2fa84f" },
+      { "name": "Bierhaus", "tag": "BRH", "country": "NL", "strength": 28, "owner": "endemic", "color": "#d9822b" }
+    ],
+    "cs_open_americas": [
+      { "name": "Rust Belt", "tag": "RBT", "country": "US", "strength": 38, "owner": "self_funded", "color": "#a0522d" },
+      { "name": "Delta Blues", "tag": "DBL", "country": "US", "strength": 36, "owner": "self_funded", "color": "#5b7c99" },
+      { "name": "Sertão", "tag": "SRT", "country": "BR", "strength": 34, "owner": "self_funded", "color": "#d68910" },
+      { "name": "Barrio Norte", "tag": "BRN", "country": "AR", "strength": 32, "owner": "self_funded", "color": "#7fb3d5" },
+      { "name": "Prairie Nine", "tag": "PR9", "country": "CA", "strength": 30, "owner": "self_funded", "color": "#c9a227" },
+      { "name": "Cordillera", "tag": "CDL", "country": "PE", "strength": 28, "owner": "endemic", "color": "#16a085" }
+    ],
+    "cs_open_pacific": [
+      { "name": "Krakatoa", "tag": "KRK", "country": "ID", "strength": 38, "owner": "self_funded", "color": "#c0392b" },
+      { "name": "Yagura", "tag": "YGR", "country": "JP", "strength": 36, "owner": "self_funded", "color": "#8e6fc4" },
+      { "name": "Mekong Nine", "tag": "MK9", "country": "TH", "strength": 34, "owner": "self_funded", "color": "#16a085" },
+      { "name": "Hanriver", "tag": "HRV", "country": "KR", "strength": 32, "owner": "self_funded", "color": "#4a6fd4" },
+      { "name": "Kelapa", "tag": "KLP", "country": "MY", "strength": 30, "owner": "self_funded", "color": "#48c9b0" },
+      { "name": "Gulf Line", "tag": "GFL", "country": "IN", "strength": 28, "owner": "endemic", "color": "#d35400" }
+    ],
+    "cs_open_china": [
+      { "name": "Baiyun", "tag": "BYU", "country": "CN", "strength": 38, "owner": "self_funded", "color": "#9fb6c9" },
+      { "name": "Fenhe", "tag": "FNH", "country": "CN", "strength": 36, "owner": "self_funded", "color": "#5f7a61" },
+      { "name": "Wushan", "tag": "WSH", "country": "CN", "strength": 34, "owner": "self_funded", "color": "#5f7a61" },
+      { "name": "Taihang", "tag": "THG", "country": "CN", "strength": 32, "owner": "self_funded", "color": "#7f8c8d" },
+      { "name": "Jiangnan Nine", "tag": "JN9", "country": "CN", "strength": 30, "owner": "self_funded", "color": "#3498db" },
+      { "name": "Luoyang Line", "tag": "LYL", "country": "CN", "strength": 28, "owner": "endemic", "color": "#c9a227" }
+    ]
+  }
+}
