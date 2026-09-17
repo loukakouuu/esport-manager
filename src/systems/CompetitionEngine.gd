@@ -29,7 +29,52 @@ static func populate_stage(world: World, comp: Competition, stage: Stage) -> voi
 			_populate_double_elim(world, comp, stage)
 		Stage.Format.SWISS:
 			_populate_swiss_round(world, comp, stage, 0)
+	if stage.is_bracket():
+		_resolve_byes(world, stage)
 	stage.status = Stage.Status.RUNNING
+
+
+## Exemptions du premier tour.
+##
+## Un arbre se dessine sur une puissance de deux : à six ou onze équipes, des
+## cases restent vides. Sans cette passe, la rencontre « équipe A contre
+## personne » n'est jamais prête (`Fixture.is_ready`), donc jamais jouée, donc
+## la phase ne se termine JAMAIS et la compétition gèle à cette date pour le
+## reste de la saison. C'est exactement ce qui est arrivé aux ligues de six
+## équipes en Counter-Strike, et ça n'était jamais apparu en Valorant parce
+## que ses arbres reçoivent toujours huit qualifiés pile.
+##
+## Une exemption n'est pas un match : elle ne crédite ni victoire au classement
+## ni ligne au bilan de la saison. Elle fait avancer, c'est tout.
+static func _resolve_byes(world: World, stage: Stage) -> void:
+	for fid in stage.fixture_ids:
+		var f: Fixture = world.fixtures[fid]
+		if f.played or f.is_ready():
+			continue
+		# Une case vide qui attend le vainqueur d'un autre match n'est pas une
+		# exemption : elle se remplira toute seule.
+		if not f.home_source.is_empty() or not f.away_source.is_empty():
+			continue
+		var through := f.home_id if f.home_id != "" else f.away_id
+		if through == "":
+			continue
+		var res := MatchResult.new()
+		res.fixture_id = f.id
+		res.competition_id = f.competition_id
+		res.day = f.day
+		res.home_id = f.home_id
+		res.away_id = f.away_id
+		res.winner_id = through
+		res.headline = "Exempt — %s passe au tour suivant." % _org_name(world, through)
+		f.result = res
+		f.played = true
+		_propagate(world, stage, f.id, through, "")
+
+
+static func _org_name(world: World, roster_id: String) -> String:
+	var r := world.roster(roster_id)
+	var o := world.org(r.org_id) if r != null else null
+	return o.name if o != null else "?"
 
 
 static func _new_fixture(world: World, comp: Competition, stage: Stage,
@@ -430,10 +475,22 @@ static func _bracket_ranking(world: World, stage: Stage) -> Array[String]:
 
 
 ## Têtes de série de la phase suivante.
+##
+## Une phase RÉGULIÈRE de championnat repart de TOUTE la ligue. C'est évident
+## dit comme ça, et c'était pourtant le bug le plus coûteux du moteur : le
+## `qualifiers` d'une phase de playoffs dit combien d'équipes partent en
+## tournoi international, et il était lu comme « combien d'équipes continuent
+## la saison ». Conséquence mesurée : après les playoffs du Kickoff, le VCT
+## EMEA ne comptait plus que DEUX équipes pour ses Stage 1 et Stage 2, et les
+## deux tiers de chaque championnat n'étaient jamais joués.
+##
+## Seules les phases à ÉLIMINATION héritent d'un classement.
 static func _seed_next(world: World, comp: Competition, prev: Stage,
 		next: Stage) -> Array[String]:
-	var qualifiers := maxi(next.qualifiers if next.participants.is_empty()
-		else next.participants.size(), 0)
+	if comp.kind == Competition.Kind.LEAGUE \
+			and (next.format == Stage.Format.ROUND_ROBIN
+				or next.format == Stage.Format.GROUPS):
+		return comp.participants.duplicate()
 	var take := prev.qualifiers
 	if prev.format == Stage.Format.GROUPS:
 		# On alterne les poules pour que les premiers ne se croisent pas trop tôt.
@@ -617,8 +674,7 @@ static func simulate_fixture(world: World, f: Fixture) -> MatchResult:
 	ctx.prestige = comp.prestige if comp != null else 3000
 	ctx.is_lan = f.is_lan
 	ctx.importance = f.importance
-	if module is ValorantModule:
-		ctx.map_pool = (module as ValorantModule).active_map_pool()
+	ctx.map_pool = module.map_pool()
 	# On ne conserve le détail round par round que pour les matchs du joueur.
 	ctx.detailed = _is_player_match(world, f)
 
@@ -661,8 +717,9 @@ static func _forfeit(world: World, f: Fixture, home: TeamSheet, away: TeamSheet,
 		res.home_score = needed
 		res.winner_id = f.home_id
 		res.loser_id = f.away_id
-	res.headline = "Forfait — %s ne peut pas aligner cinq joueurs." % (
-		home.name() if home_short else away.name())
+	var size := world.module_for(home.roster.game_id).team_size()
+	res.headline = "Forfait — %s ne peut pas aligner %d joueurs." % [
+		home.name() if home_short else away.name(), size]
 
 	for sheet in [home, away]:
 		var short: bool = (sheet == home and home_short) or (sheet == away and away_short)

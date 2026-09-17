@@ -61,8 +61,11 @@ func found_org(config: Dictionary) -> bool:
 	return true
 
 
-func choose_org(org_id: String) -> void:
-	WorldGenerator.assign_player_org(world, org_id)
+## Reprendre une structure. `roster_id` est la SECTION par laquelle on entre :
+## une maison peut aligner Valorant et Counter-Strike, et la carte cliquée dit
+## laquelle on vient diriger.
+func choose_org(org_id: String, roster_id: String = "") -> void:
+	WorldGenerator.assign_player_org(world, org_id, roster_id)
 	state_changed.emit()
 
 
@@ -120,10 +123,17 @@ func sections() -> Array:
 				"playable": true, "current": r.id == current_id,
 			})
 		if not found:
+			# Une discipline déclarée sans équipe : soit le moteur ne la simule
+			# pas, soit c'est une partie créée AVANT qu'il ne la simule — une
+			# sauvegarde d'avant Counter-Strike déclare « cs2 » sans le moindre
+			# roster CS. Le dire exactement évite de proposer de diriger une
+			# équipe qui n'existe pas, et évite aussi d'annoncer « non simulée »
+			# une discipline que le jeu simule pour tout le monde sauf ici.
 			out.append({
 				"game_id": g, "roster_id": "",
 				"label": GameCatalog.label(g),
-				"detail": "Section non simulée",
+				"detail": "Aucune équipe dans cette partie"
+					if GameCatalog.playable(g) else "Section non simulée",
 				"playable": false, "current": false,
 			})
 	return out
@@ -419,11 +429,15 @@ func abandon_negotiation(negotiation_id: String) -> void:
 
 ## Organigramme de la structure : un poste par ligne, occupé ou vacant, avec
 ## ce que la personne en place apporte. Voir StaffSystem.effect_summary.
+## L'organigramme de la SECTION dirigée : les postes de banc (entraîneur,
+## analyste, adjoint) appartiennent à une équipe, pas à la maison. Afficher le
+## meilleur entraîneur de la structure ferait croire à la section
+## Counter-Strike qu'elle a le coach de la section Valorant.
 func staff_chart() -> Array:
 	var o := my_org()
 	if world == null or o == null:
 		return []
-	return StaffSystem.effect_summary(world, o)
+	return StaffSystem.effect_summary(world, o, world.player_roster_id)
 
 
 func staffer(staff_id: String) -> Staff:
@@ -431,10 +445,18 @@ func staffer(staff_id: String) -> Staff:
 
 
 ## Encadrants disponibles, du meilleur au moins bon. `role` = -1 pour tous.
+##
+## Un poste de banc se recrute dans la discipline de l'équipe dirigée : on ne
+## propose pas un entraîneur Valorant pour un banc Counter-Strike. Les postes
+## transverses, eux, sont polyvalents et restent tous proposés.
 func staff_market(role: int = -1, region: String = "") -> Array[Staff]:
 	if world == null:
 		return [] as Array[Staff]
-	return StaffSystem.free_agents(world, role, region)
+	var game_id := ""
+	var r := my_roster()
+	if r != null and StaffSystem.TEAM_ROLES.has(role):
+		game_id = r.game_id
+	return StaffSystem.free_agents(world, role, region, game_id)
 
 
 ## Ce que cette personne réclamerait pour rejoindre la maison.

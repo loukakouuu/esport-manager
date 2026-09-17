@@ -1,12 +1,14 @@
 class_name SeasonBuilder
 extends RefCounted
 
-## Construit la saison compétitive d'une année à partir de
-## data/world/season_valorant.json.
+## Construit la saison compétitive d'une année, DISCIPLINE PAR DISCIPLINE, à
+## partir du fichier que chaque GameModule désigne (`season_valorant.json`,
+## `season_cs2.json`…).
 ##
 ## Aucune compétition n'est codée en dur : ajouter une ligue nationale, changer
 ## un format de playoffs ou déplacer les Masters se fait dans le JSON. C'est ce
-## qui rendra l'ajout d'un second jeu (CS2, LoL) indolore : un fichier de plus.
+## qui a rendu l'ajout de Counter-Strike indolore côté calendrier — un fichier
+## de plus, zéro ligne de moteur.
 
 const SEASON_PATH := "res://data/world/season_valorant.json"
 
@@ -27,19 +29,35 @@ const KIND_MAP := {
 }
 
 
-static func data() -> Dictionary:
-	return DataFile.load_json(SEASON_PATH, {}) as Dictionary
+## Structure compétitive d'une discipline. `data()` sans argument reste la
+## saison Valorant : c'est ce que lisent les outils et les tests historiques.
+static func data(game_id: String = "valorant") -> Dictionary:
+	var module := GameRegistry.get_module(game_id)
+	var path := module.season_path() if module != null else SEASON_PATH
+	return DataFile.load_json(path, {}) as Dictionary
 
 
-## Crée toutes les compétitions de l'année `year` et y inscrit les rosters
-## selon leur `league_key`.
+## Crée toutes les compétitions de l'année `year`, pour TOUTES les disciplines
+## simulées, et y inscrit les rosters selon leur `league_key`.
+##
+## L'ordre suit `GameRegistry.all_ids()`, donc l'ordre d'enregistrement des
+## modules : deux mondes créés avec la même graine produisent les mêmes
+## identifiants de compétition.
 static func build_season(world: World, year: int) -> void:
-	var d := data()
+	for game_id in GameRegistry.all_ids():
+		build_season_for(world, year, game_id)
+
+
+static func build_season_for(world: World, year: int, game_id: String) -> void:
+	var d := data(game_id)
+	if d.is_empty():
+		Log.w("season", "Aucune structure de saison pour « %s »" % game_id)
+		return
 	var default_dist: Array = d.get("default_prize_distribution", [])
 
 	for entry_v in d.get("leagues", []):
 		var entry: Dictionary = entry_v
-		var comp := _make_competition(world, entry, year, default_dist)
+		var comp := _make_competition(world, entry, year, default_dist, game_id)
 		comp.kind = Competition.Kind.LEAGUE
 		_attach_stages(world, comp, _stages_for(d, entry), year)
 		# Inscription des rosters de cette ligue.
@@ -54,7 +72,7 @@ static func build_season(world: World, year: int) -> void:
 
 	for entry_v in d.get("internationals", []):
 		var entry: Dictionary = entry_v
-		var comp := _make_competition(world, entry, year, default_dist)
+		var comp := _make_competition(world, entry, year, default_dist, game_id)
 		comp.kind = KIND_MAP.get(str(entry.get("kind", "international")),
 			Competition.Kind.INTERNATIONAL)
 		comp.qualification_rules = (entry.get("seed_from", []) as Array).duplicate(true)
@@ -62,6 +80,28 @@ static func build_season(world: World, year: int) -> void:
 			comp.qualification_rules.append({"promotes_to": entry["promotes_to"]})
 		_attach_stages(world, comp, entry.get("stages", []), year)
 		world.competitions[comp.id] = comp
+
+
+## Toutes les clés de ligue d'une discipline, de l'étage le plus haut au plus
+## bas, avec le nombre de places déclaré. Lu par WorldGenerator pour remplir
+## les ligues : le JSON fait autorité sur la forme du circuit, pas le code.
+## Renvoie [{"key", "region", "tier", "teams"}, …].
+static func league_slots(game_id: String) -> Array:
+	var out: Array = []
+	for entry_v in data(game_id).get("leagues", []):
+		var entry: Dictionary = entry_v
+		out.append({
+			"key": str(entry["key"]),
+			"region": str(entry.get("region", "EMEA")),
+			"tier": int(entry.get("tier", 1)),
+			"teams": int(entry.get("teams", 10)),
+			# Le prestige sert au gain de réputation après un titre, mais AUSSI
+			# à la réputation de DÉPART : un slot dans cette ligue vaut déjà
+			# une marque. Voir WorldGenerator._brand_for.
+			"prestige": int(entry.get("prestige", 3000)),
+		})
+	out.sort_custom(func(a, b): return int(a["tier"]) < int(b["tier"]))
+	return out
 
 
 static func _stages_for(d: Dictionary, entry: Dictionary) -> Array:
@@ -72,13 +112,13 @@ static func _stages_for(d: Dictionary, entry: Dictionary) -> Array:
 
 
 static func _make_competition(world: World, entry: Dictionary, year: int,
-		default_dist: Array) -> Competition:
+		default_dist: Array, game_id: String = "valorant") -> Competition:
 	var c := Competition.new()
 	c.id = world.ids.next(Ids.COMP)
 	c.key = str(entry["key"])
 	c.name = "%s %d" % [str(entry["name"]), year]
 	c.short_name = str(entry.get("short_name", entry["name"]))
-	c.game_id = "valorant"
+	c.game_id = game_id
 	c.region = str(entry.get("region", "EMEA"))
 	c.country = str(entry.get("country", ""))
 	c.tier = int(entry.get("tier", 1))
